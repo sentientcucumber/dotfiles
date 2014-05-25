@@ -1,3 +1,4 @@
+;;  setup packages  ----------------------------------------------------- ;;
 (require 'package)
 (add-to-list 'package-archives
              '("marmalade" . "http://marmalade-repo.org/packages/"))
@@ -5,19 +6,60 @@
              '("melpa" . "http://melpa.milkbox.net/packages/"))
 (package-initialize)
 
+;;  setup theme  -------------------------------------------------------- ;;
 (load-theme 'solarized-dark t)
 
-(add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
-(add-to-list 'auto-mode-alist '("\\.tem\\'" . c++-mode))
+;;  basic settings  ----------------------------------------------------- ;;
 
+;; stop making redonk backup files
 (setq make-backup-files nil)
 
 ;; remove highlight line
 (remove-hook 'prog-mode-hook 'esk-turn-on-hl-line-mode)
-(setq ring-bell-function (lambda()))
 
 ;; rebind ctrl-t to ctrl-x for dvorak
 (define-key key-translation-map "\C-t" "\C-x")
+
+;; sane y or n bindings to yes or no questions
+(defalias 'yes-or-no-p 'y-or-n-p)
+
+;; move one line, regardless of whether or not it is wrapped
+(setq line-move-visual t)
+
+
+;; tell emacs I'm on mac
+(defun macosx-p ()
+  (eq system-type 'darwin))
+
+;; integrate with osx clipboard
+(defun copy-from-osx ()
+  (shell-command-to-string "/usr/bin/pbpaste"))
+
+(defun paste-to-osx (text &optional push)
+  (let ((process-connection-type nil))
+    (let ((proc (start-process "pbcopy" "*Messages*" "/usr/bin/pbcopy")))
+      (process-send-string proc text)
+      (process-send-eof proc))))
+
+(when (macosx-p)
+  (setq interprogram-cut-function 'paste-to-osx)
+  (setq interprogram-paste-function 'copy-from-osx))
+
+(line-number-mode 1)
+(column-number-mode 1)
+
+(setq read-file-name-completion-ignore-case t)
+
+;;  c++ style  ---------------------------------------------------------- ;;
+(add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
+(add-to-list 'auto-mode-alist '("\\.tem\\'" . c++-mode))
+
+(setq-default indent-tabs-mode nil)
+(setq c-default-style "linux"
+      c-basic-offset 4)
+
+(setq ring-bell-function (lambda()))
+
 
 ;; don't show startup message
 (setq inhibit-startup-message t)
@@ -30,32 +72,16 @@
 
 ;; (add-hook 'prog-mode-hook 'my/add-watchwords)
 
-;; (menu-bar-mode -1)
-;; (when (window-system)
-;;   (set-scroll-bar-mode 'nil)
-;;   (mouse-wheel-mode t))
-;; (tool-bar-mode -1)
-;; (tooltip-mode -1)
-;; (blink-cursor-mode -1)
+(menu-bar-mode -1)
+(when (window-system)
+  (set-scroll-bar-mode 'nil)
+  (mouse-wheel-mode t))
+(tool-bar-mode -1)
+(tooltip-mode -1)
+(blink-cursor-mode -1)
 
 ;; (global-font-lock-mode t)
 
-;; (setq read-file-name-completion-ignore-case t)
-
-;; ;; sane y or n bindings to yes or no questions
-;; (defalias 'yes-or-no-p 'y-or-n-p)
-
-;; ;; move one line, regardless of whether or not it is wrapped
-;; (setq line-move-visual t)
-
-;; (line-number-mode 1)
-;; (column-number-mode 1)
-
-;; (setq-default fill-column 80)
-
-;; (setq-default indent-tabs-mode nil)
-;; (setq c-default-style "linux"
-;;       c-basic-offset 4)
 
 ;; ;; Uniquify buffers, using angle brackets, so you get foo and foo<2>:
 ;; (use-package uniquify
@@ -70,23 +96,6 @@
 ;; (set-default 'imenu-auto-rescan t)
 ;; (global-set-key (kbd "C-x C-i") 'imenu)
 
-;; ;; tell emacs I'm on mac
-;; (defun macosx-p ()
-;;   (eq system-type 'darwin))
-
-;; ;; integrate with osx clipboard
-;; (defun copy-from-osx ()
-;;   (shell-command-to-string "/usr/bin/pbpaste"))
-
-;; (defun paste-to-osx (text &optional push)
-;;   (let ((process-connection-type nil))
-;;     (let ((proc (start-process "pbcopy" "*Messages*" "/usr/bin/pbcopy")))
-;;       (process-send-string proc text)
-;;       (process-send-eof proc))))
-
-;; (when (macosx-p)
-;;   (setq interprogram-cut-function 'paste-to-osx)
-;;   (setq interprogram-paste-function 'copy-from-osx))
 
 ;; (setq-default ispell-program-name "aspell")
 ;; (setq ispell-extra-args '("--sug-mode=ultra" "--ignore=3"))
@@ -381,16 +390,4 @@
 ;;   (load custom-file))
 
 ;; (set-face-attribute 'region nil :background "#363636")
-;; (set-face-attribute 'default nil :background "#262626"
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(custom-safe-themes (quote ("fc5fcb6f1f1c1bc01305694c59a1a861b008c534cae8d0e48e4d5e81ad718bc6" default))))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
+;; (set-face-attribute 'default nil :background "#262626")
