@@ -1,0 +1,103 @@
+# brew install reattach-to-user-namespace
+set-option -g default-command "reattach-to-user-namespace -l zsh"
+
+# # set the prefix to ^z
+# # unbind C-b
+# set -g prefix C-z
+# bind C-z send-prefix
+
+# # screen ^C c
+# unbind ^C
+# bind ^C new-window
+# unbind c
+# bind c new-window
+
+# # detach ^D d
+# unbind ^D
+# bind ^D detach
+
+# # displays *
+# unbind *
+# bind * list-clients
+
+# # next ^@ ^N sp n
+# unbind ^@
+# bind ^@ next-window
+# unbind ^N
+# bind ^N next-window
+# unbind " "
+# bind " " next-window
+# unbind n
+# bind n next-window
+
+# # title A
+# unbind A
+# bind A command-prompt "rename-window %%"
+
+# # prev ^H ^P p ^?
+# unbind ^H
+# bind ^H previous-window
+# unbind ^P
+# bind ^P previous-window
+# unbind p
+# bind p previous-window
+# unbind BSpace
+# bind BSpace previous-window
+
+# # windows ^W w
+# unbind ^W
+# bind ^W list-windows
+# unbind w
+# bind w list-windows
+
+# # redisplay ^L l
+# unbind ^L
+# bind ^L refresh-client
+# unbind l
+# bind l refresh-client
+
+# # " windowlist -b
+# unbind '"'
+# bind '"' choose-window
+
+# # Copy mode
+# bind ^[ copy-mode
+# bind Escape copy-mode
+
+# # Paste mode
+# bind ] paste-buffer
+# bind ^] paste-buffer
+# setw -g mode-keys emacs
+# # Make mouse useful in copy mode
+# #setw -g mode-mouse on
+
+# # # drew paste
+# # bind P run-shell 'tmux saveb -| curl -s -XPOST -H "Content-type: text/plain" --data-binary @- http://p.draines.com/'
+
+# # More straight forward key bindings for splitting
+# #unbind %
+# bind | split-window -h
+# bind h split-window -h
+# #unbind '"'
+# bind - split-window -v
+# bind v split-window -v
+
+# # History
+# set -g history-limit 15000
+
+# # Notifying if other windows has activities
+# setw -g monitor-activity off
+# set -g visual-activity off
+
+# # Highlighting the active window in status bar
+# #setw -g window-status-current-bg cyan
+# setw -g window-status-current-fg cyan
+
+# # Clock
+# setw -g clock-mode-colour green
+# setw -g clock-mode-style 24
+
+# # # don't clobber ssh agent
+# set -g update-environment "DISPLAY WINDOWID GPG_AGENT_INFO"
+
+set -g default-terminal "screen-256color"
