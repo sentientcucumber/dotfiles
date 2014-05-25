@@ -1,2 +1,7 @@
 vim/
 vimperator/
+
+zsh/.zsh-history
+zsh/.zcompdump
+
+git/*
