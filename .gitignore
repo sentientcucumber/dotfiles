@@ -5,3 +5,5 @@ zsh/.zsh-history
 zsh/.zcompdump
 
 git/*
+
+maven/

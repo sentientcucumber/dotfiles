@@ -19,6 +19,6 @@ alias tmux='tmux -2'
 PROMPT='%3~ '
 
 # history
-HISTFILE=$HOME/.zsh-history
+HISTFILE=$HOME/dotfiles/zsh/.zsh-history
 HISTSIZE=10000
 SAVEHIST=10000
