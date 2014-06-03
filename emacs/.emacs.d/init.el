@@ -1,4 +1,4 @@
-;;  setup packages  ----------------------------------------------------- ;;
+;; setup packages
 (require 'package)
 (add-to-list 'package-archives
              '("marmalade" . "http://marmalade-repo.org/packages/"))
@@ -6,10 +6,8 @@
              '("melpa" . "http://melpa.milkbox.net/packages/"))
 (package-initialize)
 
-;;  setup theme  -------------------------------------------------------- ;;
-(load-theme 'solarized-dark t)
-
-;;  basic settings  ----------------------------------------------------- ;;
+;; setup theme 
+(load-theme 'solarized-light t)
 
 ;; stop making redonk backup files
 (setq make-backup-files nil)
@@ -25,7 +23,6 @@
 
 ;; move one line, regardless of whether or not it is wrapped
 (setq line-move-visual t)
-
 
 ;; tell emacs I'm on mac
 (defun macosx-p ()
@@ -45,12 +42,14 @@
   (setq interprogram-cut-function 'paste-to-osx)
   (setq interprogram-paste-function 'copy-from-osx))
 
+;; turn on line and column modes
 (line-number-mode 1)
 (column-number-mode 1)
 
+;; case-insensitive
 (setq read-file-name-completion-ignore-case t)
 
-;;  c++ style  ---------------------------------------------------------- ;;
+;; c++ style
 (add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
 (add-to-list 'auto-mode-alist '("\\.tem\\'" . c++-mode))
 
@@ -58,19 +57,18 @@
 (setq c-default-style "linux"
       c-basic-offset 4)
 
-(setq ring-bell-function (lambda()))
-
+;; (setq ring-bell-function (lambda()))
 
 ;; don't show startup message
 (setq inhibit-startup-message t)
 
 ;; highlight fixme and todo
-;; (defun my/add-watchwords ()
-;;   (font-lock-add-keywords
-;;    nil '(("\\<\\(FIXME\\|TODO\\|XXX\\|NOCOMMIT\\|@@@\\)\\>"
-;;           1 '((:foreground "pink") (:weight bold)) t))))
+(defun my/add-watchwords ()
+  (font-lock-add-keywords
+   nil '(("\\<\\(FIXME\\|TODO\\|XXX\\|NOCOMMIT\\|@@@\\)\\>"
+          1 '((:foreground "pink") (:weight bold)) t))))
 
-;; (add-hook 'prog-mode-hook 'my/add-watchwords)
+(add-hook 'prog-mode-hook 'my/add-watchwords)
 
 (menu-bar-mode -1)
 (when (window-system)
@@ -82,20 +80,18 @@
 
 ;; (global-font-lock-mode t)
 
-
-;; ;; Uniquify buffers, using angle brackets, so you get foo and foo<2>:
+;; Uniquify buffers, using angle brackets, so you get foo and foo<2>:
 ;; (use-package uniquify
-;;   :config (setq uniquify-buffer-name-style 'post-forward-angle-brackets))
+;;  :config (setq uniquify-buffer-name-style 'post-forward-angle-brackets))
 
-;; ;; enable regex where normal search and replace
-;; (global-set-key (kbd "C-s") 'isearch-forward-regexp)
-;; (global-set-key (kbd "C-r") 'isearch-backward-regexp)
-;; (global-set-key (kbd "M-%") 'query-replace-regexp)
+;; enable regex where normal search and replace
+(global-set-key (kbd "C-s") 'isearch-forward-regexp)
+(global-set-key (kbd "C-r") 'isearch-backward-regexp)
+(global-set-key (kbd "M-%") 'query-replace-regexp)
 
-;; ;; enable imenu, bind to c-x c-i
-;; (set-default 'imenu-auto-rescan t)
-;; (global-set-key (kbd "C-x C-i") 'imenu)
-
+;; enable imenu, bind to c-x c-i
+(set-default 'imenu-auto-rescan t)
+(global-set-key (kbd "C-x C-i") 'imenu)
 
 ;; (setq-default ispell-program-name "aspell")
 ;; (setq ispell-extra-args '("--sug-mode=ultra" "--ignore=3"))
@@ -125,20 +121,21 @@
 ;;   (progn
 ;;     (setq ido-use-faces nil)))
 
-;; (use-package idle-highlight-mode
-;;   :init
-;;   (progn
-;;     (add-hook 'prog-mode-hook
-;;               (lambda ()
-;;                 (idle-highlight-mode t)))))
+(use-package idle-highlight-mode
+  :init
+  (progn
+    (add-hook 'prog-mode-hook
+              (lambda ()
+                (idle-highlight-mode t)))))
 
 ;; (use-package smart-mode-line
 ;;   :init (progn
 ;;           (setq sml/mode-width 'full)
 ;;           (sml/setup)))
 
-;; (use-package smooth-scrolling
-;;   :init (setq smooth-scroll-margin 4))
+;; smooth scrolling
+(use-package smooth-scrolling
+  :init (setq smooth-scroll-margin 4))
 
 ;; (use-package yasnippet
 ;;   :disabled t
@@ -156,20 +153,20 @@
 ;;     (add-to-list 'auto-mode-alist '("\\.yasnippet$" . snippet-mode))
 ;;     (yas-reload-all)))
 
-;; (use-package smartparens
-;;   :init
-;;   (progn
-;;     (require 'smartparens-config)
-;;     (smartparens-global-mode t)
-;;     ;; (smartparens-global-strict-mode t)
-;;     (show-smartparens-global-mode t))
-;;   :config
-;;   (progn
-;;     (add-hook 'sh-mode-hook
-;;               (lambda ()
-;;                 ;; Remove when https://github.com/Fuco1/smartparens/issues/257
-;;                 ;; is fixed
-;;                 (setq sp-autoescape-string-quote nil)))
+(use-package smartparens
+  :init
+  (progn
+    (require 'smartparens-config)
+    (smartparens-global-mode t)
+    ;; (smartparens-global-strict-mode t)
+    (show-smartparens-global-mode t))
+  :config
+  (progn
+    (add-hook 'sh-mode-hook
+              (lambda ()
+                ;; Remove when https://github.com/Fuco1/smartparens/issues/257
+                ;; is fixed
+                (setq sp-autoescape-string-quote nil)))
 
 ;;     (define-key sp-keymap (kbd "C-(") 'sp-forward-barf-sexp)
 ;;     (define-key sp-keymap (kbd "C-)") 'sp-forward-slurp-sexp)
@@ -225,36 +222,39 @@
 ;;     (setq-default flycheck-disabled-checkers
 ;;                   '(emacs-lisp-checkdoc))))
 
-;; (defun magit-browse ()
-;;   (interactive)
-;;   (let ((url (with-temp-buffer
-;;                (unless (zerop (call-process-shell-command "git remote -v" nil t))
-;;                  (error "Failed: 'git remote -v'"))
-;;                (goto-char (point-min))
-;;                (when (re-search-forward "github\\.com[:/]\\(.+?\\)\\.git" nil t)
-;;                  (format "https://github.com/%s" (match-string 1))))))
-;;     (unless url
-;;       (error "Can't find repository URL"))
-;;     (browse-url url)))
+;; magit
+(defun magit-browse ()
+  (interactive)
+  (let ((url (with-temp-buffer
+               (unless (zerop 
+                        (call-process-shell-command "git remote -v" nil t))
+                 (error "Failed: 'git remote -v'"))
+               (goto-char (point-min))
+               (when 
+                   (re-search-forward "github\\.com[:/]\\(.+?\\)\\.git" nil t)
+                 (format "https://github.com/%s" (match-string 1))))))
+    (unless url
+      (error "Can't find repository URL"))
+    (browse-url url)))
 
-;; (use-package magit
-;;   :bind ("M-g M-g" . magit-status)
-;;   :config
-;;   (progn
-;;     (define-key magit-mode-map (kbd "C-c C-b") 'magit-browse)
-;;     (define-key magit-status-mode-map (kbd "W") 'magit-toggle-whitespace)
-;;     ;; faces
-;;     ;; (set-face-attribute 'magit-branch nil
-;;     ;;                     :foreground "yellow" :weight 'bold :underline t)
-;;     (set-face-attribute 'magit-item-highlight nil
-;;                         :background nil)
-;;     (custom-set-variables '(magit-set-upstream-on-push (quote dontask)))))
+(use-package magit
+  :bind ("M-g M-g" . magit-status)
+  :config
+  (progn
+    (define-key magit-mode-map (kbd "C-c C-b") 'magit-browse)
+    (define-key magit-status-mode-map (kbd "W") 'magit-toggle-whitespace)
+    ;; faces
+    ;; (set-face-attribute 'magit-branch nil
+    ;;                     :foreground "yellow" :weight 'bold :underline t)
+    (set-face-attribute 'magit-item-highlight nil
+                        :background nil)
+    (custom-set-variables '(magit-set-upstream-on-push (quote dontask)))))
 
 ;; ;; c-c p prefix for searching in projects
-;; (use-package projectile
-;;   :init (progn
-;;           (projectile-global-mode)
-;;           (defconst projectile-mode-line-lighter " P")))
+(use-package projectile
+  :init (progn
+          (projectile-global-mode)
+          (defconst projectile-mode-line-lighter " P")))
 
 ;; (use-package git-gutter
 ;;   :defer t
@@ -314,18 +314,16 @@
 
 ;; (use-package ido-ubiquitous)
 
-;; (use-package popwin
-;;   :config
-;;   (progn
-;;     (global-set-key (kbd "C-'") popwin:keymap)
-
-;;     (defvar popwin:special-display-config-backup popwin:special-display-config)
-;;     (setq display-buffer-function 'popwin:display-buffer)
-
-;;     (push
-;;      '("*Compile-Log*" :noselect t :height 10) popwin:special-display-config)
-;;     (push
-;;      '("*Messages*" :height 10) popwin:special-display-config)))
+(use-package popwin
+  :config
+  (progn
+    (global-set-key (kbd "C-'") popwin:keymap)
+    (defvar popwin:special-display-config-backup popwin:special-display-config)
+    (setq display-buffer-function 'popwin:display-buffer)
+    (push
+     '("*Compile-Log*" :noselect t :height 10) popwin:special-display-config)
+    (push
+     '("*Messages*" :height 10) popwin:special-display-config)))
 
 ;; (use-package ido-vertical-mode
 ;;   :init (ido-vertical-mode t))
@@ -367,9 +365,9 @@
 ;;   (interactive)
 ;;   (untabify (point-min) (point-max)))
 
-;; (defun indent-buffer ()
-;;   (interactive)
-;;   (indent-region (point-min) (point-max)))
+(defun indent-buffer ()
+  (interactive)
+  (indent-region (point-min) (point-max)))
 
 ;; (defun cleanup-buffer ()
 ;;   "Perform a bunch of operations on the whitespace content of a buffer."
@@ -378,16 +376,17 @@
 ;;   (untabify-buffer)
 ;;   (delete-trailing-whitespace))
 
-;; (defun my/insert-lod ()
-;;   "Well. This is disappointing."
-;;   (interactive)
-;;   (insert "ಠ_ಠ"))
+;; who doesn't need this
+(defun my/insert-lod ()
+  "Well. This is disappointing."
+  (interactive)
+  (insert "ಠ_ಠ"))
 
-;; (global-set-key (kbd "C-c M-d") 'my/insert-lod)
+(global-set-key (kbd "C-c M-d") 'my/insert-lod)
 
-;; (setq custom-file "~/.emacs.d/custom.el")
-;; (when (file-exists-p custom-file)
-;;   (load custom-file))
+(setq custom-file "~/.emacs.d/custom.el")
+(when (file-exists-p custom-file)
+  (load custom-file))
 
 ;; (set-face-attribute 'region nil :background "#363636")
 ;; (set-face-attribute 'default nil :background "#262626")

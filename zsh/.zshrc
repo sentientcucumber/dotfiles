@@ -11,6 +11,7 @@ setopt AUTO_CD PROMPT_SUBST HISTIGNOREALLDUPS NO_BEEP
 
 # alias
 alias l='ls -Gh'
+alias ls='ls -Gh'
 alias ..='cd ..'
 alias emacs='TERM=xterm /Applications/Emacs.app/Contents/MacOS/Emacs -nw'
 alias tmux='tmux -2'
