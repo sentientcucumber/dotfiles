@@ -1,382 +1,348 @@
-;; setup packages
+;; setup melpa
 (require 'package)
-(add-to-list 'package-archives
-             '("marmalade" . "http://marmalade-repo.org/packages/"))
-(add-to-list 'package-archives
-             '("melpa" . "http://melpa.milkbox.net/packages/"))
+(add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/") t)
 (package-initialize)
+(setq package-enable-at-startup nil)
 
-;; setup theme 
-(load-theme 'solarized-light t)
-
-;; stop making redonk backup files
-(setq make-backup-files nil)
-
-;; remove highlight line
-(remove-hook 'prog-mode-hook 'esk-turn-on-hl-line-mode)
-
-;; rebind ctrl-t to ctrl-x for dvorak
+;; miscellaneous settings
 (define-key key-translation-map "\C-t" "\C-x")
-
-;; sane y or n bindings to yes or no questions
-(defalias 'yes-or-no-p 'y-or-n-p)
-
-;; move one line, regardless of whether or not it is wrapped
-(setq line-move-visual t)
-
-;; tell emacs I'm on mac
-(defun macosx-p ()
-  (eq system-type 'darwin))
-
-;; integrate with osx clipboard
-(defun copy-from-osx ()
-  (shell-command-to-string "/usr/bin/pbpaste"))
-
-(defun paste-to-osx (text &optional push)
-  (let ((process-connection-type nil))
-    (let ((proc (start-process "pbcopy" "*Messages*" "/usr/bin/pbcopy")))
-      (process-send-string proc text)
-      (process-send-eof proc))))
-
-(when (macosx-p)
-  (setq interprogram-cut-function 'paste-to-osx)
-  (setq interprogram-paste-function 'copy-from-osx))
-
-;; turn on line and column modes
-(line-number-mode 1)
-(column-number-mode 1)
-
-;; case-insensitive
+(setq echo-keystrokes 0.1)
+(transient-mark-mode t)
+(setq ring-bell-function (lambda()))
+(setq inhibit-startup-message t initial-major-mode 'fundamental-mode)
+(line-number-mode t)
+(column-number-mode t)
 (setq read-file-name-completion-ignore-case t)
-
-;; c++ style
-(add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
-(add-to-list 'auto-mode-alist '("\\.tem\\'" . c++-mode))
-
+(defalias 'yes-or-no-p 'y-or-n-p)
+(setq line-move-visual t)
+(setq make-pointer-invisible t)
+(setq-default fill-column 80)
+(setq-default default-tab-width 2)
 (setq-default indent-tabs-mode nil)
-(setq c-default-style "linux"
-      c-basic-offset 4)
-
-;; (setq ring-bell-function (lambda()))
-
-;; don't show startup message
-(setq inhibit-startup-message t)
-
-;; highlight fixme and todo
-(defun my/add-watchwords ()
-  (font-lock-add-keywords
-   nil '(("\\<\\(FIXME\\|TODO\\|XXX\\|NOCOMMIT\\|@@@\\)\\>"
-          1 '((:foreground "pink") (:weight bold)) t))))
-
-(add-hook 'prog-mode-hook 'my/add-watchwords)
-
+(setq-default find-file-visit-truename nil)
+(setq require-final-newline t)
 (menu-bar-mode -1)
+(tool-bar-mode -1)
+(blink-cursor-mode -1)
 (when (window-system)
   (set-scroll-bar-mode 'nil)
-  (mouse-wheel-mode t))
-(tool-bar-mode -1)
-(tooltip-mode -1)
-(blink-cursor-mode -1)
-
-;; (global-font-lock-mode t)
-
-;; Uniquify buffers, using angle brackets, so you get foo and foo<2>:
-;; (use-package uniquify
-;;  :config (setq uniquify-buffer-name-style 'post-forward-angle-brackets))
-
-;; enable regex where normal search and replace
+  (mouse-wheel-mode t)
+  (tooltip-mode -1))
 (global-set-key (kbd "C-s") 'isearch-forward-regexp)
 (global-set-key (kbd "C-r") 'isearch-backward-regexp)
 (global-set-key (kbd "M-%") 'query-replace-regexp)
+(global-set-key (kbd "C-x C-l") 'toggle-truncate-lines)
+(define-key global-map (kbd "RET") 'newline-and-indent)
+(when (eq system-type 'darwin)
+  (setq ns-use-native-fullscreen nil)
+  (setq insert-directory-program "gls")
+  (setq dired-listing-switches "-aBhl --group-directories-first")
+  (defun copy-from-osx ()
+    (shell-command-to-string "/usr/bin/pbpaste"))
+  (defun paste-to-osx (text &optional push)
+    (let ((process-connection-type nil))
+      (let ((proc (start-process "pbcopy" "*Messages*" "/usr/bin/pbcopy")))
+        (process-send-string proc text)
+        (process-send-eof proc))))
+  (setq interprogram-cut-function 'paste-to-osx
+        interprogram-paste-function 'copy-from-osx))
+(setq-default subword-mode t)
+(setq-default find-file-visit-truename nil)
+(setq require-final-newline t)
+(global-set-key (kbd "C-x +") 'balance-windows-area)
 
-;; enable imenu, bind to c-x c-i
-(set-default 'imenu-auto-rescan t)
-(global-set-key (kbd "C-x C-i") 'imenu)
+(defadvice kill-buffer (around kill-buffer-around-advice activate)
+  (let ((buffer-to-kill (ad-get-arg 0)))
+    (if (equal buffer-to-kill "*scratch*")
+        (bury-buffer)
+      ad-do-it)))
 
-;; (setq-default ispell-program-name "aspell")
-;; (setq ispell-extra-args '("--sug-mode=ultra" "--ignore=3"))
-;; (add-to-list 'ispell-skip-region-alist '("[^\000-\377]+"))
+(defun my/add-watchwords ()
+  (font-lock-add-keywords
+   nil '(("\\<\\(FIXME\\|TODO\\|NOCOMMIT\\)\\>"
+          1 '((:foreground "#d7a3ad") (:weight bold)) t))))
 
-;; ;; enable flyspell
-;; (autoload 'flyspell-mode "flyspell" "spell checking at runtime")
-;; (eval-after-load "flyspell"
-;;   '(progn
-;;      (define-key flyspell-mode-map (kbd "M-n") 'flyspell-goto-next-error)
-;;      (define-key flyspell-mode-map (kbd "M-.") 'ispell-word)))
+(add-hook 'prog-mode-hook 'my/add-watchwords)
 
-;; (setq ispell-personal-dictionary "~/.flydict")
+(require 'use-package)
 
-;; (ido-mode 1)
-;; (setq ido-use-virtual-buffers nil)
-;; (setq ido-enable-prefix nil
-;;       ido-enable-flex-matching t
-;;       ido-auto-merge-work-directories-length nil
-;;       ido-create-new-buffer 'always
-;;       ido-use-filename-at-point 'guess
-;;       ido-max-prospects 10)
+(defun setup-java ()
+  (interactive)
+  (define-key java-mode-map (kbd "M-,") 'pop-tag-mark)
+  (defconst eclipse-java-style
+    '((c-basic-offset . 4)
+      (c-comment-only-line-offset . (0 . 0))
+      ;; the following preserves Javadoc starter lines
+      (c-offsets-alist . ((inline-open . 0)
+                          (topmost-intro-cont    . +)
+                          (statement-block-intro . +)
+                          (knr-argdecl-intro     . 5)
+                          (substatement-open     . +)
+                          (substatement-label    . +)
+                          (label                 . +)
+                          (statement-case-open   . +)
+                          (statement-cont        . ++)
+                          (arglist-intro  . ++)
+                          (arglist-close  . ++)
+                          (arglist-cont-nonempty . ++)
+                          (access-label   . 0)
+                          (inher-cont     . ++)
+                          (func-decl-cont . ++))))
+    "Eclipse Java Programming Style")
 
-;; (use-package flx-ido
-;;   :init (flx-ido-mode 1)
-;;   :config
-;;   (progn
-;;     (setq ido-use-faces nil)))
+  ;; Generic java stuff things
+  (setq whitespace-line-column 140)
+  (use-package column-marker
+    :config
+    (progn
+      (column-marker-1 140)
+      (column-marker-2 80)))
+  (c-add-style "ECLIPSE" eclipse-java-style)
+  (customize-set-variable 'c-default-style
+                          (quote ((java-mode . "eclipse")
+                                  (awk-mode . "awk")
+                                  (other . "gnu"))))
+  (c-set-offset 'arglist-cont-nonempty '++))
 
-(use-package idle-highlight-mode
-  :init
-  (progn
-    (add-hook 'prog-mode-hook
-              (lambda ()
-                (idle-highlight-mode t)))))
+(add-hook 'java-mode-hook 'setup-java)
 
-;; (use-package smart-mode-line
-;;   :init (progn
-;;           (setq sml/mode-width 'full)
-;;           (sml/setup)))
+(defun my/c-mode-init ()
+  (c-set-style "k&r")
+  (c-toggle-electric-state -1)
+  (define-key c-mode-map (kbd "C-c o") 'ff-find-other-file)
+  (define-key c++-mode-map (kbd "C-c o") 'ff-find-other-file)
+  (hs-minor-mode 1)
+  (setq c-basic-offset 4))
 
-;; smooth scrolling
+(add-hook 'c-mode-hook #'my/c-mode-init)
+(add-hook 'c++-mode-hook #'my/c-mode-init)
+
+;; package setup
+(use-package uniquify
+  :config
+  (setq uniquify-buffer-name-style 'post-forward-angle-brackets))
+
+(setq-default ispell-program-name "aspell")
+(setq ispell-personal-dictionary "~.emacs/flydict/.flydict"
+      ispell-extra-args '("--sug-mode=ultra" "--ignore=3"))
+(add-to-list 'ispell-skip-region-alist '("[^\000-\377]+"))
+
+;; flyspell
+(use-package flyspell
+  :config
+  (define-key flyspell-mode-map (kbd "M-n") 'flyspell-goto-next-error)
+  (define-key flyspell-mode-map (kbd "M-.") 'ispell-word))
+
 (use-package smooth-scrolling
-  :init (setq smooth-scroll-margin 4))
+  :config
+  (setq smooth-scroll-margin 4))
 
-;; (use-package yasnippet
-;;   :disabled t
-;;   :defer t
-;;   :commands yas-minor-mode-on
-;;   :diminish yas-minor-mode
-;;   :init
-;;   (progn
-;;     (dolist (hook '(clojure-mode-hook
-;;                     org-mode-hook))
-;;       (add-hook hook 'yas-minor-mode-on)))
-;;   :config
-;;   (progn
-;;     ;; snippet-mode for *.yasnippet files
-;;     (add-to-list 'auto-mode-alist '("\\.yasnippet$" . snippet-mode))
-;;     (yas-reload-all)))
-
-(use-package smartparens
-  :init
-  (progn
-    (require 'smartparens-config)
-    (smartparens-global-mode t)
-    ;; (smartparens-global-strict-mode t)
-    (show-smartparens-global-mode t))
+(use-package flycheck
+  :bind (("M-g M-n" . flycheck-next-error)
+         ("M-g M-p" . flycheck-previous-error)
+         ("M-g M-=" . flycheck-list-errors))
+  :idle (global-flycheck-mode)
   :config
   (progn
+    (setq-default flycheck-disabled-checkers
+                  '(emacs-lisp-checkdoc))
+    (use-package flycheck-tip
+      :config
+      (add-hook 'flycheck-mode-hook
+                (lambda ()
+                  (global-set-key (kbd "C-c C-n") 'flycheck-tip-cycle)
+                  (global-set-key (kbd "C-c C-p") 'flycheck-tip-cycle-reverse))))))
+
+(use-package iedit
+  :bind ("C-;" . iedit-mode))
+
+(use-package popwin
+  :bind ("C-'" . popwin:keymap)
+  :config
+  (progn
+    (defvar popwin:special-display-config-backup popwin:special-display-config)
+    (setq display-buffer-function 'popwin:display-buffer)
+
+    ;; basic
+    (push '("*Help*" :stick t :noselect t) popwin:special-display-config)
+    (push '("*helm world time*" :stick t :noselect t) popwin:special-display-config)
+
+    ;; magit
+    (push '("*magit-process*" :stick t) popwin:special-display-config)
+
+    ;; quickrun
+    (push '("*quickrun*" :stick t) popwin:special-display-config)
+
+    ;; dictionaly
+    (push '("*dict*" :stick t) popwin:special-display-config)
+    (push '("*sdic*" :stick t) popwin:special-display-config)
+
+    ;; popwin for slime
+    (push '(slime-repl-mode :stick t) popwin:special-display-config)
+
+    ;; man
+    (push '(Man-mode :stick t :height 20) popwin:special-display-config)
+
+    ;; Elisp
+    (push '("*ielm*" :stick t) popwin:special-display-config)
+    (push '("*eshell pop*" :stick t) popwin:special-display-config)
+
+    ;; pry
+    (push '(inf-ruby-mode :stick t :height 20) popwin:special-display-config)
+
+    ;; python
+    (push '("*Python*"   :stick t) popwin:special-display-config)
+    (push '("*Python Help*" :stick t :height 20) popwin:special-display-config)
+    (push '("*jedi:doc*" :stick t :noselect t) popwin:special-display-config)
+
+    ;; Haskell
+    (push '("*haskell*" :stick t) popwin:special-display-config)
+    (push '("*GHC Info*") popwin:special-display-config)
+
+    ;; sgit
+    (push '("*sgit*" :position right :width 0.5 :stick t)
+          popwin:special-display-config)
+
+    ;; git-gutter
+    (push '("*git-gutter:diff*" :width 0.5 :stick t)
+          popwin:special-display-config)
+
+    ;; direx
+    (push '(direx:direx-mode :position left :width 40 :dedicated t)
+          popwin:special-display-config)
+
+    (push '("*Occur*" :stick t) popwin:special-display-config)
+
+    ;; prodigy
+    (push '("*prodigy*" :stick t) popwin:special-display-config)
+
+    ;; malabar-mode
+    (push '("*Malabar Compilation*" :stick t :height 30)
+          popwin:special-display-config)
+
+    ;; org-mode
+    (push '("*Org tags*" :stick t :height 30)
+          popwin:special-display-config)))
+
+(use-package undo-tree
+  :init (global-undo-tree-mode)
+  :diminish ""
+  :config
+  (progn
+    (define-key undo-tree-map (kbd "C-x u") 'undo-tree-visualize)
+    (define-key undo-tree-map (kbd "C-/") 'undo-tree-undo)))
+
+(use-package auto-complete
+  :disabled t
+  :defer t
+  :init (progn
+          (use-package popup)
+          (use-package fuzzy)
+          (use-package auto-complete-config)
+          ;; Enable auto-complete mode other than default enable modes
+          (add-to-list 'ac-modes 'cider-repl-mode)
+          (global-auto-complete-mode t)
+          (ac-config-default))
+  :config
+  (progn
+    (define-key ac-complete-mode-map (kbd "M-n") 'ac-next)
+    (define-key ac-complete-mode-map (kbd "M-p") 'ac-previous)
+    (define-key ac-complete-mode-map (kbd "C-s") 'ac-isearch)
+    (define-key ac-completing-map (kbd "<tab>") 'ac-complete)))
+
+(use-package magit
+  :bind ("M-g M-g" . magit-status)
+  :config
+  (progn
+    (when (eq system-type 'darwin)
+      (setq magit-emacsclient-executable "/usr/local/Cellar/emacs/HEAD/bin/emacsclient"))
+    (defun magit-browse ()
+      (interactive)
+      (let ((url (with-temp-buffer
+                   (unless (zerop (call-process-shell-command "git remote -v" nil t))
+                     (error "Failed: 'git remote -v'"))
+                   (goto-char (point-min))
+                   (when (re-search-forward "github\\.com[:/]\\(.+?\\)\\.git" nil t)
+                     (format "https://github.com/%s" (match-string 1))))))
+        (unless url
+          (error "Can't find repository URL"))
+        (browse-url url)))
+
+    (define-key magit-mode-map (kbd "C-c C-b") 'magit-browse)
+    (define-key magit-status-mode-map (kbd "W") 'magit-toggle-whitespace)
+    ;; faces
+    ;; (set-face-attribute 'magit-branch nil
+    ;;                     :foreground "yellow" :weight 'bold :underline t)
+    (custom-set-variables '(magit-set-upstream-on-push (quote dontask)))))
+
+(use-package smartparens
+  :config
+  (progn
+    (use-package smartparens-config)
     (add-hook 'sh-mode-hook
               (lambda ()
                 ;; Remove when https://github.com/Fuco1/smartparens/issues/257
                 ;; is fixed
                 (setq sp-autoescape-string-quote nil)))
 
-;;     (define-key sp-keymap (kbd "C-(") 'sp-forward-barf-sexp)
-;;     (define-key sp-keymap (kbd "C-)") 'sp-forward-slurp-sexp)
-;;     (define-key sp-keymap (kbd "C-M-f") 'sp-forward-sexp)
-;;     (define-key sp-keymap (kbd "C-M-b") 'sp-backward-sexp)
-;;     (define-key sp-keymap (kbd "C-M-f") 'sp-forward-sexp)
-;;     (define-key sp-keymap (kbd "C-M-b") 'sp-backward-sexp)
-;;     (define-key sp-keymap (kbd "C-M-d") 'sp-down-sexp)
-;;     (define-key sp-keymap (kbd "C-M-a") 'sp-backward-down-sexp)
-;;     (define-key sp-keymap (kbd "C-S-a") 'sp-beginning-of-sexp)
-;;     (define-key sp-keymap (kbd "C-S-d") 'sp-end-of-sexp)
-;;     (define-key sp-keymap (kbd "C-M-e") 'sp-up-sexp)
-;;     (define-key emacs-lisp-mode-map (kbd ")") 'sp-up-sexp)
-;;     (define-key sp-keymap (kbd "C-M-u") 'sp-backward-up-sexp)
-;;     (define-key sp-keymap (kbd "C-M-t") 'sp-transpose-sexp)
-;;     ;; (define-key sp-keymap (kbd "C-M-n") 'sp-next-sexp)
-;;     ;; (define-key sp-keymap (kbd "C-M-p") 'sp-previous-sexp)
-;;     (define-key sp-keymap (kbd "C-M-k") 'sp-kill-sexp)
-;;     (define-key sp-keymap (kbd "C-M-w") 'sp-copy-sexp)
-;;     (define-key sp-keymap (kbd "M-D") 'sp-splice-sexp)
-;;     (define-key sp-keymap (kbd "C-]") 'sp-select-next-thing-exchange)
-;;     (define-key sp-keymap (kbd "C-<left_bracket>") 'sp-select-previous-thing)
-;;     (define-key sp-keymap (kbd "C-M-]") 'sp-select-next-thing)
-;;     (define-key sp-keymap (kbd "M-F") 'sp-forward-symbol)
-;;     (define-key sp-keymap (kbd "M-B") 'sp-backward-symbol)
-;;     (define-key sp-keymap (kbd "H-t") 'sp-prefix-tag-object)
-;;     (define-key sp-keymap (kbd "H-p") 'sp-prefix-pair-object)
-;;     (define-key sp-keymap (kbd "H-s c") 'sp-convolute-sexp)
-;;     (define-key sp-keymap (kbd "H-s a") 'sp-absorb-sexp)
-;;     (define-key sp-keymap (kbd "H-s e") 'sp-emit-sexp)
-;;     (define-key sp-keymap (kbd "H-s p") 'sp-add-to-previous-sexp)
-;;     (define-key sp-keymap (kbd "H-s n") 'sp-add-to-next-sexp)
-;;     (define-key sp-keymap (kbd "H-s j") 'sp-join-sexp)
-;;     (define-key sp-keymap (kbd "H-s s") 'sp-split-sexp)
+    ;; Remove the M-<backspace> binding that smartparens adds
+    (let ((disabled '("M-<backspace>")))
+      (setq sp-smartparens-bindings
+            (cl-remove-if (lambda (key-command)
+                            (member (car key-command) disabled))
+                          sp-smartparens-bindings)))
 
-;;     (sp-local-pair 'minibuffer-inactive-mode "'" nil :actions nil)
-;;     ;; Remove '' pairing in elisp because quoting is used a ton
-;;     (sp-local-pair 'emacs-lisp-mode "'" nil :actions nil)
+    (define-key sp-keymap (kbd "C-(") 'sp-forward-barf-sexp)
+    (define-key sp-keymap (kbd "C-)") 'sp-forward-slurp-sexp)
+    (define-key sp-keymap (kbd "M-(") 'sp-forward-barf-sexp)
+    (define-key sp-keymap (kbd "M-)") 'sp-forward-slurp-sexp)
+    (define-key sp-keymap (kbd "C-M-f") 'sp-forward-sexp)
+    (define-key sp-keymap (kbd "C-M-b") 'sp-backward-sexp)
+    (define-key sp-keymap (kbd "C-M-f") 'sp-forward-sexp)
+    (define-key sp-keymap (kbd "C-M-b") 'sp-backward-sexp)
+    (define-key sp-keymap (kbd "C-M-d") 'sp-down-sexp)
+    (define-key sp-keymap (kbd "C-M-a") 'sp-backward-down-sexp)
+    (define-key sp-keymap (kbd "C-S-a") 'sp-beginning-of-sexp)
+    (define-key sp-keymap (kbd "C-S-d") 'sp-end-of-sexp)
+    (define-key sp-keymap (kbd "C-M-e") 'sp-up-sexp)
+    (define-key emacs-lisp-mode-map (kbd ")") 'sp-up-sexp)
+    (define-key sp-keymap (kbd "C-M-u") 'sp-backward-up-sexp)
+    (define-key sp-keymap (kbd "C-M-t") 'sp-transpose-sexp)
+    ;; (define-key sp-keymap (kbd "C-M-n") 'sp-next-sexp)
+    ;; (define-key sp-keymap (kbd "C-M-p") 'sp-previous-sexp)
+    (define-key sp-keymap (kbd "C-M-k") 'sp-kill-sexp)
+    (define-key sp-keymap (kbd "C-M-w") 'sp-copy-sexp)
+    (define-key sp-keymap (kbd "M-D") 'sp-splice-sexp)
+    (define-key sp-keymap (kbd "C-]") 'sp-select-next-thing-exchange)
+    (define-key sp-keymap (kbd "C-<left_bracket>") 'sp-select-previous-thing)
+    (define-key sp-keymap (kbd "C-M-]") 'sp-select-next-thing)
+    (define-key sp-keymap (kbd "M-F") 'sp-forward-symbol)
+    (define-key sp-keymap (kbd "M-B") 'sp-backward-symbol)
+    (define-key sp-keymap (kbd "H-t") 'sp-prefix-tag-object)
+    (define-key sp-keymap (kbd "H-p") 'sp-prefix-pair-object)
+    (define-key sp-keymap (kbd "H-s c") 'sp-convolute-sexp)
+    (define-key sp-keymap (kbd "H-s a") 'sp-absorb-sexp)
+    (define-key sp-keymap (kbd "H-s e") 'sp-emit-sexp)
+    (define-key sp-keymap (kbd "H-s p") 'sp-add-to-previous-sexp)
+    (define-key sp-keymap (kbd "H-s n") 'sp-add-to-next-sexp)
+    (define-key sp-keymap (kbd "H-s j") 'sp-join-sexp)
+    (define-key sp-keymap (kbd "H-s s") 'sp-split-sexp)
 
-;;     (sp-with-modes '(html-mode sgml-mode)
-;;       (sp-local-pair "<" ">"))
+    (sp-local-pair 'minibuffer-inactive-mode "'" nil :actions nil)
+    ;; Remove '' pairing in elisp because quoting is used a ton
+    (sp-local-pair 'emacs-lisp-mode "'" nil :actions nil)
 
-;;     (sp-with-modes sp--lisp-modes
-;;       (sp-local-pair "(" nil :bind "C-("))))
+    (sp-with-modes '(html-mode sgml-mode)
+      (sp-local-pair "<" ">"))
 
-;; (use-package flycheck
-;;   :disabled t
-;;   :diminish "fc"
-;;   :init
-;;   (progn
-;;     (add-hook 'after-init-hook #'global-flycheck-mode)
-;;     ;; disable the annoying doc checker))
-;;     (setq-default flycheck-disabled-checkers
-;;                   '(emacs-lisp-checkdoc))))
+    (sp-with-modes sp--lisp-modes
+      (sp-local-pair "(" nil :bind "C-("))))
 
-;; magit
-(defun magit-browse ()
-  (interactive)
-  (let ((url (with-temp-buffer
-               (unless (zerop 
-                        (call-process-shell-command "git remote -v" nil t))
-                 (error "Failed: 'git remote -v'"))
-               (goto-char (point-min))
-               (when 
-                   (re-search-forward "github\\.com[:/]\\(.+?\\)\\.git" nil t)
-                 (format "https://github.com/%s" (match-string 1))))))
-    (unless url
-      (error "Can't find repository URL"))
-    (browse-url url)))
+;; (add-hook 'prog-mode-hook
+;;           (lambda ()
+;;             (smartparens-global-mode t)
+;;             (show-smartparens-global-mode t)))
 
-(use-package magit
-  :bind ("M-g M-g" . magit-status)
-  :config
-  (progn
-    (define-key magit-mode-map (kbd "C-c C-b") 'magit-browse)
-    (define-key magit-status-mode-map (kbd "W") 'magit-toggle-whitespace)
-    ;; faces
-    ;; (set-face-attribute 'magit-branch nil
-    ;;                     :foreground "yellow" :weight 'bold :underline t)
-    (set-face-attribute 'magit-item-highlight nil
-                        :background nil)
-    (custom-set-variables '(magit-set-upstream-on-push (quote dontask)))))
-
-;; ;; c-c p prefix for searching in projects
-(use-package projectile
-  :init (progn
-          (projectile-global-mode)
-          (defconst projectile-mode-line-lighter " P")))
-
-;; (use-package git-gutter
-;;   :defer t
-;;   :diminish git-gutter-mode
-;;   :init (progn
-;;           (add-hook 'prog-mode-hook
-;;                     (lambda ()
-;;                       (git-gutter-mode t)
-;;                       (global-set-key (kbd "C-x C-a") 'git-gutter:toggle)
-;;                       (global-set-key (kbd "C-x =") 'git-gutter:popup-hunk)
-;;                       (global-set-key (kbd "C-c P") 'git-gutter:previous-hunk)
-;;                       (global-set-key (kbd "C-c N") 'git-gutter:next-hunk)
-;;                       (global-set-key (kbd "C-x p") 'git-gutter:previous-hunk)
-;;                       (global-set-key (kbd "C-x n") 'git-gutter:next-hunk)
-;;                       (global-set-key (kbd "C-c G") 'git-gutter:popup-hunk)))))
-
-;; (use-package helm
-;;   :init
-;;   (progn
-;;     (require 'helm-config)
-;;     (use-package helm-descbinds
-;;       :init (helm-descbinds-mode t)))
-;;   :config
-;;   (progn
-;;     (setq helm-idle-delay 0.1
-;;           helm-input-idle-delay 0
-;;           helm-candidate-number-limit 500)
-;;     (define-key helm-map (kbd "C-p")   'helm-previous-line)
-;;     (define-key helm-map (kbd "C-n")   'helm-next-line)
-;;     (define-key helm-map (kbd "C-M-n") 'helm-next-source)
-;;     (define-key helm-map (kbd "C-M-p") 'helm-previous-source)
-;;     (defun helm-httpstatus ()
-;;       (interactive)
-;;       (helm-other-buffer '(helm-httpstatus-source) "*helm httpstatus*"))
-
-;;     (defun helm-clj-http ()
-;;       (interactive)
-;;       (helm-other-buffer '(helm-clj-http-source) "*helm clj-http flags*"))
-
-;;     (global-set-key (kbd "C-c M-C-h") 'helm-httpstatus)
-;;     (global-set-key (kbd "C-c M-h") 'helm-clj-http)))
-
-;; (use-package helm-ag
-;;   :init (bind-key "C-M-s" 'helm-ag-this-file))
-
-;; (use-package company
-;;   :defer t
-;;   :diminish company-mode
-;;   :init (add-hook 'after-init-hook 'global-company-mode)
-;;   :config
-;;   ;; Tiny delay before completion
-;;   (setq company-idle-delay 0.1
-;;         ;; min prefix of 2 chars
-;;         company-minimum-prefix-length 4))
-
-;; (use-package smart-tab)
-
-;; (use-package ido-ubiquitous)
-
-(use-package popwin
-  :config
-  (progn
-    (global-set-key (kbd "C-'") popwin:keymap)
-    (defvar popwin:special-display-config-backup popwin:special-display-config)
-    (setq display-buffer-function 'popwin:display-buffer)
-    (push
-     '("*Compile-Log*" :noselect t :height 10) popwin:special-display-config)
-    (push
-     '("*Messages*" :height 10) popwin:special-display-config)))
-
-;; (use-package ido-vertical-mode
-;;   :init (ido-vertical-mode t))
-
-;; (use-package smex
-;;   :init
-;;   (progn
-;;     (global-set-key [(meta x)]
-;;                     (lambda ()
-;;                       (interactive)
-;;                       (or (boundp 'smex-cache)
-;;                           (smex-initialize))
-;;                       (global-set-key [(meta x)] 'smex)
-;;                       (smex)))
-
-;;     (global-set-key [(shift meta x)]
-;;                     (lambda ()
-;;                       (interactive)
-;;                       (or (boundp 'smex-cache)
-;;                           (smex-initialize))
-;;                       (global-set-key [(shift meta x)] 'smex-major-mode-commands)
-;;                       (smex-major-mode-commands))))
-;;   :config
-;;   (progn
-;;     (global-set-key (kbd "C-c C-c M-x") 'execute-extended-command)))
-
-;; (global-set-key (kbd "C-x M-o") 'helm-occur)
-;; (global-set-key (kbd "C-x C-o") 'helm-occur)
-;; (global-set-key (kbd "M-y")     'helm-show-kill-ring)
-;; (global-set-key (kbd "C-h a")   'helm-apropos)
-;; (global-set-key (kbd "C-x C-i") 'helm-imenu)
-;; (global-set-key (kbd "C-x C-b") 'helm-buffers-list)
-;; (global-set-key (kbd "C-x f") 'projectile-find-file)
-;; (global-set-key (kbd "C-x C-l") 'toggle-truncate-lines)
-;; (global-set-key (kbd "M-'") 'other-window)
-;; (global-set-key (kbd "C-c n") 'cleanup-buffer)
-
-;; (defun untabify-buffer ()
-;;   (interactive)
-;;   (untabify (point-min) (point-max)))
-
-(defun indent-buffer ()
-  (interactive)
-  (indent-region (point-min) (point-max)))
-
-;; (defun cleanup-buffer ()
-;;   "Perform a bunch of operations on the whitespace content of a buffer."
-;;   (interactive)
-;;   (indent-buffer)
-;;   (untabify-buffer)
-;;   (delete-trailing-whitespace))
-
-;; who doesn't need this
 (defun my/insert-lod ()
   "Well. This is disappointing."
   (interactive)
@@ -384,9 +350,17 @@
 
 (global-set-key (kbd "C-c M-d") 'my/insert-lod)
 
-(setq custom-file "~/.emacs.d/custom.el")
-(when (file-exists-p custom-file)
-  (load custom-file))
+(defun untabify-buffer ()
+  (interactive)
+  (untabify (point-min) (point-max)))
 
-;; (set-face-attribute 'region nil :background "#363636")
-;; (set-face-attribute 'default nil :background "#262626")
+(defun indent-buffer ()
+  (interactive)
+  (indent-region (point-min) (point-max)))
+
+(defun cleanup-buffer ()
+  "Perform a bunch of operations on the whitespace content of a buffer."
+  (interactive)
+  (indent-buffer)
+  (untabify-buffer)
+  (delete-trailing-whitespace))

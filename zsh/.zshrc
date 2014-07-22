@@ -15,6 +15,7 @@ alias ls='ls -Gh'
 alias ..='cd ..'
 alias emacs='TERM=xterm /Applications/Emacs.app/Contents/MacOS/Emacs -nw'
 alias tmux='tmux -2'
+alias rm='rm -i'
 
 # prompt
 PROMPT='%3~ '
@@ -23,3 +24,4 @@ PROMPT='%3~ '
 HISTFILE=$HOME/dotfiles/zsh/.zsh-history
 HISTSIZE=10000
 SAVEHIST=10000
+LESSHISTFILE=-

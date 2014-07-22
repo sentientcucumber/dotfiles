@@ -7,3 +7,6 @@ zsh/.zcompdump
 git/*
 
 maven/
+
+emacs/elpa
+emacs/eshell
