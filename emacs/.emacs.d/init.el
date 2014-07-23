@@ -137,21 +137,21 @@
   :config
   (setq smooth-scroll-margin 4))
 
-(use-package flycheck
-  :bind (("M-g M-n" . flycheck-next-error)
-         ("M-g M-p" . flycheck-previous-error)
-         ("M-g M-=" . flycheck-list-errors))
-  :idle (global-flycheck-mode)
-  :config
-  (progn
-    (setq-default flycheck-disabled-checkers
-                  '(emacs-lisp-checkdoc))
-    (use-package flycheck-tip
-      :config
-      (add-hook 'flycheck-mode-hook
-                (lambda ()
-                  (global-set-key (kbd "C-c C-n") 'flycheck-tip-cycle)
-                  (global-set-key (kbd "C-c C-p") 'flycheck-tip-cycle-reverse))))))
+;; (use-package flycheck
+;;   :bind (("M-g M-n" . flycheck-next-error)
+;;          ("M-g M-p" . flycheck-previous-error)
+;;          ("M-g M-=" . flycheck-list-errors))
+;;   :idle (global-flycheck-mode)
+;;   :config
+;;   (progn
+;;     (setq-default flycheck-disabled-checkers
+;;                   '(emacs-lisp-checkdoc))
+;;     (use-package flycheck-tip
+;;       :config
+;;       (add-hook 'flycheck-mode-hook
+;;                 (lambda ()
+;;                   (global-set-key (kbd "C-c C-n") 'flycheck-tip-cycle)
+;;                   (global-set-key (kbd "C-c C-p") 'flycheck-tip-cycle-reverse))))))
 
 (use-package iedit
   :bind ("C-;" . iedit-mode))
@@ -254,8 +254,6 @@
   :bind ("M-g M-g" . magit-status)
   :config
   (progn
-    (when (eq system-type 'darwin)
-      (setq magit-emacsclient-executable "/usr/local/Cellar/emacs/HEAD/bin/emacsclient"))
     (defun magit-browse ()
       (interactive)
       (let ((url (with-temp-buffer
@@ -270,9 +268,6 @@
 
     (define-key magit-mode-map (kbd "C-c C-b") 'magit-browse)
     (define-key magit-status-mode-map (kbd "W") 'magit-toggle-whitespace)
-    ;; faces
-    ;; (set-face-attribute 'magit-branch nil
-    ;;                     :foreground "yellow" :weight 'bold :underline t)
     (custom-set-variables '(magit-set-upstream-on-push (quote dontask)))))
 
 (use-package smartparens
@@ -338,10 +333,16 @@
     (sp-with-modes sp--lisp-modes
       (sp-local-pair "(" nil :bind "C-("))))
 
-;; (add-hook 'prog-mode-hook
-;;           (lambda ()
-;;             (smartparens-global-mode t)
-;;             (show-smartparens-global-mode t)))
+(add-hook 'prog-mode-hook
+          (lambda ()
+            (smartparens-global-mode t)
+            (show-smartparens-global-mode t)))
+
+(when (not (window-system))
+    (use-package server
+          :init
+              (unless (server-running-p)
+                      (server-start))))
 
 (defun my/insert-lod ()
   "Well. This is disappointing."
