@@ -1,15 +1,9 @@
 vim/
-
 vimperator/
-
-zsh/.zsh-history
-
-zsh/.zcompdump
-
 git/
-
 maven/
-
 /emacs/.emacs.d/elpa/
 /emacs/.emacs.d/eshell/
+zsh/.zsh-history
+zsh/.zcompdump
 

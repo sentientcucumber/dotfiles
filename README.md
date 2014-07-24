@@ -1,21 +1,23 @@
 # Shellhead's dotfiles
 Miscellaneous dotfiles. A masterpiece in progress.
 
-### How to use GNU stow:
-Move things into the dotfiles, and stow them with:
-```
-stow <folder>
-```
+### Stow
+I use stow to try and keep things organized and synchronized between my system
+and what I share here. Stow allows me to move all the miscellaneous dotfiles
+into one area. For instance, my emacs init file resides in
+`~/dotfiles/emacs/.emacs.d/init.el` and a symbolic link resides in
+`~/.emacs.d/init.el`. Emacs is happy because it can find the init.el file and
+I'm happy because I can find all my dotfiles in one place.
 
-If I've added more to a folder in the dotfiles, restow them with:
+Here's an example of stowing `.vim` and `.viminfo` (assuming they're in the
+home directory) into `dotfiles/vim.` I'll be doing one at a time so I can show
+when to use the restow option. At the end, I'll use the delete option. Upon
+deletion, the symbolic link in the home directory will be blown away.
 ```
-stow -R <folder>
+~/dotfiles  mkdir vim
+~/dotfiles  mv .vim vim
+~/dotfiles  stow vim
+~/dotfiles  mv ../.viminfo
+~/dotfiles  stow -R vim
+~/dotfiles  stow -D vim
 ```
-
-If I don't want that stuff anymore:
-```
-stow -D <folder>
-```
-
-Resources:
-http://brandon.invergo.net/news/2012-05-26-using-gnu-stow-to-manage-your-dotfiles.html
