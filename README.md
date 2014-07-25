@@ -15,7 +15,7 @@ when to use the restow option. At the end, I'll use the delete option. Upon
 deletion, the symbolic link in the home directory will be blown away.
 ```
 ~/dotfiles  mkdir vim
-~/dotfiles  mv .vim vim
+~/dotfiles  mv ../.vim vim
 ~/dotfiles  stow vim
 ~/dotfiles  mv ../.viminfo
 ~/dotfiles  stow -R vim
