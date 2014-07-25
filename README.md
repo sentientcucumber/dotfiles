@@ -17,7 +17,7 @@ deletion, the symbolic link in the home directory will be blown away.
 ~/dotfiles  mkdir vim
 ~/dotfiles  mv ../.vim vim
 ~/dotfiles  stow vim
-~/dotfiles  mv ../.viminfo
+~/dotfiles  mv ../.viminfo vim
 ~/dotfiles  stow -R vim
 ~/dotfiles  stow -D vim
 ```
