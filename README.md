@@ -1,5 +1,12 @@
 # Shellhead's dotfiles
-Miscellaneous dotfiles. A masterpiece in progress.
+Miscellaneous dotfiles. A masterpiece in progress. Most of this is for my own
+reference for when I inevitably blow something important away and have no idea
+how I did it or where I got it from.
+
+### Font
+I use [Adobe's Source Code Pro]
+(http://sourceforge.net/projects/sourcecodepro.adobe/). It's the best thing
+since slice bread.
 
 ### Stow
 I use stow to try and keep things organized and synchronized between my system

@@ -4,7 +4,7 @@
 (package-initialize)
 (setq package-enable-at-startup nil)
 
-;; key mappings
+;; key bindings
 (define-key key-translation-map "\C-t" "\C-x")
 (define-key global-map (kbd "RET") 'newline-and-indent)
 (global-set-key (kbd "C-s") 'isearch-forward-regexp)
@@ -12,13 +12,13 @@
 (global-set-key (kbd "M-%") 'query-replace-regexp)
 (global-set-key (kbd "C-x C-l") 'toggle-truncate-lines)
 (global-set-key (kbd "C-x +") 'balance-windows-area)
+(global-set-key (kbd "C-;") 'iedit-mode)
 (defalias 'yes-or-no-p 'y-or-n-p)
 
 ;; default settings
 (setq-default default-tab-width 2)
 (setq-default indent-tabs-mode nil)
 (setq-default find-file-visit-truename nil)
-(add-hook 'after-init-hook #'global-subword-mode)
 
 ;; make it purty... or at least not annoying
 (menu-bar-mode -1)
@@ -55,133 +55,99 @@
   (define-key c++-mode-map (kbd "C-c o") 'ff-find-other-file)
   (hs-minor-mode 1)
   (setq c-basic-offset 4))
-
-(add-hook 'c-mode-hook #'my/c-mode-init)
 (add-hook 'c++-mode-hook #'my/c-mode-init)
 
 ;; miscellaneous settings
 (transient-mark-mode t)
+(setq delete-auto-save-files t)
 (setq read-file-name-completion-ignore-case t)
 (when (window-system)
   (set-scroll-bar-mode 'nil)
   (mouse-wheel-mode t)
-  (tooltip-mode -1)) 
+  (tooltip-mode -1))
 
+;; find important comment words, function added later
 (defun my/add-watchwords ()
   (font-lock-add-keywords
-   nil '(("\\<\\(FIXME\\|TODO\\|NOCOMMIT\\)\\>"
+   nil '(("\\<\\(FIXME\\|TODO\\)\\>"
           1 '((:foreground "#d7a3ad") (:weight bold)) t))))
-(add-hook 'prog-mode-hook 'my/add-watchwords)
 
+;; because why not?
 (defun my/insert-lod ()
   "Well. This is disappointing."
   (interactive)
   (insert "ಠ_ಠ"))
-
 (global-set-key (kbd "C-c M-d") 'my/insert-lod)
 
+;; tabs are the works
 (defun untabify-buffer ()
   (interactive)
   (untabify (point-min) (point-max)))
 
+;; indents entire buffer, be careful doing this on large files
 (defun indent-buffer ()
   (interactive)
   (indent-region (point-min) (point-max)))
 
-(defun cleanup-buffer ()
-  "Perform a bunch of operations on the whitespace content of a buffer."
-  (interactive)
-  (indent-buffer)
-  (untabify-buffer)
-  (delete-trailing-whitespace))
+;; general settings that should be applied to all programming modes
+(add-hook 'prog-mode-hook
+          (lambda ()
+            (subword-mode t)
+            (my/add-watchwords)
+            (global-flycheck-mode)))
 
 ;; package setup!
 (require 'use-package)
 
-(use-package column-marker
+;; setup uniquify package
+(use-package uniquify
+  :config (setq uniquify-buffer-name-style 'post-forward-angle-brackets))
+
+;; setup smooth-scrollin package
+(use-package smooth-scrolling
+  :config (setq smooth-scroll-margin 8))
+
+;; setup undo-tree
+(use-package undo-tree
+  :init (global-undo-tree-mode)
   :config
   (progn
-    (column-marker-1 80)))
+    (define-key undo-tree-map (kbd "C-x u") 'undo-tree-visualize)
+    (define-key undo-tree-map (kbd "C-u") 'undo-tree-undo)))
 
-(use-package uniquify
-  :config
-  (setq uniquify-buffer-name-style 'post-forward-angle-brackets))
+;; setup magit
+(use-package magit
+  :bind ("M-g M-g" . magit-status))
 
-(use-package flyspell
-  :config
-  (define-key flyspell-mode-map (kbd "M-n") 'flyspell-goto-next-error)
-  (define-key flyspell-mode-map (kbd "M-.") 'ispell-word))
-(setq-default ispell-program-name "aspell")
-(setq ispell-personal-dictionary "~.emacs.d/flydict/.flydict"
-      ispell-extra-args '("--sug-mode=ultra" "--ignore=3"))
-(add-to-list 'ispell-skip-region-alist '("[^\000-\377]+"))
-
-(use-package smooth-scrolling
-  :config
-  (setq smooth-scroll-margin 4))
-
-;; this isn't working.. may need to understand use-package more
-;; (use-package flycheck
-;;   :bind (("M-g M-n" . flycheck-next-error)
-;;          ("M-g M-p" . flycheck-previous-error)
-;;          ("M-g M-=" . flycheck-list-errors))
-;;   :config
-;;   (progn
-;;     (setq-default flycheck-disabled-checkers '(emacs-lisp-checkdoc))
-;;     (use-package flycheck-tip
-;;       :config
-;;       (add-hook 'flycheck-mode-hook
-;;                 (lambda ()
-;;                   (global-set-key (kbd "C-c C-n") 'flycheck-tip-cycle)
-;;                   (global-set-key (kbd "C-c C-p") 'flycheck-tip-cycle-reverse))))))
-
-;; this isn't working, if I take it the bind off, it works great, otherwise it sucks
-;; (use-package iedit
-;;   :bind ("C-;" . iedit-mode))
-
+;; setup popwin
 (use-package popwin
+  :init
+  (progn
+    (require 'popwin)
+    (popwin-mode t))
   :bind ("C-'" . popwin:keymap)
   :config
   (progn
     (defvar popwin:special-display-config-backup popwin:special-display-config)
-    (setq display-buffer-alist 'popwin:display-buffer)
+    (setq display-buffer-function 'popwin:display-buffer)
 
-    ;; basic
-    (push '("*Help*" :stick t :noselect t) popwin:special-display-config)
-
-    ;; magit
-    (push '("*magit-process*" :stick t) popwin:special-display-config)
-
-    ;; dictionaly
-    (push '("*dict*" :stick t) popwin:special-display-config)
-    (push '("*sdic*" :stick t) popwin:special-display-config)
-
-    ;; man
-    (push '(Man-mode :stick t :height 20) popwin:special-display-config)
-
-    ;; git-gutter
-    (push '("*git-gutter:diff*" :width 0.5 :stick t)
+    (push '("*Completions*" :stick f :height 15 :position bottom :noselect t)
+          popwin:special-display-config)
+    (push '("*Warnings*" :stick t :height 15 :position bottom :noselect t)
+          popwin:special-display-config)
+    (push '(" *undo-tree*" :stick t :height 15 :position bottom :noselect t)
           popwin:special-display-config)))
 
-(use-package undo-tree
-  :init (global-undo-tree-mode)
-  :diminish ""
-  :config
-  (progn
-    (define-key undo-tree-map (kbd "C-x u") 'undo-tree-visualize)
-    (define-key undo-tree-map (kbd "C-/") 'undo-tree-undo)))
-
+;; setup auto-complete
 (use-package auto-complete
-  :disabled t
-  :defer t
-  :init (progn
-          (use-package popup)
-          (use-package fuzzy)
-          (use-package auto-complete-config)
-          ;; Enable auto-complete mode other than default enable modes
-          (add-to-list 'ac-modes 'cider-repl-mode)
-          (global-auto-complete-mode t)
-          (ac-config-default))
+  :init
+  (progn
+    (use-package popup)
+    (use-package fuzzy)
+    (use-package auto-complete-config)
+    (setq ac-comphist-file (concat user-emacs-directory "misc/ac-comphist.dat"))
+    (global-auto-complete-mode t)
+    (ac-config-default))
   :config
   (progn
     (define-key ac-complete-mode-map (kbd "M-n") 'ac-next)
@@ -189,23 +155,19 @@
     (define-key ac-complete-mode-map (kbd "C-s") 'ac-isearch)
     (define-key ac-completing-map (kbd "<tab>") 'ac-complete)))
 
-(use-package magit
-  :bind ("M-g M-g" . magit-status)
+;; setup flycheck
+(use-package flycheck
+  :commands global-flycheck-mode
+  :init (global-flycheck-mode)
+  :bind
+  ("M-g M-n" . flycheck-next-error)
+  ("M-g M-p" . flycheck-previous-error)
+  ("M-g M-=" . flycheck-list-errors)
   :config
-  (progn
-    (defun magit-browse ()
-      (interactive)
-      (let ((url (with-temp-buffer
-                   (unless (zerop (call-process-shell-command "git remote -v" nil t))
-                     (error "Failed: 'git remote -v'"))
-                   (goto-char (point-min))
-                   (when (re-search-forward "github\\.com[:/]\\(.+?\\)\\.git" nil t)
-                     (format "https://github.com/%s" (match-string 1))))))
-        (unless url
-          (error "Can't find repository URL"))
-        (browse-url url)))
-
-    (define-key magit-mode-map (kbd "C-c C-b") 'magit-browse)
-    (define-key magit-status-mode-map (kbd "W") 'magit-toggle-whitespace)
-    (custom-set-variables '(magit-set-upstream-on-push (quote dontask)))))
+    (use-package flycheck-tip
+      :config
+      (add-hook 'flycheck-mode-hook
+                (lambda ()
+                  (global-set-key (kbd "C-c C-n") 'flycheck-tip-cycle)
+                  (global-set-key (kbd "C-c C-p") 'flycheck-tip-cycle-reverse)))))
 

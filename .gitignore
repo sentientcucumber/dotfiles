@@ -7,3 +7,4 @@ maven/
 zsh/.zsh-history
 zsh/.zcompdump
 
+/emacs/.emacs.d/misc/ac-comphist.dat
