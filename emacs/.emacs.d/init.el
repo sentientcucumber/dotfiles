@@ -1,8 +1,11 @@
-;; setup packages and melpa
 (require 'package)
-(add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/") t)
+(add-to-list 'package-archives
+             '("melpa" . "http://melpa.milkbox.net/packages/") t)
 (package-initialize)
 (setq package-enable-at-startup nil)
+
+;; setup the theme
+(load-theme 'molokai t)
 
 ;; key bindings
 (define-key key-translation-map "\C-t" "\C-x")
@@ -133,7 +136,7 @@
 
     (push '("*Completions*" :stick f :height 15 :position bottom :noselect t)
           popwin:special-display-config)
-    (push '("*Warnings*" :stick t :height 15 :position bottom :noselect t)
+    (push '("*Warnings*" :stick f :height 15 :position bottom :noselect t)
           popwin:special-display-config)
     (push '(" *undo-tree*" :stick t :height 15 :position bottom :noselect t)
           popwin:special-display-config)))
@@ -145,7 +148,8 @@
     (use-package popup)
     (use-package fuzzy)
     (use-package auto-complete-config)
-    (setq ac-comphist-file (concat user-emacs-directory "misc/ac-comphist.dat"))
+    (setq ac-comphist-file
+          (concat user-emacs-directory "misc/ac-comphist.dat"))
     (global-auto-complete-mode t)
     (ac-config-default))
   :config
@@ -169,5 +173,24 @@
       (add-hook 'flycheck-mode-hook
                 (lambda ()
                   (global-set-key (kbd "C-c C-n") 'flycheck-tip-cycle)
-                  (global-set-key (kbd "C-c C-p") 'flycheck-tip-cycle-reverse)))))
+                  (global-set-key (kbd "C-c C-p")
+                                  'flycheck-tip-cycle-reverse)))))
+
+;; setup ido
+(use-package ido
+  :init (ido-mode t)
+  :config
+  (progn
+    (setq ido-use-virtual-buffers nil
+          ido-enable-prefix nil
+          ido-enable-flex-matching t
+          ido-auto-merge-work-directories-length nil
+          ido-create-new-buffer 'always
+          ido-use-filename-at-point 'guess
+          ido-max-prospects 10)))
+(use-package flx-ido
+  :init (flx-ido-mode t)
+  :config (setq ido-use-faces nil))
+(use-package ido-vertical-mode
+  :init (ido-vertical-mode t))
 
