@@ -5,7 +5,7 @@
 (setq package-enable-at-startup nil)
 
 ;; setup the theme
-(load-theme 'molokai t)
+(load-theme 'monokai t)
 
 ;; key bindings
 (define-key key-translation-map "\C-t" "\C-x")
@@ -34,6 +34,7 @@
 (column-number-mode t)
 (setq echo-keystrokes 0.1)
 (setq line-move-visual t)
+(setq-default find-file-visit-truename nil)
 
 ;; this nifty bit lets the emacs kill ring and mac's buffer join in harmony
 (when (eq system-type 'darwin)
@@ -136,28 +137,24 @@
 
     (push '("*Completions*" :stick f :height 15 :position bottom :noselect t)
           popwin:special-display-config)
-    (push '("*Warnings*" :stick f :height 15 :position bottom :noselect t)
+    (push '("*Warnings*" :stick t :height 15 :position bottom :noselect t)
           popwin:special-display-config)
     (push '(" *undo-tree*" :stick t :height 15 :position bottom :noselect t)
+          popwin:special-display-config)
+    (push '("*Comile-Log*" :stick f :noselect t)
+          popwin:special-display-config)
+    (push '("*git-gutter:diff*" :stick t :position bottom :height 15)
           popwin:special-display-config)))
 
-;; setup auto-complete
-(use-package auto-complete
-  :init
-  (progn
-    (use-package popup)
-    (use-package fuzzy)
-    (use-package auto-complete-config)
-    (setq ac-comphist-file
-          (concat user-emacs-directory "misc/ac-comphist.dat"))
-    (global-auto-complete-mode t)
-    (ac-config-default))
+;; setup company
+(use-package company
+  :diminish ""
   :config
   (progn
-    (define-key ac-complete-mode-map (kbd "M-n") 'ac-next)
-    (define-key ac-complete-mode-map (kbd "M-p") 'ac-previous)
-    (define-key ac-complete-mode-map (kbd "C-s") 'ac-isearch)
-    (define-key ac-completing-map (kbd "<tab>") 'ac-complete)))
+    (setq company-idle-delay 0.2
+          ;; min prefix of 3 chars
+          company-minimum-prefix-length 3)))
+(add-hook 'prog-mode-hook 'global-company-mode)
 
 ;; setup flycheck
 (use-package flycheck
@@ -168,13 +165,13 @@
   ("M-g M-p" . flycheck-previous-error)
   ("M-g M-=" . flycheck-list-errors)
   :config
-    (use-package flycheck-tip
-      :config
-      (add-hook 'flycheck-mode-hook
-                (lambda ()
-                  (global-set-key (kbd "C-c C-n") 'flycheck-tip-cycle)
-                  (global-set-key (kbd "C-c C-p")
-                                  'flycheck-tip-cycle-reverse)))))
+  (use-package flycheck-tip
+    :config
+    (add-hook 'flycheck-mode-hook
+              (lambda ()
+                (global-set-key (kbd "C-c C-n") 'flycheck-tip-cycle)
+                (global-set-key (kbd "C-c C-p")
+                                'flycheck-tip-cycle-reverse)))))
 
 ;; setup ido
 (use-package ido
@@ -194,3 +191,37 @@
 (use-package ido-vertical-mode
   :init (ido-vertical-mode t))
 
+;; setup smex
+(use-package smex
+  :bind ("M-x" . smex))
+
+;; setup expand-region
+(use-package expand-region
+  :config (pending-delete-mode t)
+  :bind (("C-c e" . er/expand-region)
+         ("C-M-@" . er/contract-region)))
+
+;; setup git-gutter
+(use-package git-gutter
+  :idle (global-git-gutter-mode t)
+  :bind (("C-x =" . git-gutter:popup-hunk)
+         ("C-c P" . git-gutter:previous-hunk)
+         ("C-c N" . git-gutter:next-hunk)
+         ("C-x p" . git-gutter:previous-hunk)
+         ("C-x n" . git-gutter:next-hunk)
+         ("C-c G" . git-gutter:popup-hunk)))
+
+;; setup column-marker
+(use-package column-marker
+  :init (column-marker-1 80))
+
+;; setup hideshow
+(use-package hideshow
+  :bind (("C-c TAB" . hs-toggle-hiding)
+         ("C-\\" . hs-toggle-hiding)
+         ("M-\\" . hs-hide-all)
+         ("M-|" . hs-show-all)))
+(defun my/enable-hs-minor-mode ()
+  (interactive)
+  (hs-minor-mode t))
+(add-hook 'prog-mode-hook 'my/enable-hs-minor-mode)
