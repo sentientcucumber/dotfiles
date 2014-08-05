@@ -7,9 +7,10 @@
 (package-refresh-contents)
 
 (defvar my/install-packages
-  '(flyspell smooth-scrolling column-marker flycheck use-package
-    flycheck-tip iedit popwin undo-tree auto-complete magit popup fuzzy))
+  '(column-marker company expand-region flx-ido flycheck flycheck-tip
+    git-gutter hideshow ido ido-vertical-mode magit popwin smex
+    smooth-scrolling undo-tree uniquify use-package dired-x dired+)
 
-(dolist (pack my/install-packages)
-  (unless (package-installed-p pack)
-    (package-install pack)))
+  (dolist (pack my/install-packages)
+    (unless (package-installed-p pack)
+      (package-install pack)))

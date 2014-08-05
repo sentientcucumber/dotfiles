@@ -8,20 +8,21 @@
 (load-theme 'monokai t)
 
 ;; key bindings
-(define-key key-translation-map "\C-t" "\C-x")
-(define-key global-map (kbd "RET") 'newline-and-indent)
 (global-set-key (kbd "C-s") 'isearch-forward-regexp)
 (global-set-key (kbd "C-r") 'isearch-backward-regexp)
 (global-set-key (kbd "M-%") 'query-replace-regexp)
 (global-set-key (kbd "C-x C-l") 'toggle-truncate-lines)
 (global-set-key (kbd "C-x +") 'balance-windows-area)
-(global-set-key (kbd "C-;") 'iedit-mode)
+(global-set-key (kbd "RET") 'newline-and-indent)
+(global-set-key (kbd "C-t") 'Control-X-prefix)
 (defalias 'yes-or-no-p 'y-or-n-p)
 
 ;; default settings
 (setq-default default-tab-width 2)
 (setq-default indent-tabs-mode nil)
 (setq-default find-file-visit-truename nil)
+(setq-default find-file-visit-truename nil)
+(put 'erase-buffer 'disabled nil)
 
 ;; make it purty... or at least not annoying
 (menu-bar-mode -1)
@@ -34,7 +35,16 @@
 (column-number-mode t)
 (setq echo-keystrokes 0.1)
 (setq line-move-visual t)
-(setq-default find-file-visit-truename nil)
+
+;; miscellaneous settings
+(setq read-file-name-completion-ignore-case t)
+(setq backup-directory-alist `(("." . "~/.emacs.d/misc/.saves")))
+(transient-mark-mode t)
+(setq delete-auto-save-files t)
+(when (window-system)
+  (set-scroll-bar-mode 'nil)
+  (mouse-wheel-mode t)
+  (tooltip-mode -1))
 
 ;; this nifty bit lets the emacs kill ring and mac's buffer join in harmony
 (when (eq system-type 'darwin)
@@ -51,7 +61,11 @@
   (setq interprogram-cut-function 'paste-to-osx
         interprogram-paste-function 'copy-from-osx))
 
-;; setup c modes
+;; this fixed issues when opening directories on initial startup
+(setq ls-lisp-use-insert-directory-program nil)
+(require 'ls-lisp)
+
+;; setup c modes, used for school
 (defun my/c-mode-init ()
   (c-set-style "k&r")
   (c-toggle-electric-state -1)
@@ -61,29 +75,13 @@
   (setq c-basic-offset 4))
 (add-hook 'c++-mode-hook #'my/c-mode-init)
 
-;; miscellaneous settings
-(transient-mark-mode t)
-(setq delete-auto-save-files t)
-(setq read-file-name-completion-ignore-case t)
-(when (window-system)
-  (set-scroll-bar-mode 'nil)
-  (mouse-wheel-mode t)
-  (tooltip-mode -1))
-
 ;; find important comment words, function added later
 (defun my/add-watchwords ()
   (font-lock-add-keywords
    nil '(("\\<\\(FIXME\\|TODO\\)\\>"
           1 '((:foreground "#d7a3ad") (:weight bold)) t))))
 
-;; because why not?
-(defun my/insert-lod ()
-  "Well. This is disappointing."
-  (interactive)
-  (insert "ಠ_ಠ"))
-(global-set-key (kbd "C-c M-d") 'my/insert-lod)
-
-;; tabs are the works
+;; remove tabs rfom the entire buffer
 (defun untabify-buffer ()
   (interactive)
   (untabify (point-min) (point-max)))
@@ -152,7 +150,6 @@
   :config
   (progn
     (setq company-idle-delay 0.2
-          ;; min prefix of 3 chars
           company-minimum-prefix-length 3)))
 (add-hook 'prog-mode-hook 'global-company-mode)
 
