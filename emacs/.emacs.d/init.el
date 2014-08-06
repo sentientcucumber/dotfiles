@@ -22,7 +22,6 @@
 (setq-default indent-tabs-mode nil)
 (setq-default find-file-visit-truename nil)
 (setq-default find-file-visit-truename nil)
-(put 'erase-buffer 'disabled nil)
 
 ;; make it purty... or at least not annoying
 (menu-bar-mode -1)
@@ -37,6 +36,7 @@
 (setq line-move-visual t)
 
 ;; miscellaneous settings
+(put 'erase-buffer 'disabled nil)
 (setq read-file-name-completion-ignore-case t)
 (setq backup-directory-alist `(("." . "~/.emacs.d/misc/.saves")))
 (transient-mark-mode t)
@@ -65,7 +65,7 @@
 (setq ls-lisp-use-insert-directory-program nil)
 (require 'ls-lisp)
 
-;; setup c modes, used for school
+;; setup c modes
 (defun my/c-mode-init ()
   (c-set-style "k&r")
   (c-toggle-electric-state -1)
@@ -74,6 +74,11 @@
   (hs-minor-mode 1)
   (setq c-basic-offset 4))
 (add-hook 'c++-mode-hook #'my/c-mode-init)
+
+;; setup nxml
+(defun my/nxml-mode-init ()
+  (setq-default nxml-slash-auto-complete-flag t))
+(add-hook 'nxml-mode #'my/nxml-mode-init)
 
 ;; find important comment words, function added later
 (defun my/add-watchwords ()
@@ -95,8 +100,7 @@
 (add-hook 'prog-mode-hook
           (lambda ()
             (subword-mode t)
-            (my/add-watchwords)
-            (global-flycheck-mode)))
+            (my/add-watchwords)))
 
 ;; package setup!
 (require 'use-package)
@@ -156,7 +160,7 @@
 ;; setup flycheck
 (use-package flycheck
   :commands global-flycheck-mode
-  :init (global-flycheck-mode)
+  :idle (global-flycheck-mode)
   :bind
   ("M-g M-n" . flycheck-next-error)
   ("M-g M-p" . flycheck-previous-error)
@@ -194,7 +198,9 @@
 
 ;; setup expand-region
 (use-package expand-region
-  :config (pending-delete-mode t)
+  :config
+  (progn
+    (pending-delete-mode t))
   :bind (("C-c e" . er/expand-region)
          ("C-M-@" . er/contract-region)))
 
@@ -210,7 +216,9 @@
 
 ;; setup column-marker
 (use-package column-marker
-  :init (column-marker-1 80))
+  :idle
+  (progn
+    (column-marker-1 80)))
 
 ;; setup hideshow
 (use-package hideshow
@@ -222,3 +230,23 @@
   (interactive)
   (hs-minor-mode t))
 (add-hook 'prog-mode-hook 'my/enable-hs-minor-mode)
+
+;; setup color-identifiers-mode
+(use-package color-identifiers-mode
+  :config (add-hook 'prog-mode-hook 'global-color-identifiers-mode))
+
+;; setup rainbow-delimiters-mode
+(use-package rainbow-delimiters
+  :config (add-hook 'prog-mode-hook 'global-rainbow-delimiters-mode))
+
+;; setup smartparens
+(use-package smartparens
+  :config
+  (progn
+    (define-key sp-keymap (kbd "C-c (") 'sp-forward-barf-sexp)
+    (define-key sp-keymap (kbd "C-c )") 'sp-forward-slurp-sexp)
+
+    (sp-with-modes '(nxml-mode)
+      (sp-local-pair "<" ">"))
+    (add-hook 'prog-mode-hook 'smartparens-global-mode)))
+
