@@ -4,7 +4,7 @@ git/
 maven/
 /emacs/.emacs.d/elpa/
 /emacs/.emacs.d/eshell/
+/emacs/.emacs.d/misc/ido/
+/emacs/.emacs.d/misc/smex/
 zsh/.zsh-history
 zsh/.zcompdump
-
-/emacs/.emacs.d/misc/ac-comphist.dat

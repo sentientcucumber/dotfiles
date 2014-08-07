@@ -24,6 +24,7 @@
 (setq-default find-file-visit-truename nil)
 
 ;; make it purty... or at least not annoying
+(global-font-lock-mode t)
 (menu-bar-mode -1)
 (tool-bar-mode -1)
 (setq ring-bell-function (lambda()))
@@ -38,7 +39,6 @@
 ;; miscellaneous settings
 (put 'erase-buffer 'disabled nil)
 (setq read-file-name-completion-ignore-case t)
-(setq backup-directory-alist `(("." . "~/.emacs.d/misc/.saves")))
 (transient-mark-mode t)
 (setq delete-auto-save-files t)
 (when (window-system)
@@ -64,6 +64,12 @@
 ;; this fixed issues when opening directories on initial startup
 (setq ls-lisp-use-insert-directory-program nil)
 (require 'ls-lisp)
+
+;; stop putting temp files in the same directory, if I need it put it elsewhere
+(setq backup-directory-alist
+      `((".*" . ,temporary-file-directory)))
+(setq auto-save-file-name-transforms
+      `((".*" ,temporary-file-directory t)))
 
 ;; setup c modes
 (defun my/c-mode-init ()
@@ -185,16 +191,20 @@
           ido-auto-merge-work-directories-length nil
           ido-create-new-buffer 'always
           ido-use-filename-at-point 'guess
-          ido-max-prospects 10)))
-(use-package flx-ido
-  :init (flx-ido-mode t)
-  :config (setq ido-use-faces nil))
-(use-package ido-vertical-mode
-  :init (ido-vertical-mode t))
+          ido-max-prospects 10
+          ido-save-directory-list-file
+          (concat user-emacs-directory "misc/ido/.ido-list")))
+  (use-package flx-ido
+    :init (flx-ido-mode t)
+    :config (setq ido-use-faces nil))
+  (use-package ido-vertical-mode
+    :init (ido-vertical-mode t)))
 
 ;; setup smex
 (use-package smex
-  :bind ("M-x" . smex))
+  :bind ("M-x" . smex)
+  :config
+  (setq smex-save-file (concat user-emacs-directory "misc/smex/.smex-items")))
 
 ;; setup expand-region
 (use-package expand-region
@@ -250,3 +260,18 @@
       (sp-local-pair "<" ">"))
     (add-hook 'prog-mode-hook 'smartparens-global-mode)))
 
+;; setup org-mode
+(use-package org
+  :bind (("C-c a" . org-agenda)
+         ("C-c l" . org-store-link)
+         ("C-c t" . org-todo))
+  :config
+  (progn
+    (setq org-completion-use-ido t)
+    (setq org-todo-keywords
+          '((sequence "TODO" "INPROGRESS" "WAITING" "DONE")))
+    (setq org-todo-keyword-faces
+          '(("TODO" :foreground "red")
+            ("INPROGRESS" :foreground "blue")
+            ("WAITING" :foreground "purple")
+            ("DONE" :foreground "green")))))
