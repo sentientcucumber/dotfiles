@@ -2,12 +2,19 @@
 autoload -U compinit && compinit
 autoload -U colors && colors
 autoload -Uz vcs_info
+autoload -U add-zsh-hook
 
 # path
-export PATH=~/bin:/usr/local/bin:/usr/local/mysql/bin:$PATH
+export PATH=~/bin:/usr/local/bin:$PATH
 
 # options
-setopt AUTO_CD PROMPT_SUBST HISTIGNOREALLDUPS NO_BEEP
+setopt auto_cd
+setopt prompt_subst
+setopt histignorealldups
+setopt no_beep
+setopt dvorak
+setopt share_history
+setopt correct
 
 # alias
 alias l='ls -Gh'
@@ -17,11 +24,15 @@ alias emacs='TERM=xterm-256color /Applications/Emacs.app/Contents/MacOS/Emacs -n
 alias tmux='tmux -2'
 alias rm='rm -i'
 
-# prompt
-PROMPT='%3~ '
-
 # history
 HISTFILE=$HOME/dotfiles/zsh/.zsh-history
 HISTSIZE=10000
 SAVEHIST=10000
-LESSHISTFILE=-
+
+# prompt
+local NEWLINE=$'\n'
+local red="%{$fg[red]%}"
+local green="%{$fg[green]%}"
+local reset="%{$reset_color%}"
+
+PROMPT="${green}%~${NEWLINE}${reset}"

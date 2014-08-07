@@ -1,7 +1,6 @@
 # Shellhead's dotfiles
-Miscellaneous dotfiles. A masterpiece in progress. Most of this is for my own
-reference for when I inevitably blow something important away and have no idea
-how I did it or where I got it from.
+Miscellaneous dotfiles. A masterpiece in progress. A big thanks to Lee
+(dakrone) for helping me out with emacs and zsh on numerous occasions.
 
 ### Font
 I use [Adobe's Source Code Pro]
