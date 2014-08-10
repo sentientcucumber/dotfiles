@@ -35,6 +35,7 @@
 (column-number-mode t)
 (setq echo-keystrokes 0.1)
 (setq line-move-visual t)
+(setq vc-follow-symlinks t)
 
 ;; miscellaneous settings
 (put 'erase-buffer 'disabled nil)
