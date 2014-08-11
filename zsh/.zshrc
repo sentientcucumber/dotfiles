@@ -67,5 +67,28 @@ function colorSetup {
 
 colorSetup
 
-PROMPT='$FG[214][ %~ ] '
-RPROMPT='%n@%m%{$reset_color%}'
+function precmd {
+    # Compute the lengths of the strings
+    local pwdsize=${#${(%):-%~}}
+
+    # Global width
+    local TERMWIDTH
+    (( TERMWIDTH = ${COLUMNS} - 1 ))
+
+    # The horizontal bar
+    PR_FILLBAR=""
+
+    # The path, truncated if too long
+    PR_PWDLEN=""
+
+    # Compute the path length and the horizontal bar
+    if [[ "$pwdsize + 3" -gt $TERMWIDTH ]]; then
+        # ((PR_PWDLEN=$TERMWIDTH - $promptsize - $exitcodesize))
+        ((PR_PWDLEN=$TERMWIDTH - $pwdsize ))
+    else
+        PR_FILLBAR="\${(l.(($TERMWIDTH - $pwdsize - 3))..∙.)}"
+    fi
+}
+
+PROMPT='%$PR_PWDLEN<...<$FG[039][$FG[026]%~$FG[039]]%<< ${(e)PR_FILLBAR}
+%{$reset_color%}'

@@ -27,3 +27,7 @@ deletion, the symbolic link in the home directory will be blown away.
 ~/dotfiles  stow -R vim
 ~/dotfiles  stow -D vim
 ```
+
+### ZSH
+Fairly basic zsh prompt, used some code found at [Phil!'s ZSH Prompt]
+(http://aperiodic.net/phil/prompt/) to get the horizontal line working.
