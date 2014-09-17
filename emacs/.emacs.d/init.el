@@ -18,10 +18,11 @@
 (defalias 'yes-or-no-p 'y-or-n-p)
 
 ;; default settings
-(setq-default default-tab-width 2)
+(setq-default default-tab-width 4)
 (setq-default indent-tabs-mode nil)
 (setq-default find-file-visit-truename nil)
 (setq-default find-file-visit-truename nil)
+(setq-default fill-column 80)
 
 ;; make it purty... or at least not annoying
 (global-font-lock-mode t)
@@ -82,10 +83,32 @@
   (setq c-basic-offset 4))
 (add-hook 'c++-mode-hook #'my/c-mode-init)
 
+;; setup go mode
+(defun my/go-mode-init ()
+  (setq c-basic-offset 8
+        indent-tabs-mode t))
+(add-hook 'go-mode-hook #'my/go-mode-init)
+
 ;; setup nxml
 (defun my/nxml-mode-init ()
   (setq-default nxml-slash-auto-complete-flag t))
 (add-hook 'nxml-mode #'my/nxml-mode-init)
+
+;; bury the compilation buffer
+(defun bury-compile-buffer-if-successful (buffer string)
+  "Bury a compilation buffer if succeeded without warnings "
+  (if (and
+       (string-match "compilation" (buffer-name buffer))
+       (string-match "finished" string)
+       (not
+        (with-current-buffer buffer
+          (search-forward "warning" nil t))))
+      (run-with-timer 0 nil
+                      (lambda (buf)
+                        (bury-buffer buf)
+                        (switch-to-prev-buffer (get-buffer-window buf) 'kill))
+                      buffer)))
+(add-hook 'compilation-finish-functions 'bury-compile-buffer-if-successful)
 
 ;; find important comment words, function added later
 (defun my/add-watchwords ()
@@ -106,6 +129,7 @@
 ;; general settings that should be applied to all programming modes
 (add-hook 'prog-mode-hook
           (lambda ()
+            (visual-line-mode t)
             (subword-mode t)
             (my/add-watchwords)))
 
@@ -151,6 +175,8 @@
     (push '(" *undo-tree*" :stick t :height 15 :position bottom :noselect t)
           popwin:special-display-config)
     (push '("*Comile-Log*" :stick f :noselect t)
+          popwin:special-display-config)
+    (push '("*eshell*" :stick t :height 15 :position bottom :noselect t)
           popwin:special-display-config)
     (push '("*git-gutter:diff*" :stick t :position bottom :height 15)
           popwin:special-display-config)))
@@ -225,12 +251,6 @@
          ("C-x n" . git-gutter:next-hunk)
          ("C-c G" . git-gutter:popup-hunk)))
 
-;; setup column-marker
-(use-package column-marker
-  :idle
-  (progn
-    (column-marker-1 80)))
-
 ;; setup hideshow
 (use-package hideshow
   :bind (("C-c TAB" . hs-toggle-hiding)
@@ -241,10 +261,6 @@
   (interactive)
   (hs-minor-mode t))
 (add-hook 'prog-mode-hook 'my/enable-hs-minor-mode)
-
-;; setup color-identifiers-mode
-(use-package color-identifiers-mode
-  :config (add-hook 'prog-mode-hook 'global-color-identifiers-mode))
 
 ;; setup rainbow-delimiters-mode
 (use-package rainbow-delimiters
@@ -268,11 +284,32 @@
          ("C-c t" . org-todo))
   :config
   (progn
-    (setq org-completion-use-ido t)
+    (setq org-directory "~/Org"
+          org-completion-use-ido t
+          ido-everywhere t)
     (setq org-todo-keywords
           '((sequence "TODO" "INPROGRESS" "WAITING" "DONE")))
     (setq org-todo-keyword-faces
           '(("TODO" :foreground "red")
             ("INPROGRESS" :foreground "blue")
             ("WAITING" :foreground "purple")
-            ("DONE" :foreground "green")))))
+            ("DONE" :foreground "green")))
+    (setq org-ditaa-jar-path "/usr/local/Cellar/ditaa/0.9/libexec/ditaa0_9.jar")
+    (org-babel-do-load-languages
+     (quote org-babel-load-languages)
+     (quote ((dot . t)
+             (ditaa . t)
+             (R . t)
+             (gnuplot . t)
+             (org . t)
+             (latex . t))))
+    (setq fill-column 80)
+    (add-hook 'org-mode-hook (lambda()
+                               (turn-on-auto-fill)
+                               (turn-on-flyspell)))))
+    
+(use-package ess-site
+  :config
+  (add-to-list 'load-path "/Users/shellhead/.emacs.d/elpa/ess-20140913.1153/lisp")
+  (load "ess-site"))
+
