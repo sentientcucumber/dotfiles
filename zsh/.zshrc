@@ -5,10 +5,9 @@ autoload -Uz vcs_info
 autoload -U add-zsh-hook
 
 # path
-export PATH=~/bin:/usr/local/bin:$PATH
+export PATH=~/bin:/usr/local/bin:/usr/local/Cellar/gnat/2014/bin:$PATH
 
 # options
-setopt auto_cd
 setopt prompt_subst
 setopt histignorealldups
 setopt no_beep
@@ -24,6 +23,7 @@ alias emacs='TERM=xterm-256color /Applications/Emacs.app/Contents/MacOS/Emacs -n
 alias tmux='tmux -2'
 alias rm='rm -i'
 alias R='R --no-save'
+alias magit='emacs -f magit-status'
 
 # history
 HISTFILE=$HOME/.zsh-history

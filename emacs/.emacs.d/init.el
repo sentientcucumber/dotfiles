@@ -1,52 +1,57 @@
+;;; init.el -- Summary
+;;; Commentary:
+
+;;; Code:
 (require 'package)
 (add-to-list 'package-archives
              '("melpa" . "http://melpa.milkbox.net/packages/") t)
 (package-initialize)
 (setq package-enable-at-startup nil)
 
-;; setup the theme
-(load-theme 'monokai t)
+(defconst f '(-1))
 
-;; key bindings
-(global-set-key (kbd "C-s") 'isearch-forward-regexp)
-(global-set-key (kbd "C-r") 'isearch-backward-regexp)
-(global-set-key (kbd "M-%") 'query-replace-regexp)
-(global-set-key (kbd "C-x C-l") 'toggle-truncate-lines)
-(global-set-key (kbd "C-x +") 'balance-windows-area)
-(global-set-key (kbd "RET") 'newline-and-indent)
-(global-set-key (kbd "C-t") 'Control-X-prefix)
+;; Default emacs settings
+(setq inhibit-startup-message    t)
+(setq ring-bell-function         (lambda()))
+(initial-major-mode              'fundamental-mode)
+(put 'erase-buffer               'disabled nil)
+
+;; File reading/writing settings
+(setq read-file-name-completion-ignore-case t)
+(setq delete-auto-save-files                t)
+(setq find-file-visit-truename              nil)
+
+;; Appearances
+(load-theme 'monokai             t)
+(global-font-lock-mode           t)
+(line-number-mode                t)
+(column-number-mode              t)
+(transient-mark-mode             t)
+(menu-bar-mode                   f)
+(tool-bar-mode                   f)
+(blink-cursor-mode               f)
+
+(setq vc-follow-symlinks         t)
+(setq make-pointer-invisible     t)
+(setq fill-column                80)
+(setq echo-keystrokes            0.1)
+
+;; Key Bindings
+(global-set-key (kbd "C-s")      'isearch-forward-regexp)
+(global-set-key (kbd "C-r")      'isearch-backward-regexp)
+(global-set-key (kbd "M-%")      'query-replace-regexp)
+(global-set-key (kbd "C-x C-l")  'toggle-truncate-lines)
+(global-set-key (kbd "C-x +")    'balance-windows-area)
+(global-set-key (kbd "RET")      'newline-and-indent)
+(global-set-key (kbd "C-t")      'Control-X-prefix)
+
 (defalias 'yes-or-no-p 'y-or-n-p)
 
-;; default settings
-(setq-default default-tab-width 4)
-(setq-default indent-tabs-mode nil)
-(setq-default find-file-visit-truename nil)
-(setq-default find-file-visit-truename nil)
-(setq-default fill-column 80)
-
-;; make it purty... or at least not annoying
-(global-font-lock-mode t)
-(menu-bar-mode -1)
-(tool-bar-mode -1)
-(setq ring-bell-function (lambda()))
-(setq inhibit-startup-message t initial-major-mode 'fundamental-mode)
-(blink-cursor-mode -1)
-(setq make-pointer-invisible t)
-(line-number-mode t)
-(column-number-mode t)
-(setq echo-keystrokes 0.1)
-(setq line-move-visual t)
-(setq vc-follow-symlinks t)
-
-;; miscellaneous settings
-(put 'erase-buffer 'disabled nil)
-(setq read-file-name-completion-ignore-case t)
-(transient-mark-mode t)
-(setq delete-auto-save-files t)
-(when (window-system)
-  (set-scroll-bar-mode 'nil)
-  (mouse-wheel-mode t)
-  (tooltip-mode -1))
+;; Custom variable
+(custom-set-variables
+ ;; XML is terrible, lets make reading/writing it a little better
+ '(nxml-child-indent 4)
+ '(nxml-slash-auto-complete-flag t))
 
 ;; this nifty bit lets the emacs kill ring and mac's buffer join in harmony
 (when (eq system-type 'darwin)
@@ -64,69 +69,51 @@
         interprogram-paste-function 'copy-from-osx))
 
 ;; this fixed issues when opening directories on initial startup
-(setq ls-lisp-use-insert-directory-program nil)
 (require 'ls-lisp)
+(setq ls-lisp-use-insert-directory-program nil)
 
 ;; stop putting temp files in the same directory, if I need it put it elsewhere
-(setq backup-directory-alist
-      `((".*" . ,temporary-file-directory)))
-(setq auto-save-file-name-transforms
-      `((".*" ,temporary-file-directory t)))
+;; (setq backup-directory-alist
+;;       `((".*" . ,temporary-file-directory)))
+;; (setq auto-save-file-name-transforms
+;;       `((".*" ,temporary-file-directory t)))
 
-;; setup c modes
-(defun my/c-mode-init ()
-  (c-set-style "k&r")
-  (c-toggle-electric-state -1)
-  (define-key c-mode-map (kbd "C-c o") 'ff-find-other-file)
-  (define-key c++-mode-map (kbd "C-c o") 'ff-find-other-file)
-  (hs-minor-mode 1)
-  (setq c-basic-offset 4))
+;; C
+(defun my/c-mode-init()
+  (c-set-style             "k&r")
+  (c-toggle-electric-state f)
+  (hs-minor-mode           t)
+  (setq c-basic-offset     4))
 (add-hook 'c++-mode-hook #'my/c-mode-init)
 
-;; setup go mode
-(defun my/go-mode-init ()
-  (setq c-basic-offset 8
-        indent-tabs-mode t))
+;; Go
+(defun my/go-mode-init()
+  (setq c-basic-offset     8
+        indent-tabs-mode   t))
 (add-hook 'go-mode-hook #'my/go-mode-init)
 
-;; setup nxml
-(defun my/nxml-mode-init ()
-  (setq-default nxml-slash-auto-complete-flag t))
-(add-hook 'nxml-mode #'my/nxml-mode-init)
+;; XML
+(defun my/nxml-mode-init()
+  (setq subword-mode       t))
+(add-hook 'nxml-mode-hook #'my/nxml-mode-init)
 
-;; bury the compilation buffer
-(defun bury-compile-buffer-if-successful (buffer string)
-  "Bury a compilation buffer if succeeded without warnings "
-  (if (and
-       (string-match "compilation" (buffer-name buffer))
-       (string-match "finished" string)
-       (not
-        (with-current-buffer buffer
-          (search-forward "warning" nil t))))
-      (run-with-timer 0 nil
-                      (lambda (buf)
-                        (bury-buffer buf)
-                        (switch-to-prev-buffer (get-buffer-window buf) 'kill))
-                      buffer)))
-(add-hook 'compilation-finish-functions 'bury-compile-buffer-if-successful)
-
-;; find important comment words, function added later
-(defun my/add-watchwords ()
+;; Find important comment words
+(defun my/add-watchwords()
   (font-lock-add-keywords
    nil '(("\\<\\(FIXME\\|TODO\\)\\>"
           1 '((:foreground "#d7a3ad") (:weight bold)) t))))
 
-;; remove tabs rfom the entire buffer
-(defun untabify-buffer ()
+;; Remove tabs from the entire buffer
+(defun untabify-buffer()
   (interactive)
   (untabify (point-min) (point-max)))
 
-;; indents entire buffer, be careful doing this on large files
-(defun indent-buffer ()
+;; Indents entire buffer, be careful doing this on large files
+(defun indent-buffer()
   (interactive)
   (indent-region (point-min) (point-max)))
 
-;; general settings that should be applied to all programming modes
+;; General settings that should be applied to all programming modes
 (add-hook 'prog-mode-hook
           (lambda ()
             (visual-line-mode t)
@@ -303,13 +290,6 @@
              (gnuplot . t)
              (org . t)
              (latex . t))))
-    (setq fill-column 80)
     (add-hook 'org-mode-hook (lambda()
                                (turn-on-auto-fill)
                                (turn-on-flyspell)))))
-    
-(use-package ess-site
-  :config
-  (add-to-list 'load-path "/Users/shellhead/.emacs.d/elpa/ess-20140913.1153/lisp")
-  (load "ess-site"))
-
