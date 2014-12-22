@@ -7,10 +7,29 @@
 (package-refresh-contents)
 
 (defvar my/install-packages
-  '(color-identifiers-mode column-marker company expand-region flx-ido
-    flycheck flycheck-tip git-gutter hideshow ido ido-vertical-mode magit
-    popwin rainbow-delimiters smartparens smex smooth-scrolling undo-tree
-    uniquify use-package)
+  '(use-package
+     uniquify
+     smooth-scrolling
+     undo-tree
+     magit
+     smartparens
+     smex
+     expand-region
+     hideshow
+     rainbow-delimiters
+     ido
+     flx-ido
+     ido-vertical-mode
+     company
+     popwin
+     git-gutter
+     flycheck
+     flycheck-tip
+     js2-mode
+     dired
+     dired-x
+     golden-ratio
+     multiple-cursors)
 
   (dolist (pack my/install-packages)
     (unless (package-installed-p pack)

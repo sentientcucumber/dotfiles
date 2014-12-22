@@ -16,6 +16,7 @@ setopt share_history
 setopt correct
 
 # alias
+alias ls='gls'
 alias l='ls -Gh'
 alias ls='ls -Gh'
 alias ..='cd ..'

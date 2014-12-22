@@ -12,6 +12,7 @@
 ;; Default emacs settings
 (setq inhibit-startup-message      t
       initial-major-mode           'fundamental-mode)
+(setq mac-command-modifier 'super)
 (setq ring-bell-function           (lambda()))
 (put 'erase-buffer                 'disabled nil)
 
@@ -49,10 +50,6 @@
 
 ;; Custom variable
 (custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
  '(nxml-child-indent 4)
  '(nxml-slash-auto-complete-flag t))
 
@@ -78,14 +75,11 @@
 
 ;; XML
 (defun my/nxml-mode-init()
-  (setq subword-mode               t))
+  (setq subword-mode t))
 (add-hook 'nxml-mode-hook #'my/nxml-mode-init)
 
 ;; Sync Emacs' kill ring and Mac's copy buffer
 (when (eq system-type 'darwin)
-  (setq ns-use-native-fullscreen nil)
-  (setq insert-directory-program "gls")
-  (setq dired-listing-switches "-aBhl --group-directories-first")
   (defun copy-from-osx ()
     (shell-command-to-string "/usr/bin/pbpaste"))
   (defun paste-to-osx (text &optional push)
@@ -102,9 +96,12 @@
 (setq auto-save-file-name-transforms
       `((".*" ,temporary-file-directory t)))
 
-;; Fixed issues on loading
-(require 'ls-lisp)
-(setq ls-lisp-use-insert-directory-program nil)
+(defun beautify-json ()
+  (interactive)
+  (let ((b (if mark-active (min (point) (mark)) (point-min)))
+        (e (if mark-active (max (point) (mark)) (point-max))))
+    (shell-command-on-region b e
+                             "python -mjson.tool" (current-buffer) t)))
 
 ;; Remove tabs from the entire buffer
 (defun untabify-buffer()
@@ -159,7 +156,7 @@
 ;; expand-region
 (use-package expand-region
   :bind (("C-c e" . er/expand-region)
-         ("C-M-@" . er/contract-region))
+         ("C-c C-e" . er/contract-region))
   :config
   (pending-delete-mode t))
 
@@ -266,9 +263,12 @@
   :bind
   ("C-c ." . dired-jump)
   :config
-  (progn
     (use-package dired-x
       :config
+      (when (eq system-type 'darwin)
+	(add-to-list 'dired-omit-extensions ".DS_Store")
+	(setq insert-directory-program "/usr/local/bin/gls")
+	(setq dired-listing-switches "-aBhl --group-directories-first"))
       (setq ls-lisp-dirs-first t
 	    delete-by-moving-to-trash t
 	    dired-dwim-target t)
@@ -276,4 +276,16 @@
       (define-key dired-mode-map (kbd "C-x C-q") 'wdired-change-to-wdired-mode)
       (add-hook 'dired-mode-hook (lambda ()
 				   (hl-line-mode t)
-				   (toggle-truncate-lines t))))))
+				   (toggle-truncate-lines t)))))
+
+;; golden-ratio
+(use-package golden-ratio
+  :idle
+  (golden-ratio-mode t))
+
+;; multiple-cursors
+(use-package multiple-cursors
+  :bind (("C-S-c C-S-c" . mc/edit-lines)
+         ("C-c >" . mc/mark-next-like-this)
+         ("C-c <" . mc/mark-previous-like-this)
+         ("C-c C-a" . mc/mark-all-like-this)))
