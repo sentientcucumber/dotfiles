@@ -1,7 +1,6 @@
-;;; init.el --- Initialization file for Emacs
-;;; Many thanks to Lee for helping me with Emacs
+;; init.el --- Initialization file for Emacs
+;; Many thanks to Lee for helping me with Emacs
 
-;;; Code:
 (require 'package)
 (add-to-list 'package-archives
              '("melpa" . "http://melpa.milkbox.net/packages/") t)
@@ -22,7 +21,7 @@
 (setq find-file-visit-truename              nil)
 
 ;; Appearances
-(load-theme 'subatomic256          t)
+(load-theme 'smyx                  t)
 (global-font-lock-mode             t)
 (line-number-mode                  t)
 (column-number-mode                t)
@@ -35,6 +34,7 @@
 (setq make-pointer-invisible       t)
 (setq fill-column                  80)
 (setq echo-keystrokes              0.1)
+(setq vc-handled-backends          '(SVN Git))
 
 ;; Key Bindings
 (global-set-key (kbd "C-s")        'isearch-forward-regexp)
@@ -53,7 +53,6 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(ido-max-prospects 10)
  '(nxml-child-indent 4)
  '(nxml-slash-auto-complete-flag t))
 
@@ -145,7 +144,7 @@
   ("C-c (" . sp-forward-barf-sexp)
   ("C-c )" . sp-forward-slurp-sexp)
   :config
-  (sp-pair "'" nil :actions :rem)
+  (use-package smartparens-config)
   :init
   (add-hook 'prog-mode-hook 'smartparens-mode t))
 
@@ -176,8 +175,8 @@
 
 ;; rainbow-delimiters
 (use-package rainbow-delimiters
-   :init
-   (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
+  :init
+  (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
 
 ;; ido
 (use-package ido
@@ -190,8 +189,6 @@
           ido-enable-flex-matching               t
           ido-auto-merge-work-directories-length nil
           ido-create-new-buffer                  'always
-          ido-use-filename-at-point              nil
-          ido-max-prospects                      10
           ido-save-directory-list-file
           (concat user-emacs-directory "misc/ido/.ido-list")))
   (use-package flx-ido
@@ -213,36 +210,33 @@
 	company-dabbrev-downcase      nil
 	company-transformers          '(company-sort-by-occurrence))
   (bind-keys :map company-active-map
-	     ("C-n"      . company-select-next)
-	     ("C-p"      . company-select-previous)
-	     ("C-d"      . company-show-doc-buffer)
-	     ("<tab>"    . company-complete))
+  	     ("C-n"      . company-select-next)
+  	     ("C-p"      . company-select-previous)
+  	     ("C-d"      . company-show-doc-buffer)
+  	     ("<tab>"    . company-complete))
   (add-hook 'prog-mode-hook 'company-mode))
 
 ;; popwin
 (use-package popwin
-  :init
-  (popwin-mode t)
   :config
+  (popwin-mode t)
   (progn
     (defvar popwin:special-display-config-backup popwin:special-display-config)
     (setq display-buffer-function 'popwin:display-buffer)
-    (push '("*Completions*" :stick f :height 15 :position bottom :noselect t)
+    (push '("*Completions*" :stick f :height 20 :position bottom :noselect t)
           popwin:special-display-config)
-    (push '("*Warnings*" :stick t :height 15 :position bottom :noselect t)
+    (push '("*Warnings*" :stick t :height 20 :position bottom :noselect t)
           popwin:special-display-config)
-    (push '(" *undo-tree*" :stick t :height 15 :position bottom :noselect t)
+    (push '(" *undo-tree*" :stick t :height 20 :position bottom :noselect t)
           popwin:special-display-config)
     (push '("*Comile-Log*" :stick f :noselect t)
           popwin:special-display-config)
-    (push '("*eshell*" :stick t :height 15 :position bottom :noselect t)
-          popwin:special-display-config)
-    (push '("*git-gutter:diff*" :stick t :position bottom :height 15)
+    (push '("*eshell*" :stick t :height 20 :position bottom :noselect t)
           popwin:special-display-config)))
 
 ;; git-gutter
 (use-package git-gutter
-  :idle (global-git-gutter-mode t)
+  :idle (git-gutter-mode t)
   :bind (("C-x =" . git-gutter:popup-hunk)
          ("C-c P" . git-gutter:previous-hunk)
          ("C-c N" . git-gutter:next-hunk)
@@ -250,33 +244,36 @@
          ("C-x n" . git-gutter:next-hunk)
          ("C-c G" . git-gutter:popup-hunk)))
 
-;; org
-(use-package org
+;; flycheck
+(use-package flycheck
+  :init
+  (flycheck-mode)
+  (setq-default flycheck-disabled-checkers
+		'(emacs-lisp-checkdoc))
+  (use-package flycheck-tip
+    :config
+    (add-hook 'flycheck-mode-hook
+	      (lambda ()
+		(global-set-key (kbd "C-c C-n") 'flycheck-tip-cycle)
+		(global-set-key (kbd "C-c C-p") 'flycheck-tip-cycle-reverse)))))
+
+;; js2-mode
+(use-package js2-mode
+  :mode "\\.js\\'")
+
+;; dired
+(use-package dired
   :bind
-  ("C-c a" . org-agenda)
-  ("C-c l" . org-store-link)
-  ("C-c t" . org-todo)
+  ("C-c ." . dired-jump)
   :config
   (progn
-    (setq org-directory "~/Org"
-          org-completion-use-ido t
-          ido-everywhere         t)
-    (setq org-todo-keywords
-          '((sequence "TODO" "INPROGRESS" "WAITING" "DONE")))
-    (setq org-todo-keyword-faces
-          '(("TODO"       :foreground "red")
-            ("INPROGRESS" :foreground "yellow")
-            ("WAITING"    :foreground "yellow")
-            ("DONE"       :foreground "green")))
-    (setq org-ditaa-jar-path "/usr/local/Cellar/ditaa/0.9/libexec/ditaa0_9.jar")
-    (org-babel-do-load-languages
-     (quote org-babel-load-languages)
-     (quote ((dot     . t)
-             (ditaa   . t)
-             (R       . t)
-             (gnuplot . t)
-             (org     . t)
-             (latex   . t))))
-    (add-hook 'org-mode-hook (lambda()
-                               (turn-on-auto-fill)
-                               (turn-on-flyspell)))))
+    (use-package dired-x
+      :config
+      (setq ls-lisp-dirs-first t
+	    delete-by-moving-to-trash t
+	    dired-dwim-target t)
+      (define-key dired-mode-map (kbd "C-c C-u") 'dired-up-directory)
+      (define-key dired-mode-map (kbd "C-x C-q") 'wdired-change-to-wdired-mode)
+      (add-hook 'dired-mode-hook (lambda ()
+				   (hl-line-mode t)
+				   (toggle-truncate-lines t))))))
