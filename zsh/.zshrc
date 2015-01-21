@@ -17,4 +17,4 @@ alias ..='cd ..'
 alias magit='emacs -f magit-status'
 
 # prompt
-PROMPT='%3~ : '
+PROMPT='%3~ : ' 

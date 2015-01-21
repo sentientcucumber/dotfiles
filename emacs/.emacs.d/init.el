@@ -138,14 +138,6 @@
   (untabify-buffer)
   (delete-trailing-whitespace))
 
-;; TODO need a better way of finding ox-gfm, regardless of version number;
-;; (defun my/load-github-flavored-markdown ()
-;;   "Use github's flavored markdown when exporting org files."
-;;   (interactive)
-;;   (let (ox-package (concat user-emacs-directory "/elpa/ox-gfm-20141211.240"))
-;;     (when (file-exists-p ox-package)
-;;       (load-file (concat ox-package "/ox-gfm.el")))))
-
 ;; packages
 (require 'use-package)
 
