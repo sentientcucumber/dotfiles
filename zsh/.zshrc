@@ -9,6 +9,12 @@ HISTFILE=$HOME/.zsh-history
 HISTSIZE=1000
 SAVEHIST=1000
 
+#path
+export PATH=$PATH:~/.bin
+
+#term
+export TERM=xterm-256color
+
 # aliases
 alias l='ls -Gh'
 alias emacs='emacs -nw'

@@ -7,7 +7,8 @@
 (package-refresh-contents)
 
 (defvar my/install-packages
-  '(company
+  '(cider
+    company
     expand-region
     flx-ido
     git-gutter
