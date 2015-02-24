@@ -7,7 +7,8 @@
 (package-refresh-contents)
 
 (defvar my/install-packages
-  '(cider
+  '(auctex
+    cider
     company
     expand-region
     flx-ido
@@ -19,6 +20,7 @@
     ido
     ido-vertical-mode
     js2-mode
+    json-mode
     magit
     multiple-cursors
     popwin
@@ -26,6 +28,7 @@
     smartparens
     smex
     smooth-scrolling
+    switch-window
     undo-tree
     use-package))
 

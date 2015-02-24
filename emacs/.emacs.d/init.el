@@ -9,18 +9,20 @@
 (defconst f '(-1))
 
 ;; Default emacs settings
-(setq package-enable-at-startup  nil
-      inhibit-startup-message    t
-      initial-major-mode         'fundamental-mode
-      ring-bell-function         (lambda())
-      indent-tabs-mode           nil)
+(setq-default package-enable-at-startup nil
+              inhibit-startup-message t
+              initial-major-mode 'fundamental-mode
+              ring-bell-function (lambda())
+              indent-tabs-mode nil
+              fill-column 79)
 
 ;; File reading/writing settings
-(setq read-file-name-completion-ignore-case  t
-      delete-auto-save-files                 t
-      find-file-visit-truename               nil
-      vc-follow-symlinks                     t
-      electric-indent-mode                   t)
+(setq read-file-name-completion-ignore-case t
+      delete-auto-save-files t
+      find-file-visit-truename nil
+      vc-follow-symlinks t
+      electric-indent-mode f
+      show-paren-mode t)
 
 ;; Appearances
 (load-theme 'smyx             t)
@@ -32,9 +34,29 @@
 (tool-bar-mode                f)
 (blink-cursor-mode            f)
 (setq make-pointer-invisible  t
-      fill-column             80
       echo-keystrokes         0.1
       vc-handled-backends     '(SVN Git))
+
+;; Window settings
+(when (eq window-system 'x)
+  ;; Font
+  (set-fontset-font "fontset-default" 'symbol "Fantasque Sans Mono")
+  (set-default-font "Fantasque Sans Mono")
+  (set-face-attribute 'default nil :height 90)
+
+  ;; Remove all of the ugly *bars
+  (when (functionp 'menu-bar-mode)
+    (menu-bar-mode f))
+  (when (functionp 'set-scroll-bar-mode)
+    (set-scroll-bar-mode 'nil))
+  (when (functionp 'mouse-wheel-mode)
+    (mouse-wheel-mode f))
+  (when (functionp 'tooltip-mode)
+    (tooltip-mode f))
+  (when (functionp 'tool-bar-mode)
+    (tool-bar-mode f))
+  (when (functionp 'blink-cursor-mode)
+    (blink-cursor-mode f)))
 
 ;; Key Bindings
 (global-set-key (kbd "C-s")      'isearch-forward-regexp)
@@ -97,6 +119,11 @@
         (process-send-eof proc))))
   (setq interprogram-cut-function 'paste-to-osx
         interprogram-paste-function 'copy-from-osx))
+
+;; Use this for linux
+(when (eq system-type 'gnu/linux)
+  (setq x-select-enable-clipboard t)
+  (setq interprogram-paste-function 'x-cut-buffer-or-selection-value))
 
 ;; Stop putting temp files in the same directory, if I need it put it elsewhere
 (setq backup-directory-alist
@@ -250,7 +277,9 @@
 
 ;; js2-mode
 (use-package js2-mode
-  :mode "\\.js\\'")
+  :mode "\\.js\\'"
+  :config
+  (setq-default js2-basic-offset 2))
 
 ;; dired
 (use-package dired
@@ -346,14 +375,17 @@
    ("C-c l" . org-store-link))
   :config
   (progn
+    (use-package ox-odt)
+    
     ;; Setup org directories
-    (setq org-directory         "~/Org")
-    (setq org-agenda-files      '("~/Org/personal.org"
-				  "~/Org/work.org"
-				  "~/Org/school.org"))
+    (setq org-directory "~/.org")
+
+    ;; (setq org-agenda-files '("~/.org/personal.org"
+    ;;                          "~/.org/work.org"
+    ;;                          "~/.org/school.org"))
 
     ;; capture settings
-    (setq org-capture-templates '(("t" "To do" entry (file "~/Org/refile.org")
+    (setq org-capture-templates '(("t" "To do" entry (file "~/.org/refile.org")
                                    "* TODO %?\n%U\n")))
     (setq org-refile-targets    '((nil :maxlevel . 3)
                                   (org-agenda-files :maxlevel . 3)))
@@ -367,15 +399,27 @@
           ido-everywhere               t)
 
     ;; miscellaneous settings
-    (setq org-list-allow-alphabetical  t)
+    (setq org-list-allow-alphabetical t)
+    (setq org-src-fontify-natively t)
 
     ;; key mappings
     (define-key org-mode-map (kbd "C-c t") 'org-todo)
 
     (add-hook 'org-mode-hook (lambda ()
-			       (setq fill-column 80)
-			       (turn-on-auto-fill)
-			       (turn-on-flyspell)))))
+                               (set-fill-column 79)
+                               (turn-on-auto-fill)))
+    (org-babel-do-load-languages
+     'org-babel-load-languages
+     '((dot . t)
+       (latex . t)))))
+
+(use-package switch-window
+  :bind
+   ("C-c g" . switch-window))
+
+(use-package jabber
+  :config
+  (setq jabber-roster-line-format "%c %-25n %u %-8s  %S"))
 
 ;; Graveyard, where old config goes to die.
 ;; smex
