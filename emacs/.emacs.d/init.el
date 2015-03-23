@@ -25,24 +25,24 @@
       show-paren-mode t)
 
 ;; Appearances
-(load-theme 'smyx             t)
-(global-font-lock-mode        t)
-(line-number-mode             t)
-(column-number-mode           t)
-(transient-mark-mode          t)
-(menu-bar-mode                f)
-(tool-bar-mode                f)
-(blink-cursor-mode            f)
-(setq make-pointer-invisible  t
-      echo-keystrokes         0.1
-      vc-handled-backends     '(SVN Git))
+(load-theme 'smyx t)
+(global-font-lock-mode t)
+(line-number-mode t)
+(column-number-mode t)
+(transient-mark-mode t)
+(menu-bar-mode f)
+(tool-bar-mode f)
+(blink-cursor-mode f)
+(setq make-pointer-invisible t
+      echo-keystrokes 0.1
+      vc-handled-backends '(Git))
 
 ;; Window settings
 (when (eq window-system 'x)
   ;; Font
   (set-fontset-font "fontset-default" 'symbol "Fantasque Sans Mono")
   (set-default-font "Fantasque Sans Mono")
-  (set-face-attribute 'default nil :height 90)
+  (set-face-attribute 'default nil :height 100)
 
   ;; Remove all of the ugly *bars
   (when (functionp 'menu-bar-mode)
@@ -69,6 +69,8 @@
 
 ;; Enable stock disabled commands
 (put 'erase-buffer 'disabled nil)
+(put 'downcase-region 'disabled nil)
+(put 'upcase-region 'disabled nil)
 
 ;; If you actually enjoy writing yes/no, you should be beaten with a hose
 (defalias 'yes-or-no-p 'y-or-n-p)
@@ -82,31 +84,31 @@
 
 (defun my/c-mode-init()
   "Various style settings for C."
-  (c-set-style              "k&r")
-  (c-toggle-electric-state  f)
-  (setq c-basic-offset      4))
+  (c-set-style "k&r")
+  (c-toggle-electric-state f)
+  (setq c-basic-offset 4))
 (add-hook 'c-mode-hook #'my/c-mode-init)
 
 ;; Go
 (defun my/go-mode-init()
   "Various style settings for Go."
-  (setq c-basic-offset    8
-        indent-tabs-mode  t))
+  (setq c-basic-offset 8
+        indent-tabs-mode t))
 (add-hook 'go-mode-hook #'my/go-mode-init)
 
 ;; XML
 (defun my/nxml-mode-init()
   "Various style settings for nXML."
-  (setq subword-mode                   t
-        nxml-child-indent              4
-        nxml-slash-auto-complete-flag  t))
+  (setq subword-mode t
+        nxml-child-indent 4
+        nxml-slash-auto-complete-flag t))
 (add-hook 'nxml-mode-hook #'my/nxml-mode-init)
 
 ;; General settings that should be applied to all programming modes
 (add-hook 'prog-mode-hook
           (lambda ()
-            (visual-line-mode  t)
-            (subword-mode      t)))
+            (visual-line-mode t)
+            (subword-mode t)))
 
 ;; Sync Emacs' kill ring and Mac's copy buffer
 (when (eq system-type 'darwin)
@@ -119,11 +121,6 @@
         (process-send-eof proc))))
   (setq interprogram-cut-function 'paste-to-osx
         interprogram-paste-function 'copy-from-osx))
-
-;; Use this for linux
-(when (eq system-type 'gnu/linux)
-  (setq x-select-enable-clipboard t)
-  (setq interprogram-paste-function 'x-cut-buffer-or-selection-value))
 
 ;; Stop putting temp files in the same directory, if I need it put it elsewhere
 (setq backup-directory-alist
@@ -252,8 +249,6 @@
 
 ;; git-gutter
 (use-package git-gutter
-  :idle
-  (git-gutter-mode t)
   :bind
   (("C-x =" . git-gutter:popup-hunk)
    ("C-c P" . git-gutter:previous-hunk)
@@ -301,11 +296,6 @@
                                  (hl-line-mode t)
                                  (toggle-truncate-lines t)))))
 
-;; golden-ratio
-(use-package golden-ratio
-  :idle
-  (golden-ratio-mode t))
-
 ;; multiple-cursors
 (use-package multiple-cursors
   :bind
@@ -328,8 +318,8 @@
   (progn
     (use-package helm-files)
     (use-package helm-config)
-    (setq helm-buffers-fuzzy-matching  t
-          helm-truncate-lines          t)
+    (setq helm-buffers-fuzzy-matching t
+          helm-truncate-lines t)
     (use-package helm-swoop
       :bind
       (("M-i" . helm-swoop)
@@ -350,13 +340,12 @@
   (ido-mode t)
   :config
   (progn
-    (setq ido-use-virtual-buffers                 nil
-          ido-enable-prefix                       nil
-          ido-enable-flex-matching                t
-          ido-auto-merge-work-directories-length  nil
-          ido-create-new-buffer                   'always
-          ido-save-directory-list-file
-          (concat user-emacs-directory "misc/ido/.ido-list")))
+    (setq ido-use-virtual-buffers nil
+          ido-enable-prefix nil
+          ido-enable-flex-matching t
+          ido-auto-merge-work-directories-length nil
+          ido-create-new-buffer 'always
+          ido-save-directory-list-file (concat user-emacs-directory "misc/ido/.ido-list")))
   (use-package flx-ido
     :init
     (flx-ido-mode t)
@@ -375,8 +364,6 @@
    ("C-c l" . org-store-link))
   :config
   (progn
-    (use-package ox-odt)
-    
     ;; Setup org directories
     (setq org-directory "~/.org")
 
@@ -408,18 +395,28 @@
     (add-hook 'org-mode-hook (lambda ()
                                (set-fill-column 79)
                                (turn-on-auto-fill)))
+
+    (setq org-plantuml-jar-path "/opt/plantuml/plantuml.jar")
+    (add-to-list 'org-src-lang-modes '("plantuml" . fundamental))
+
     (org-babel-do-load-languages
      'org-babel-load-languages
      '((dot . t)
-       (latex . t)))))
+       (latex . t)
+       (plantuml . t)))))
 
+;; switch-window
 (use-package switch-window
   :bind
-   ("C-c g" . switch-window))
+   ("C-x g" . switch-window))
 
+;; jabber
 (use-package jabber
   :config
-  (setq jabber-roster-line-format "%c %-25n %u %-8s  %S"))
+  (setq jabber-roster-line-format "%n %s"))
+
+;; pianobar
+(use-package pianobar)
 
 ;; Graveyard, where old config goes to die.
 ;; smex
