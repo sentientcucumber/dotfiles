@@ -6,9 +6,7 @@
              '("melpa" . "http://melpa.milkbox.net/packages/") t)
 (package-initialize)
 
-(defconst f '(-1))
-
-;; Default emacs settings
+;; default emacs settings
 (setq-default package-enable-at-startup nil
               inhibit-startup-message t
               initial-major-mode 'fundamental-mode
@@ -21,7 +19,7 @@
       delete-auto-save-files t
       find-file-visit-truename nil
       vc-follow-symlinks t
-      electric-indent-mode f
+      electric-indent-mode -1
       show-paren-mode t)
 
 ;; Appearances
@@ -30,9 +28,9 @@
 (line-number-mode t)
 (column-number-mode t)
 (transient-mark-mode t)
-(menu-bar-mode f)
-(tool-bar-mode f)
-(blink-cursor-mode f)
+(menu-bar-mode -1)
+(tool-bar-mode -1)
+(blink-cursor-mode -1)
 (setq make-pointer-invisible t
       echo-keystrokes 0.1
       vc-handled-backends '(Git))
@@ -46,23 +44,24 @@
 
   ;; Remove all of the ugly *bars
   (when (functionp 'menu-bar-mode)
-    (menu-bar-mode f))
+    (menu-bar-mode -1))
   (when (functionp 'set-scroll-bar-mode)
     (set-scroll-bar-mode 'nil))
   (when (functionp 'mouse-wheel-mode)
-    (mouse-wheel-mode f))
+    (mouse-wheel-mode -1))
   (when (functionp 'tooltip-mode)
-    (tooltip-mode f))
+    (tooltip-mode -1))
   (when (functionp 'tool-bar-mode)
-    (tool-bar-mode f))
+    (tool-bar-mode -1))
   (when (functionp 'blink-cursor-mode)
-    (blink-cursor-mode f)))
+    (blink-cursor-mode -1)))
 
 ;; Key Bindings
-(global-set-key (kbd "C-s")      'isearch-forward-regexp)
-(global-set-key (kbd "C-r")      'isearch-backward-regexp)
-(global-set-key (kbd "M-%")      'query-replace-regexp)
-(global-set-key (kbd "C-x C-l")  'toggle-truncate-lines)
+(global-set-key (kbd "C-s") 'isearch-forward-regexp)
+(global-set-key (kbd "C-r") 'isearch-backward-regexp)
+(global-set-key (kbd "M-%") 'query-replace-regexp)
+(global-set-key (kbd "C-x C-l") 'toggle-truncate-lines)
+(global-set-key (kbd "M-'") 'other-window)
 
 ;; Change this around for Dvorak
 (define-key key-translation-map "\C-t" "\C-x")
@@ -85,7 +84,7 @@
 (defun my/c-mode-init()
   "Various style settings for C."
   (c-set-style "k&r")
-  (c-toggle-electric-state f)
+  (c-toggle-electric-state -1)
   (setq c-basic-offset 4))
 (add-hook 'c-mode-hook #'my/c-mode-init)
 
@@ -182,7 +181,9 @@
 
 ;; magit
 (use-package magit
-  :bind ("M-g M-g" . magit-status))
+  :bind ("M-g M-g" . magit-status)
+  :config 
+  (setq magit-auto-rever-mode nil))
 
 ;; smartparens
 (use-package smartparens
@@ -224,11 +225,6 @@
         company-selection-wrap-around  t
         company-dabbrev-downcase       nil
         company-transformers           '(company-sort-by-occurrence))
-  (bind-keys :map company-active-map
-             ("C-n"   . company-select-next)
-             ("C-p"   . company-select-previous)
-             ("C-d"   . company-show-doc-buffer)
-             ("<tab>" . company-complete))
   (add-hook 'prog-mode-hook 'company-mode))
 
 ;; popwin
@@ -258,17 +254,17 @@
    ("C-c G" . git-gutter:popup-hunk)))
 
 ;; flycheck
-(use-package flycheck
-  :init
-  (flycheck-mode)
-  (setq-default flycheck-disabled-checkers
-                '(emacs-lisp-checkdoc))
-  (use-package flycheck-tip
-    :config
-    (add-hook 'flycheck-mode-hook
-              (lambda ()
-                (global-set-key (kbd "C-c C-n") 'flycheck-tip-cycle)
-                (global-set-key (kbd "C-c C-p") 'flycheck-tip-cycle-reverse)))))
+;; (use-package flycheck
+;;   :init
+;;   (flycheck-mode)
+;;   (setq-default flycheck-disabled-checkers
+;;                 '(emacs-lisp-checkdoc))
+;;   (use-package flycheck-tip
+;;     :config
+;;     (add-hook 'flycheck-mode-hook
+;;               (lambda ()
+;;                 (global-set-key (kbd "C-c C-n") 'flycheck-tip-cycle)
+;;                 (global-set-key (kbd "C-c C-p") 'flycheck-tip-cycle-reverse)))))
 
 ;; js2-mode
 (use-package js2-mode
@@ -335,25 +331,25 @@
    ("C-c o" . eww-browse-with-external-browser)))
 
 ;; ido
-(use-package ido
-  :init
-  (ido-mode t)
-  :config
-  (progn
-    (setq ido-use-virtual-buffers nil
-          ido-enable-prefix nil
-          ido-enable-flex-matching t
-          ido-auto-merge-work-directories-length nil
-          ido-create-new-buffer 'always
-          ido-save-directory-list-file (concat user-emacs-directory "misc/ido/.ido-list")))
-  (use-package flx-ido
-    :init
-    (flx-ido-mode t)
-    :config
-    (setq ido-use-faces nil))
-  (use-package ido-vertical-mode
-    :init
-    (ido-vertical-mode t)))
+;; (use-package ido
+;;   :init
+;;   (ido-mode t)
+;;   :config
+;;   (progn
+;;     (setq ido-use-virtual-buffers nil
+;;           ido-enable-prefix nil
+;;           ido-enable-flex-matching t
+;;           ido-auto-merge-work-directories-length nil
+;;           ido-create-new-buffer 'always
+;;           ido-save-directory-list-file (concat user-emacs-directory "misc/ido/.ido-list")))
+;;   (use-package flx-ido
+;;     :init
+;;     (flx-ido-mode t)
+;;     :config
+;;     (setq ido-use-faces nil))
+;;   (use-package ido-vertical-mode
+;;     :init
+;;     (ido-vertical-mode t)))
 
 ;; org
 (use-package org
@@ -404,26 +400,3 @@
      '((dot . t)
        (latex . t)
        (plantuml . t)))))
-
-;; switch-window
-(use-package switch-window
-  :bind
-   ("C-x g" . switch-window))
-
-;; jabber
-(use-package jabber
-  :config
-  (setq jabber-roster-line-format "%n %s"))
-
-;; pianobar
-(use-package pianobar)
-
-;; Graveyard, where old config goes to die.
-;; smex
-;; Trying out helm for now
-;; (use-package smex
-;;   :bind
-;;   ("M-x" . smex)
-;;   ("M-X" . smex-major-mode-commands)
-;;   :config
-;;   (setq smex-save-file (concat user-emacs-directory "misc/smex/.smex-items")))
