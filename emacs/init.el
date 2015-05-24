@@ -42,7 +42,7 @@
   (set-default-font "Fantasque Sans Mono")
   (set-face-attribute 'default nil :height 100)
 
-  ;; Remove all of the ugly *bars
+  ;; Remove all of the ugly bars
   (when (functionp 'menu-bar-mode)
     (menu-bar-mode -1))
   (when (functionp 'set-scroll-bar-mode)
@@ -161,73 +161,53 @@
   (untabify-buffer)
   (delete-trailing-whitespace))
 
-;; packages
 (require 'use-package)
 
-;; uniquify
 (use-package uniquify
-  :config
-  (setq uniquify-buffer-name-style 'post-forward-angle-brackets))
+  :config (setq uniquify-buffer-name-style 'post-forward-angle-brackets))
 
-;; smooth-scrolling
 (use-package smooth-scrolling
-  :config
-  (setq smooth-scroll-margin 8))
+  :config (setq smooth-scroll-margin 8))
 
-;; undo-tree
 (use-package undo-tree
-  :bind
-  ("C-x u" . undo-tree-visualize))
+  :ensure t
+  :bind ("C-x u" . undo-tree-visualize))
 
-;; magit
 (use-package magit
   :bind ("M-g M-g" . magit-status)
-  :config 
-  (setq magit-auto-rever-mode nil))
+  :config (setq magit-auto-rever-mode nil))
 
-;; smartparens
 (use-package smartparens
-  :bind
-  ("C-c (" . sp-forward-barf-sexp)
-  ("C-c )" . sp-forward-slurp-sexp)
-  :config
-  (use-package smartparens-config)
-  :init
-  (add-hook 'prog-mode-hook 'smartparens-mode t))
+  :diminish smartparens-mode
+  :bind (("C-c (" . sp-forward-barf-sexp)
+         ("C-c )" . sp-forward-slurp-sexp))
+  :config (use-package smartparens-config)
+  :init (add-hook 'prog-mode-hook 'smartparens-mode t))
 
-;; expand-region
 (use-package expand-region
   :bind (("C-c e"   . er/expand-region)
          ("C-c C-e" . er/contract-region))
-  :config
-  (pending-delete-mode t))
+  :config (pending-delete-mode t))
 
-;; hideshow
 (use-package hideshow
-  :bind
-  ("C-c TAB" . hs-toggle-hiding)
-  ("C-\\"    . hs-toggle-hiding)
-  ("M-\\"    . hs-hide-all)
-  ("M-|"     . hs-show-all)
-  :init
-  (add-hook 'prog-mode-hook 'hs-minor-mode t))
+  :bind (("C-c TAB" . hs-toggle-hiding)
+         ("C-\\"    . hs-toggle-hiding)
+         ("M-\\"    . hs-hide-all)
+         ("M-|"     . hs-show-all))
+  :init (add-hook 'prog-mode-hook 'hs-minor-mode t))
 
-;; rainbow-delimiters
 (use-package rainbow-delimiters
-  :init
-  (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
+  :init (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
 
-;; company
 (use-package company
-  :init
-  (setq company-idle-delay             0.1
-        company-minimum-prefix-length  3
-        company-selection-wrap-around  t
-        company-dabbrev-downcase       nil
-        company-transformers           '(company-sort-by-occurrence))
-  (add-hook 'prog-mode-hook 'company-mode))
+  :diminish company-mode
+  :init (add-hook 'prog-mode-hook 'company-mode)
+  :config (setq company-idle-delay 0.1
+                company-minimum-prefix-length 3
+                company-selection-wrap-around t
+                company-dabbrev-downcase nil
+                company-transformers '(company-sort-by-occurrence)))
 
-;; popwin
 (use-package popwin
   :config
   (popwin-mode t)
@@ -243,7 +223,6 @@
     (push '("*Comile-Log*" :stick f :noselect t)
           popwin:special-display-config)))
 
-;; git-gutter
 (use-package git-gutter
   :bind
   (("C-x =" . git-gutter:popup-hunk)
@@ -253,150 +232,70 @@
    ("C-x n" . git-gutter:next-hunk)
    ("C-c G" . git-gutter:popup-hunk)))
 
-;; flycheck
-;; (use-package flycheck
-;;   :init
-;;   (flycheck-mode)
-;;   (setq-default flycheck-disabled-checkers
-;;                 '(emacs-lisp-checkdoc))
-;;   (use-package flycheck-tip
-;;     :config
-;;     (add-hook 'flycheck-mode-hook
-;;               (lambda ()
-;;                 (global-set-key (kbd "C-c C-n") 'flycheck-tip-cycle)
-;;                 (global-set-key (kbd "C-c C-p") 'flycheck-tip-cycle-reverse)))))
-
-;; js2-mode
 (use-package js2-mode
   :mode "\\.js\\'"
-  :config
-  (setq-default js2-basic-offset 2))
+  :config (setq-default js2-basic-offset 2))
 
-;; dired
 (use-package dired
-  :bind
-  ("C-x C-j" . dired-jump)
-  :config
-  (use-package dired-x
-    :config
-    (when (eq system-type 'darwin)
-      (add-to-list 'dired-omit-extensions ".DS_Store")
-      (setq insert-directory-program "/usr/local/bin/gls")
-      (setq dired-listing-switches "-aBhl --group-directories-first"))
-    (setq ls-lisp-dirs-first         t
-          delete-by-moving-to-trash  t
-          dired-dwim-target          t)
-    (define-key dired-mode-map (kbd "C-c C-u") 'dired-up-directory)
-    (define-key dired-mode-map (kbd "C-x C-q") 'wdired-change-to-wdired-mode)
-    (add-hook 'dired-mode-hook (lambda ()
-                                 (hl-line-mode t)
-                                 (toggle-truncate-lines t)))))
+  :bind ("C-x C-j" . dired-jump)
+  :config (use-package dired-x
+            :config (setq ls-lisp-dirs-first t
+                          delete-by-moving-to-trash t
+                          dired-dwim-target t)
+            (define-key dired-mode-map (kbd "C-c C-u") 'dired-up-directory)
+            (define-key dired-mode-map (kbd "C-x C-q") 'wdired-change-to-wdired-mode)
+            (add-hook 'dired-mode-hook (lambda ()
+                                         (hl-line-mode t)
+                                         (toggle-truncate-lines t)))))
 
-;; multiple-cursors
-(use-package multiple-cursors
-  :bind
-  (("C-S-c C-S-c" . mc/edit-lines)
-   ("C-c >"       . mc/mark-next-like-this)
-   ("C-c <"       . mc/mark-previous-like-this)
-   ("C-c C-a"     . mc/mark-all-like-this)))
-
-;; helm
 (use-package helm
-  :bind
-  (("C-x b"   . helm-mini) ; replace normal buffer window
-   ("C-x k"   . helm-mini) ; replace kill buffer options
-   ("M-x"     . helm-M-x)
-   ("C-x C-i" . helm-semantic-or-imenu)
-   ("M-y"     . helm-show-kill-ring)
-   ("C-x f"   . helm-find-files)
-   ("C-h b"   . helm-descbinds))
-  :config
-  (progn
-    (use-package helm-files)
-    (use-package helm-config)
-    (setq helm-buffers-fuzzy-matching t
-          helm-truncate-lines t)
-    (use-package helm-swoop
-      :bind
-      (("M-i" . helm-swoop)
-       ("M-I" . helm-multi-swoop)))
-    (use-package helm-descbinds
-      :init
-      (helm-descbinds-mode t))))
+  :bind (("C-x b"   . helm-mini)
+         ("C-x k"   . helm-mini)
+         ("M-x"     . helm-M-x)
+         ("C-x C-i" . helm-semantic-or-imenu)
+         ("M-y"     . helm-show-kill-ring)
+         ("C-x f"   . helm-find-files)
+         ("C-h b"   . helm-descbinds))
+  :config (progn
+            (use-package helm-files)
+            (use-package helm-config)
+            (setq helm-buffers-fuzzy-matching t
+                  helm-truncate-lines t)
+            (use-package helm-swoop
+              :bind
+              (("M-i" . helm-swoop)
+               ("M-I" . helm-multi-swoop)))
+            (use-package helm-descbinds
+              :init
+              (helm-descbinds-mode t))))
 
-;; eww
 (use-package eww
   :bind
   (("C-c w" . eww)
    ("C-c o" . eww-browse-with-external-browser)))
 
-;; ido
-;; (use-package ido
-;;   :init
-;;   (ido-mode t)
-;;   :config
-;;   (progn
-;;     (setq ido-use-virtual-buffers nil
-;;           ido-enable-prefix nil
-;;           ido-enable-flex-matching t
-;;           ido-auto-merge-work-directories-length nil
-;;           ido-create-new-buffer 'always
-;;           ido-save-directory-list-file (concat user-emacs-directory "misc/ido/.ido-list")))
-;;   (use-package flx-ido
-;;     :init
-;;     (flx-ido-mode t)
-;;     :config
-;;     (setq ido-use-faces nil))
-;;   (use-package ido-vertical-mode
-;;     :init
-;;     (ido-vertical-mode t)))
-
-;; org
-(use-package org
-  :bind
-  (("C-c a" . org-agenda)
-   ("C-c c" . org-capture)
-   ("C-c b" . org-iswitchb)
-   ("C-c l" . org-store-link))
+(use-package ido
+  :init (ido-mode t)
   :config
   (progn
-    ;; Setup org directories
-    (setq org-directory "~/.org")
+    (setq ido-use-virtual-buffers nil
+          ido-enable-prefix nil
+          ido-enable-flex-matching t
+          ido-auto-merge-work-directories-length nil
+          ido-create-new-buffer 'always
+          ido-save-directory-list-file 
+          (concat user-emacs-directory "misc/ido/.ido")))
+  (use-package flx-ido
+    :init (flx-ido-mode t)
+    :config (setq ido-use-faces nil))
+  (use-package ido-vertical-mode
+    :init (ido-vertical-mode t)))
 
-    ;; (setq org-agenda-files '("~/.org/personal.org"
-    ;;                          "~/.org/work.org"
-    ;;                          "~/.org/school.org"))
-
-    ;; capture settings
-    (setq org-capture-templates '(("t" "To do" entry (file "~/.org/refile.org")
-                                   "* TODO %?\n%U\n")))
-    (setq org-refile-targets    '((nil :maxlevel . 3)
-                                  (org-agenda-files :maxlevel . 3)))
-    (setq org-refile-use-outline-path             t
-          org-refile-allow-creating-parent-nodes  'confirm)
-
-    ;; todo settings
-    (setq org-todo-keywords            '(("TODO(t)" "INPROGRESS(i)" "BLOCKED(b)" "DONE(d)"))
-          org-use-fast-todo-selection  t
-          org-refile-use-outline-path  t
-          ido-everywhere               t)
-
-    ;; miscellaneous settings
-    (setq org-list-allow-alphabetical t)
-    (setq org-src-fontify-natively t)
-
-    ;; key mappings
-    (define-key org-mode-map (kbd "C-c t") 'org-todo)
-
-    (add-hook 'org-mode-hook (lambda ()
+(use-package org
+  :bind (("C-c a" . org-agenda)
+         ("C-c c" . org-capture)
+         ("C-c b" . org-iswitchb)
+         ("C-c l" . org-store-link))
+  :init (add-hook 'org-mode-hook (lambda ()
                                (set-fill-column 79)
-                               (turn-on-auto-fill)))
-
-    (setq org-plantuml-jar-path "/opt/plantuml/plantuml.jar")
-    (add-to-list 'org-src-lang-modes '("plantuml" . fundamental))
-
-    (org-babel-do-load-languages
-     'org-babel-load-languages
-     '((dot . t)
-       (latex . t)
-       (plantuml . t)))))
+                               (turn-on-auto-fill))))
