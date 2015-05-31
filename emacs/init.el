@@ -218,9 +218,10 @@
 
 (use-package popwin
   :ensure t
-  :init (popwin-mode t)
+  :init
   :config
   (progn
+    (popwin-mode t)
     (defvar popwin:special-display-config-backup popwin:special-display-config)
     (setq display-buffer-function 'popwin:display-buffer)
     (push '("*Completions*" :stick f :height 20 :position bottom :noselect t)
