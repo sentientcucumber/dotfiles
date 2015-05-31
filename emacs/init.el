@@ -177,7 +177,8 @@
 (use-package magit
   :ensure t
   :bind ("M-g M-g" . magit-status)
-  :config (setq magit-auto-rever-mode nil))
+  :config (setq magit-auto-rever-mode nil
+                magit-last-seen-setup-instructions "1.4.0"))
 
 (use-package smartparens
   :ensure t
