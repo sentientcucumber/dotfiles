@@ -1,2 +1,15 @@
 * Dotfiles
   My dotfiles, a masterpiece in progress.
+
+  The following comments are primarily for personal use, to remind me how to
+  do things after neglecting this repository for months at a time.
+
+** Stow
+   =stow= is a software package installation manager. When a file or directory
+   is stowed, a symbolic link is created and lives where other programs expect
+   it to be. However, I can manage these files and directories in one
+   location, which is easier for me. If you haven't heard of =stow= already,
+   check out the manpage, or check out an article [[http://brandon.invergo.net/news/2012-05-26-using-gnu-stow-to-manage-your-dotfiles.html?round=two][here]]!
+
+** Font
+   I really like [[https://github.com/belluzj/fantasque-sans][Fantasque Sans Mono]]!

@@ -161,6 +161,8 @@
   (untabify-buffer)
   (delete-trailing-whitespace))
 
+(add-to-list 'auto-mode-alist '("\\.zsh\\'" . sh-mode))
+
 (require 'use-package)
 
 (use-package uniquify
