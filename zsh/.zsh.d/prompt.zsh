@@ -42,7 +42,8 @@ color_setup
 local light_blue="%{$FG[081]%}"
 local dark_blue="%{$FG[117]%}"
 local gray="%{$FG[250]%}"
+local reset="%{$reset_color%}"
 
 # prompt
-PROMPT="$light_blue%n $dark_blue@ $light_blue%m $gray%3~ 
-"
+PROMPT="$light_blue%n $dark_blue@ $light_blue%m $gray%~ $reset
+%(?..$FG[117]$FG[202])» $reset"
