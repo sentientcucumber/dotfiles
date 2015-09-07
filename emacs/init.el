@@ -3,11 +3,9 @@
              '("melpa" . "http://stable.melpa.org/packages/"))
 (package-initialize)
 
-(load-theme 'monokai t)
-
 (when (not (eq window-system nil))
-  (set-fontset-font "fontset-default" 'symbol "Fantasque Sans Mono")
-  (set-default-font "Fantasque Sans Mono")
+  (set-fontset-font "fontset-default" 'symbol "Inconsolata")
+  (set-default-font "Inconsolata")
   (set-face-attribute 'default nil :height 100)
 
   (when (functionp 'menu-bar-mode)
@@ -32,22 +30,25 @@
 (global-set-key (kbd "M-%") 'query-replace-regexp)
 (global-set-key (kbd "C-x C-l") 'toggle-truncate-lines)
 (global-set-key (kbd "M-'") 'other-window)
+(global-set-key (kbd "C-x m") 'eshell)
 
-(setq-default show-paren-mode t)
-(setq-default global-font-lock-mode nil)
 (setq-default line-number-mode t)
 (setq-default column-number-mode t)
 (setq-default transient-mark-mode t)
 (setq-default menu-bar-mode t)
 (setq-default tool-bar-mode t)
 (setq-default blink-cursor-mode t)
-(setq-default confirm-kill-emacs '(y-or-n-p))
+(setq-default confirm-kill-emacs 'y-or-n-p)
 (setq-default echo-keystrokes 0.1)
 (setq-default indent-tabs-mode nil)
 (setq-default fill-column 79)
 (setq-default vc-follow-symlinks t)
 (setq-default read-file-name-completion-ignore-case t)
 (setq-default delete-auto-save-files t)
+(setq-default inhibit-startup-message t)
+
+(setq show-paren-mode t)
+(setq global-font-lock-mode nil)
 
 (defun my/add-watchwords ()
   "Highlight FIXME and TODO in code"
@@ -106,6 +107,8 @@
           (lambda ()
             (visual-line-mode t)
             (subword-mode t)))
+
+(load-theme 'solarized-dark t)
 
 (require 'use-package)
 
