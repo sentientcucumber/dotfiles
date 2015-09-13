@@ -6,7 +6,7 @@
 (when (not (eq window-system nil))
   (set-fontset-font "fontset-default" 'symbol "Inconsolata")
   (set-default-font "Inconsolata")
-  (set-face-attribute 'default nil :height 100)
+  (set-face-attribute 'default nil :height 105)
 
   (when (functionp 'menu-bar-mode)
     (menu-bar-mode -1))
@@ -46,9 +46,11 @@
 (setq-default read-file-name-completion-ignore-case t)
 (setq-default delete-auto-save-files t)
 (setq-default inhibit-startup-message t)
+(setq-default make-backup-files nil)
 
 (setq show-paren-mode t)
 (setq global-font-lock-mode nil)
+
 
 (defun my/add-watchwords ()
   "Highlight FIXME and TODO in code"
