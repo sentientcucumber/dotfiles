@@ -38,6 +38,7 @@
 (setq-default menu-bar-mode t)
 (setq-default tool-bar-mode t)
 (setq-default blink-cursor-mode t)
+(setq-default inhibit-startup-message t)
 (setq-default confirm-kill-emacs 'y-or-n-p)
 (setq-default echo-keystrokes 0.1)
 (setq-default indent-tabs-mode nil)
@@ -45,19 +46,7 @@
 (setq-default vc-follow-symlinks t)
 (setq-default read-file-name-completion-ignore-case t)
 (setq-default delete-auto-save-files t)
-(setq-default inhibit-startup-message t)
 (setq-default make-backup-files nil)
-
-(setq show-paren-mode t)
-(setq global-font-lock-mode nil)
-
-
-(defun my/add-watchwords ()
-  "Highlight FIXME and TODO in code"
-  (font-lock-add-keywords
-   nil '(("\\<\\(FIXME\\|TODO\\)\\>"
-          1 '((:foreground "#DC8CC3")) t))))
-(add-hook 'prog-mode-hook 'my/add-watchwords)
 
 (defun my/c-mode-init()
   "Various style settings for C."
@@ -73,7 +62,7 @@
 (add-hook 'go-mode-hook #'my/go-mode-init)
 
 (defun my/nxml-mode-init()
-  "Various style settings for nXML."
+  "Various style settings for XML."
   (setq subword-mode t
         nxml-child-indent 4
         nxml-slash-auto-complete-flag t))
@@ -107,19 +96,22 @@
 
 (add-hook 'prog-mode-hook
           (lambda ()
-            (visual-line-mode t)
-            (subword-mode t)))
+            (visual-line-mode t)))
 
 (load-theme 'solarized-dark t)
 
 (require 'use-package)
 
+(use-package subword
+  :diminish subword-mode
+  :init (global-subword-mode))
+
 (use-package uniquify
-  :config (setq uniquify-buffer-name-style 'post-forward-angle-brackets))
+  :config (setq uniquify-buffer-name-style 'forward))
 
 (use-package smooth-scrolling
   :ensure t
-  :config (setq smooth-scroll-margin 8))
+  :config (setq smooth-scroll-margin 4))
 
 (use-package undo-tree
   :ensure t
@@ -127,30 +119,21 @@
 
 (use-package magit
   :ensure t
-  :bind ("M-g M-g" . magit-status)
-  :config (setq magit-auto-rever-mode nil))
+  :bind ("M-g M-g" . magit-status))
 
 (use-package smartparens
   :ensure t
   :diminish smartparens-mode
   :bind (("C-c (" . sp-forward-barf-sexp)
          ("C-c )" . sp-forward-slurp-sexp))
-  :config (use-package smartparens-config)
-  :init (add-hook 'prog-mode-hook 'smartparens-mode t))
+  :init (add-hook 'prog-mode-hook 'smartparens-mode t)
+  :config (use-package smartparens-config))
 
 (use-package expand-region
   :ensure t
   :bind (("C-c e"   . er/expand-region)
          ("C-c C-e" . er/contract-region))
   :config (pending-delete-mode t))
-
-(use-package hideshow
-  :ensure t
-  :bind (("C-c TAB" . hs-toggle-hiding)
-         ("C-\\"    . hs-toggle-hiding)
-         ("M-\\"    . hs-hide-all)
-         ("M-|"     . hs-show-all))
-  :init (add-hook 'prog-mode-hook 'hs-minor-mode t))
 
 (use-package rainbow-delimiters
   :ensure t
@@ -181,7 +164,7 @@
           popwin:special-display-config)
     (push '(" *undo-tree*" :stick t :height 20 :position bottom :noselect t)
           popwin:special-display-config)
-    (push '("*Comile-Log*" :stick f :noselect t)
+    (push '("*Compile-Log*" :stick f :noselect t)
           popwin:special-display-config)))
 
 (use-package js2-mode
@@ -244,6 +227,13 @@
   (use-package ido-vertical-mode
     :ensure t
     :init (ido-vertical-mode t)))
+
+(use-package alert
+  :defer t
+  :config
+  (progn
+    (when (eq system-type 'gnu/linux)
+      (setq alert-default-style 'notifications))))
 
 (use-package org
   :ensure t
