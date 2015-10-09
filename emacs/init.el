@@ -6,7 +6,7 @@
 (when (not (eq window-system nil))
   (set-fontset-font "fontset-default" 'symbol "Inconsolata")
   (set-default-font "Inconsolata")
-  (set-face-attribute 'default nil :height 105)
+  (set-face-attribute 'default nil :height 115)
 
   (when (functionp 'menu-bar-mode)
     (menu-bar-mode -1))
@@ -234,32 +234,3 @@
   (progn
     (when (eq system-type 'gnu/linux)
       (setq alert-default-style 'notifications))))
-
-(use-package org
-  :ensure t
-  :bind (("C-c a" . org-agenda)
-         ("C-c c" . org-capture)
-         ("C-c b" . org-iswitchb)
-         ("C-c l" . org-store-link))
-  :init (progn
-          (add-hook 'org-mode-hook (lambda ()
-                                     (set-fill-column 79)
-                                     (turn-on-auto-fill)))
-          (setq org-capture-templates
-                '(("t" "Todo" entry (file "~/org/refile.org")
-                   "* TODO %?\n%U\n")))
-          (setq org-todo-keyword-faces
-                '(("TODO" :foreground "red")
-                   ("NEXT" :foreground "red")
-                   ("INPROGRESS" :foreground "yellow")
-                   ("DONE" :foreground "green")
-                   ("BLOCKED" :foreground "red" :weight bold)))
-          (setq org-todo-keywords
-                '((sequence "TODO(t)" "NEXT(n)" "INPROGRESS(i)" "DONE(d)" "|" "BLOCKED(b)")))
-          (setq org-agenda-files '("~/org/work.org"
-                                   "~/org/school.org"
-                                   "~/org/refile.org"))
-          (setq org-startup-indented t
-                org-hide-leading-stars t
-                org-clock-persist 'history)
-          (org-clock-persistence-insinuate)))
