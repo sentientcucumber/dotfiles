@@ -234,3 +234,22 @@
   (progn
     (when (eq system-type 'gnu/linux)
       (setq alert-default-style 'notifications))))
+
+(use-package org
+  :ensure t
+  :bind (("C-c l" . org-store-link)
+         ("C-c a" . org-agenda))
+  :config
+  ;; special keybindings for org-mode only
+  (define-key org-mode-map (kbd "C-c t") 'org-todo)
+  ;; agenda
+  (setq org-agenda-files '("~/org/work.org"
+                           "~/org/personal.org"))
+  (org-display-inline-images t)
+  (add-to-list 'org-export-backends '(odt))
+  (setq fill-column 79)
+  (setq org-confirm-babel-evaluate nil)
+  (setq org-plantuml-jar-path "/usr/share/java/plantuml.jar")
+  (org-babel-do-load-languages 'org-babel-load-languages
+                               '((plantuml . t)
+                                 (dot . t))))
