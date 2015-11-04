@@ -1,13 +1,14 @@
+;; package 
 (require 'package)
 (add-to-list 'package-archives
-             '("melpa" . "http://stable.melpa.org/packages/"))
+             '("melpa" . "http://melpa.org/packages/"))
 (package-initialize)
 
+;; window settings
 (when (not (eq window-system nil))
   (set-fontset-font "fontset-default" 'symbol "Inconsolata")
   (set-default-font "Inconsolata")
   (set-face-attribute 'default nil :height 115)
-
   (when (functionp 'menu-bar-mode)
     (menu-bar-mode -1))
   (when (functionp 'set-scroll-bar-mode)
@@ -23,8 +24,8 @@
 
 (defalias 'yes-or-no-p 'y-or-n-p)
 
+;; keybindings
 (define-key key-translation-map "\C-t" "\C-x")
-
 (global-set-key (kbd "C-s") 'isearch-forward-regexp)
 (global-set-key (kbd "C-r") 'isearch-backward-regexp)
 (global-set-key (kbd "M-%") 'query-replace-regexp)
@@ -32,6 +33,7 @@
 (global-set-key (kbd "M-'") 'other-window)
 (global-set-key (kbd "C-x m") 'eshell)
 
+;; global values
 (setq-default line-number-mode t)
 (setq-default column-number-mode t)
 (setq-default transient-mark-mode t)
@@ -69,7 +71,7 @@
 (add-hook 'nxml-mode-hook #'my/nxml-mode-init)
 
 (defun toggle-fullscreen ()
-  "Toggle full screen on X11"
+  "Toggle full screen"
   (interactive)
   (when (eq window-system 'x)
     (set-frame-parameter
@@ -96,7 +98,8 @@
 
 (add-hook 'prog-mode-hook
           (lambda ()
-            (visual-line-mode t)))
+            (visual-line-mode t)
+            (subword-mode t)))
 
 (load-theme 'solarized-dark t)
 
@@ -240,16 +243,24 @@
   :bind (("C-c l" . org-store-link)
          ("C-c a" . org-agenda))
   :config
+  (defun my/org-mode-hook ()
+    (turn-on-auto-fill))
+  (add-hook 'org-mode-hook #'my/org-mode-hook)
+  
+  (use-package ox-reveal)
   ;; special keybindings for org-mode only
   (define-key org-mode-map (kbd "C-c t") 'org-todo)
   ;; agenda
   (setq org-agenda-files '("~/org/work.org"
                            "~/org/personal.org"))
+  ;; randomness
+  (setq org-list-allow-alphabetical t)
+  (setq fill-column 79)
   (org-display-inline-images t)
   (add-to-list 'org-export-backends '(odt))
-  (setq fill-column 79)
   (setq org-confirm-babel-evaluate nil)
   (setq org-plantuml-jar-path "/usr/share/java/plantuml.jar")
   (org-babel-do-load-languages 'org-babel-load-languages
                                '((plantuml . t)
-                                 (dot . t))))
+                                 (dot . t)
+                                 (gnuplot . t))))
