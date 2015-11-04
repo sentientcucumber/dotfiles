@@ -1,4 +1,4 @@
-;; package 
+;; package
 (require 'package)
 (add-to-list 'package-archives
              '("melpa" . "http://melpa.org/packages/"))
@@ -21,6 +21,8 @@
     (tool-bar-mode -1))
   (when (functionp 'blink-cursor-mode)
     (blink-cursor-mode -1)))
+
+(load-theme 'solarized-dark t)
 
 (defalias 'yes-or-no-p 'y-or-n-p)
 
@@ -50,26 +52,14 @@
 (setq-default delete-auto-save-files t)
 (setq-default make-backup-files nil)
 
-(defun my/c-mode-init()
-  "Various style settings for C."
-  (c-set-style "k&r")
-  (c-toggle-electric-state -1)
-  (setq c-basic-offset 4))
-(add-hook 'c-mode-hook #'my/c-mode-init)
-
-(defun my/go-mode-init()
-  "Various style settings for Go."
-  (setq c-basic-offset 8
-        indent-tabs-mode t))
-(add-hook 'go-mode-hook #'my/go-mode-init)
-
-(defun my/nxml-mode-init()
+;; hooks
+(defun my/nxml-mode-init ()
   "Various style settings for XML."
-  (setq subword-mode t
-        nxml-child-indent 4
-        nxml-slash-auto-complete-flag t))
+  (setq nxml-child-indent 4)
+  (setq nxml-slash-auto-complete-flag t))
 (add-hook 'nxml-mode-hook #'my/nxml-mode-init)
 
+;; various functions
 (defun toggle-fullscreen ()
   "Toggle full screen"
   (interactive)
@@ -98,11 +88,9 @@
 
 (add-hook 'prog-mode-hook
           (lambda ()
-            (visual-line-mode t)
-            (subword-mode t)))
+            (visual-line-mode t)))
 
-(load-theme 'solarized-dark t)
-
+;; package setup
 (require 'use-package)
 
 (use-package subword
@@ -155,7 +143,6 @@
 
 (use-package popwin
   :ensure t
-  :init
   :config
   (progn
     (popwin-mode t)
@@ -172,8 +159,14 @@
 
 (use-package js2-mode
   :ensure t
+  :delight js2-mode "js2"
   :mode "\\.js\\'"
-  :config (setq-default js2-basic-offset 2))
+  :config
+  (setq js2-basic-offset 2))
+
+(use-package js
+  :config
+  (setq js-indent-level 2))
 
 (use-package dired
   :bind ("C-x C-j" . dired-jump)
@@ -244,9 +237,10 @@
          ("C-c a" . org-agenda))
   :config
   (defun my/org-mode-hook ()
+    (setq fill-column 79)
     (turn-on-auto-fill))
   (add-hook 'org-mode-hook #'my/org-mode-hook)
-  
+
   (use-package ox-reveal)
   ;; special keybindings for org-mode only
   (define-key org-mode-map (kbd "C-c t") 'org-todo)
@@ -255,7 +249,6 @@
                            "~/org/personal.org"))
   ;; randomness
   (setq org-list-allow-alphabetical t)
-  (setq fill-column 79)
   (org-display-inline-images t)
   (add-to-list 'org-export-backends '(odt))
   (setq org-confirm-babel-evaluate nil)
