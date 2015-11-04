@@ -37,6 +37,9 @@ alias grep="egrep --color=auto"
 
 alias tmux="tmux -2"
 
+# exports
+export PATH="PATH:$HOME/.npm-packages/bin"
+
 # load files
 ZSHD=$HOME/.zsh.d
 

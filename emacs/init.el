@@ -162,7 +162,10 @@
   :delight js2-mode "js2"
   :mode "\\.js\\'"
   :config
-  (setq js2-basic-offset 2))
+  (setq js2-basic-offset 2)
+  (add-to-list 'load-path "~/.npm/tern/0.16.0/package/emacs")
+  (autoload 'tern-mode "tern.el" nil t)
+  (tern-mode t))
 
 (use-package js
   :config
@@ -257,3 +260,4 @@
                                '((plantuml . t)
                                  (dot . t)
                                  (gnuplot . t))))
+
