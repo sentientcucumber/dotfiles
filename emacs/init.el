@@ -88,7 +88,8 @@
 
 (add-hook 'prog-mode-hook
           (lambda ()
-            (visual-line-mode t)))
+            (visual-line-mode t)
+            (hl-line-mode t)))
 
 ;; package setup
 (require 'use-package)
@@ -165,7 +166,7 @@
   (setq js2-basic-offset 2)
   (add-to-list 'load-path "~/.npm/tern/0.16.0/package/emacs")
   (autoload 'tern-mode "tern.el" nil t)
-  (tern-mode t))
+  (add-hook 'javascript-mode (lambda () (tern-mode t))))
 
 (use-package js
   :config
@@ -261,3 +262,9 @@
                                  (dot . t)
                                  (gnuplot . t))))
 
+(use-package projectile
+  :commands projectile-global-mode
+  :diminish projectile-mode
+  :config
+  (projectile-global-mode))
+(put 'erase-buffer 'disabled nil)
