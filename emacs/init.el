@@ -263,8 +263,7 @@
                                  (gnuplot . t))))
 
 (use-package projectile
+  :defer 5
   :commands projectile-global-mode
   :diminish projectile-mode
-  :config
-  (projectile-global-mode))
-(put 'erase-buffer 'disabled nil)
+  :config (projectile-global-mode))
