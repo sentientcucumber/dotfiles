@@ -59,6 +59,11 @@
   (setq nxml-slash-auto-complete-flag t))
 (add-hook 'nxml-mode-hook #'my/nxml-mode-init)
 
+(add-hook 'prog-mode-hook
+          (lambda ()
+            (visual-line-mode t)
+            (hl-line-mode t)))
+
 ;; various functions
 (defun toggle-fullscreen ()
   "Toggle full screen"
@@ -86,11 +91,6 @@
   (untabify-buffer)
   (delete-trailing-whitespace))
 
-(add-hook 'prog-mode-hook
-          (lambda ()
-            (visual-line-mode t)
-            (hl-line-mode t)))
-
 ;; package setup
 (require 'use-package)
 
@@ -112,6 +112,14 @@
 (use-package magit
   :ensure t
   :bind ("M-g M-g" . magit-status))
+
+(use-package git-gutter
+  :diminish git-gutter-mode
+  :bind
+  (("M-g n" . git-gutter:next-hunk)
+   ("M-g p" . git-gutter:previous-hunk))
+  :init
+  (global-git-gutter-mode t))
 
 (use-package smartparens
   :ensure t
@@ -145,18 +153,17 @@
 (use-package popwin
   :ensure t
   :config
-  (progn
-    (popwin-mode t)
-    (defvar popwin:special-display-config-backup popwin:special-display-config)
-    (setq display-buffer-function 'popwin:display-buffer)
-    (push '("*Completions*" :stick f :height 20 :position bottom :noselect t)
-          popwin:special-display-config)
-    (push '("*Warnings*" :stick t :height 20 :position bottom :noselect t)
-          popwin:special-display-config)
-    (push '(" *undo-tree*" :stick t :height 20 :position bottom :noselect t)
-          popwin:special-display-config)
-    (push '("*Compile-Log*" :stick f :noselect t)
-          popwin:special-display-config)))
+  (popwin-mode t)
+  (defvar popwin:special-display-config-backup popwin:special-display-config)
+  (setq display-buffer-function 'popwin:display-buffer)
+  (push '("*Completions*" :stick f :height 20 :position bottom :noselect t)
+        popwin:special-display-config)
+  (push '("*Warnings*" :stick t :height 20 :position bottom :noselect t)
+        popwin:special-display-config)
+  (push '(" *undo-tree*" :stick t :height 20 :position bottom :noselect t)
+        popwin:special-display-config)
+  (push '("*Compile-Log*" :stick f :noselect t)
+        popwin:special-display-config))
 
 (use-package js2-mode
   :ensure t
@@ -174,66 +181,70 @@
 
 (use-package dired
   :bind ("C-x C-j" . dired-jump)
-  :config (use-package dired-x
-            :config (setq ls-lisp-dirs-first t
-                          delete-by-moving-to-trash t
-                          dired-dwim-target t)
-            (define-key dired-mode-map (kbd "C-c C-u") 'dired-up-directory)
-            (define-key dired-mode-map (kbd "C-x C-q") 'wdired-change-to-wdired-mode)
-            (add-hook 'dired-mode-hook (lambda ()
-                                         (hl-line-mode t)
-                                         (toggle-truncate-lines t)))))
+  :config
+  (use-package dired-x)
+  (setq ls-lisp-dirs-first t)
+  (setq delete-by-moving-to-trash t)
+  (setq dired-dwim-target t)
+  (put 'dired-find-alternate-file 'disabled nil)
+  (define-key dired-mode-map (kbd "RET") 'dired-find-alternate-file)
+  (define-key dired-mode-map (kbd "C-M-u") 'dired-up-directory)
+  (define-key dired-mode-map (kbd "C-x C-q") 'wdired-change-to-wdired-mode)
+  (add-hook 'dired-mode-hook (lambda ()
+                               (hl-line-mode t)
+                               (toggle-truncate-lines t))))
 
 (use-package helm
   :ensure t
-  :bind (("C-x b" . helm-mini)
-         ("C-x k" . helm-mini)
-         ("M-x" . helm-M-x)
-         ("C-x C-i" . helm-semantic-or-imenu)
-         ("M-y" . helm-show-kill-ring)
-         ("C-x f" . helm-find-files)
-         ("C-h b" . helm-descbinds))
-  :config (progn
-            (use-package helm-files)
-            (use-package helm-config)
-            (setq helm-buffers-fuzzy-matching t
-                  helm-truncate-lines t)
-            (use-package helm-swoop
-              :bind
-              (("M-i" . helm-swoop)
-               ("M-I" . helm-multi-swoop)))))
+  :bind
+  (("C-x b" . helm-mini)
+   ("C-x k" . helm-mini)
+   ("M-x" . helm-M-x)
+   ("C-x C-i" . helm-semantic-or-imenu)
+   ("M-y" . helm-show-kill-ring)
+   ("C-x f" . helm-find-files)
+   ("C-h b" . helm-descbinds))
+  :config
+  (use-package helm-files)
+  (use-package helm-config)
+  (use-package helm-swoop
+    :bind
+    (("M-i" . helm-swoop)
+     ("M-I" . helm-multi-swoop)))
+  (setq helm-buffers-fuzzy-matching t
+        helm-truncate-lines t))
 
 (use-package eww
   :ensure t
-  :bind (("C-c w" . eww)
-         ("C-c o" . eww-browse-with-external-browser)))
+  :bind
+  (("C-c w" . eww)
+   ("C-c o" . eww-browse-with-external-browser)))
 
 (use-package ido
   :ensure t
   :init (ido-mode t)
   :config
-  (progn
-    (setq ido-use-virtual-buffers nil
-          ido-enable-prefix nil
-          ido-enable-flex-matching t
-          ido-auto-merge-work-directories-length nil
-          ido-create-new-buffer 'always
-          ido-save-directory-list-file
-          (concat user-emacs-directory "misc/ido/.ido")))
+  (use-package ido-ubiquitous)
   (use-package flx-ido
     :ensure t
     :init (flx-ido-mode t)
     :config (setq ido-use-faces nil))
   (use-package ido-vertical-mode
     :ensure t
-    :init (ido-vertical-mode t)))
+    :init (ido-vertical-mode t))
+  (setq ido-use-virtual-buffers nil)
+  (setq ido-enable-prefix nil)
+  (setq ido-enable-flex-matching t)
+  (setq ido-auto-merge-work-directories-length nil)
+  (setq ido-create-new-buffer 'always)
+  (setq ido-save-directory-list-file
+        (concat user-emacs-directory "misc/ido/.ido")))
 
 (use-package alert
   :defer t
   :config
-  (progn
-    (when (eq system-type 'gnu/linux)
-      (setq alert-default-style 'notifications))))
+  (when (eq system-type 'gnu/linux)
+    (setq alert-default-style 'notifications)))
 
 (use-package org
   :ensure t
@@ -263,7 +274,11 @@
                                  (gnuplot . t))))
 
 (use-package projectile
+  ;; checkout perspective at some point
   :defer 5
   :commands projectile-global-mode
   :diminish projectile-mode
-  :config (projectile-global-mode))
+  :config
+  (projectile-global-mode)
+  (use-package helm-projectile
+    :config (helm-projectile-on)))
