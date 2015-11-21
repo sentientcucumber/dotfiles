@@ -94,6 +94,9 @@
 ;; package setup
 (require 'use-package)
 
+(use-package delight
+  :ensure t)
+
 (use-package subword
   :diminish subword-mode
   :init (global-subword-mode))
@@ -114,6 +117,7 @@
   :bind ("M-g M-g" . magit-status))
 
 (use-package git-gutter
+  :ensure t
   :diminish git-gutter-mode
   :bind
   (("M-g n" . git-gutter:next-hunk)
