@@ -1,8 +1,9 @@
-;; package
-(require 'package)
-(add-to-list 'package-archives
-             '("melpa" . "http://melpa.org/packages/"))
-(package-initialize)
+;; path
+(add-to-list 'load-path "/usr/local/share/emacs/site-lisp/mu4e")
+
+;; general settings
+(setq-default user-full-name "Michael Hunsinger")
+(setq-default user-mail-address "mike.hunsinger@gmail.com")
 
 ;; window settings
 (when (not (eq window-system nil))
@@ -21,8 +22,6 @@
     (tool-bar-mode -1))
   (when (functionp 'blink-cursor-mode)
     (blink-cursor-mode -1)))
-
-(load-theme 'solarized-dark t)
 
 (defalias 'yes-or-no-p 'y-or-n-p)
 
@@ -92,7 +91,18 @@
   (delete-trailing-whitespace))
 
 ;; package setup
+(require 'package)
+(add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
+(package-initialize)
+
 (require 'use-package)
+
+(use-package solarized-theme
+  :ensure t
+  :init
+  (setq solarized-use-variable-pitch nil)
+  (setq solarized-scale-org-headlines nil)
+  (load-theme 'solarized-dark t))
 
 (use-package delight
   :ensure t)
@@ -286,3 +296,11 @@
   (projectile-global-mode)
   (use-package helm-projectile
     :config (helm-projectile-on)))
+
+(use-package mu4e
+  :bind ("C-c m" . mu4e)
+  :config
+  (setq mu4e-maildir "~/.mail")
+  (setq mu4e-attachment-dir "~/Downloads")
+  (setq mu4e-user-mail-address-list '("mike.hunsinger@gmail.com"))
+  (setq sendmail-program (executable-find "msmtp")))
