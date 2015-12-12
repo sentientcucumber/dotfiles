@@ -297,10 +297,36 @@
   (use-package helm-projectile
     :config (helm-projectile-on)))
 
+;; download from https://github.com/djcb/mu
 (use-package mu4e
   :bind ("C-c m" . mu4e)
   :config
+  (setq mu4e-mu-binary (executable-find "mu"))
+  (setq mu4e-html2text-command (concat (executable-find "html2text") " -utf8 -width 72"))
+  (setq mu4e-get-mail-command (executable-find "offlineimap"))
+
+  (setq send-mail-function 'sendmail-send-it)
+  (add-hook 'mu4e-view-mode-hook 'visual-line-mode)
+  (setq message-kill-buffer-on-exit t)
+  (setq sendmail-program (executable-find "msmtp"))
+  (setq smtpmail-queue-mail t)
+  (setq mail-user-agent 'mu4e-user-agent)
+
   (setq mu4e-maildir "~/.mail")
+  (setq mu4e-drafts-folder "/[Gmail].Drafts")
+  (setq mu4e-sent-folder "/[Gmail].Sent Mail")
+  (setq mu4e-trash-folder "/[Gmail].Trash")
+  (setq smtpmail-queue-dir "/.mail/queue")
   (setq mu4e-attachment-dir "~/Downloads")
+
+  (setq mu4e-sent-messages-behavior 'delete)
+  (setq mu4e-maildir-shortcuts
+    '(("/INBOX"               . ?i)
+      ("/[Gmail].Sent Mail"   . ?s)
+      ("/[Gmail].Trash"       . ?t)
+      ("/[Gmail].All Mail"    . ?a)))
+  (setq mu4e-update-interval 300)
+  (setq mu4e-view-show-images t)
+
   (setq mu4e-user-mail-address-list '("mike.hunsinger@gmail.com"))
-  (setq sendmail-program (executable-find "msmtp")))
+  (setq mu4e-compose-signature "// Michael"))
