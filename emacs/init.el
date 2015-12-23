@@ -9,7 +9,7 @@
 (when (not (eq window-system nil))
   (set-fontset-font "fontset-default" 'symbol "Inconsolata")
   (set-default-font "Inconsolata")
-  (set-face-attribute 'default nil :height 115)
+  (set-face-attribute 'default nil :height 120)
   (when (functionp 'menu-bar-mode)
     (menu-bar-mode -1))
   (when (functionp 'set-scroll-bar-mode)
@@ -102,7 +102,7 @@
   :init
   (setq solarized-use-variable-pitch nil)
   (setq solarized-scale-org-headlines nil)
-  (load-theme 'solarized-dark t))
+  (load-theme 'solarized-light t))
 
 (use-package delight
   :ensure t)
@@ -226,7 +226,9 @@
     (("M-i" . helm-swoop)
      ("M-I" . helm-multi-swoop)))
   (setq helm-buffers-fuzzy-matching t
-        helm-truncate-lines t))
+        helm-truncate-lines t)
+  (use-package helm-c-yasnippet
+    :bind ("M-=" . helm-yas-complete)))
 
 (use-package eww
   :ensure t
@@ -329,4 +331,10 @@
   (setq mu4e-view-show-images t)
 
   (setq mu4e-user-mail-address-list '("mike.hunsinger@gmail.com"))
-  (setq mu4e-compose-signature "// Michael"))
+  (setq mu4e-compose-signature "Cheers, Mike"))
+
+(use-package yasnippet
+  :diminish yas-minor-mode
+  :config
+  (yas-load-directory (concat user-emacs-directory "snippets"))
+  (yas-global-mode t))
