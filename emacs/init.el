@@ -1,4 +1,8 @@
-;; path
+;;; init.el --- Summary
+
+;;; Commentary:
+
+;;; Code:
 (add-to-list 'load-path "/usr/local/share/emacs/site-lisp/mu4e")
 
 ;; general settings
@@ -8,7 +12,7 @@
 ;; window settings
 (when (not (eq window-system nil))
   (set-fontset-font "fontset-default" 'symbol "Inconsolata")
-  (set-default-font "Inconsolata")
+  (set-frame-font "Inconsolata")
   (set-face-attribute 'default nil :height 120)
   (when (functionp 'menu-bar-mode)
     (menu-bar-mode -1))
@@ -26,6 +30,7 @@
 (defalias 'yes-or-no-p 'y-or-n-p)
 
 ;; keybindings
+(define-key key-translation-map "\C-x" "\C-t")
 (define-key key-translation-map "\C-t" "\C-x")
 (global-set-key (kbd "C-s") 'isearch-forward-regexp)
 (global-set-key (kbd "C-r") 'isearch-backward-regexp)
@@ -92,6 +97,7 @@
 
 ;; package setup
 (require 'package)
+(add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/"))
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
 (package-initialize)
 
@@ -100,9 +106,7 @@
 (use-package solarized-theme
   :ensure t
   :init
-  (setq solarized-use-variable-pitch nil)
-  (setq solarized-scale-org-headlines nil)
-  (load-theme 'solarized-light t))
+  (load-theme 'solarized-dark t))
 
 (use-package delight
   :ensure t)
@@ -120,7 +124,9 @@
 
 (use-package undo-tree
   :ensure t
-  :bind ("C-x u" . undo-tree-visualize))
+  :bind ("C-x u" . undo-tree-visualize)
+  :config
+  (setq undo-tree-visualizer-diff t))
 
 (use-package magit
   :ensure t
@@ -134,6 +140,12 @@
    ("M-g p" . git-gutter:previous-hunk))
   :init
   (global-git-gutter-mode t))
+
+;; (electric-pair-mode 1)
+;; (setq electric-pair-preserve-balance t
+;;       electric-pair-delete-adjacent-pairs t
+;;       electric-pair-open-newline-between-pairs nil)
+;; (show-paren-mode 1)
 
 (use-package smartparens
   :ensure t
@@ -185,13 +197,10 @@
   :mode "\\.js\\'"
   :config
   (setq js2-basic-offset 2)
-  (add-to-list 'load-path "~/.npm/tern/0.16.0/package/emacs")
-  (autoload 'tern-mode "tern.el" nil t)
-  (add-hook 'javascript-mode (lambda () (tern-mode t))))
-
-(use-package js
-  :config
-  (setq js-indent-level 2))
+  (setq js2-include-node-externs t)
+  (setq js2-indent-switch-body t)
+  (setq js-indent-level 2)
+  (setq js2-global-externs '("describe" "xdescribe" "it" "xit" "beforeEach" "afterEach")))
 
 (use-package dired
   :bind ("C-x C-j" . dired-jump)
@@ -265,14 +274,14 @@
 (use-package org
   :ensure t
   :bind (("C-c l" . org-store-link)
-         ("C-c a" . org-agenda))
+         ("C-c a" . org-agenda)
+         ("C-c c" . org-capture))
   :config
   (defun my/org-mode-hook ()
     (setq fill-column 79)
     (turn-on-auto-fill))
   (add-hook 'org-mode-hook #'my/org-mode-hook)
 
-  (use-package ox-reveal)
   ;; special keybindings for org-mode only
   (define-key org-mode-map (kbd "C-c t") 'org-todo)
   ;; agenda
@@ -301,6 +310,7 @@
 
 ;; download from https://github.com/djcb/mu
 (use-package mu4e
+  :no-require t
   :bind ("C-c m" . mu4e)
   :config
   (setq mu4e-mu-binary (executable-find "mu"))
@@ -323,10 +333,10 @@
 
   (setq mu4e-sent-messages-behavior 'delete)
   (setq mu4e-maildir-shortcuts
-    '(("/INBOX"               . ?i)
-      ("/[Gmail].Sent Mail"   . ?s)
-      ("/[Gmail].Trash"       . ?t)
-      ("/[Gmail].All Mail"    . ?a)))
+        '(("/INBOX" . ?i)
+          ("/[Gmail].Sent Mail" . ?s)
+          ("/[Gmail].Trash" . ?t)
+          ("/[Gmail].All Mail" . ?a)))
   (setq mu4e-update-interval 300)
   (setq mu4e-view-show-images t)
 
@@ -336,5 +346,20 @@
 (use-package yasnippet
   :diminish yas-minor-mode
   :config
-  (yas-load-directory (concat user-emacs-directory "snippets"))
+  (setq yas-snippet-dirs '("~/.emacs.d/snippets" "~/.emacs.d/misc"))
   (yas-global-mode t))
+
+(use-package avy
+  :bind ("C-=" . avy-goto-char)
+  :config
+  (setq avy-keys '(?a ?o ?e ?u ?h ?t ?n ?s)))
+
+(use-package flycheck
+  :bind (("M-g M-n" . flycheck-next-error)
+         ("M-g M-p" . flycheck-previous-error)
+         ("M-g M-=" . flycheck-list-errors))
+  :init (global-flycheck-mode)
+  :diminish flycheck-mode
+  :config
+  (setq flycheck-javascript-eslint-executable "/home/shellhead/.npm-packages/bin/eslint")
+  (setq flycheck-eslintrc "/home/shellhead/development/swagger-lint/.eslintrc"))
