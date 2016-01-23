@@ -279,7 +279,8 @@
   :config
   (defun my/org-mode-hook ()
     (setq fill-column 79)
-    (turn-on-auto-fill))
+    (turn-on-auto-fill)
+    (turn-on-flyspell))
   (add-hook 'org-mode-hook #'my/org-mode-hook)
 
   ;; special keybindings for org-mode only
@@ -310,7 +311,7 @@
 
 ;; download from https://github.com/djcb/mu
 (use-package mu4e
-  :no-require t
+  :if (eq window-system 'x)
   :bind ("C-c m" . mu4e)
   :config
   (setq mu4e-mu-binary (executable-find "mu"))
@@ -363,3 +364,19 @@
   :config
   (setq flycheck-javascript-eslint-executable "/home/shellhead/.npm-packages/bin/eslint")
   (setq flycheck-eslintrc "/home/shellhead/development/swagger-lint/.eslintrc"))
+
+(use-package flyspell
+  :defer t
+  :init (add-hook 'prog-mode-hook #'flyspell-prog-mode)
+  :config
+  (when (executable-find "aspell")
+    (setq ispell-program-name (executable-find "aspell"))
+    (setq ispell-extra-args
+          (list "--sug-mode=fast"
+                "--lang=en_US"
+                "--ignore=4")))
+  (use-package helm-flyspell
+    :init
+    (define-key flyspell-mode-map (kbd "M-S") #'helm-flyspell-correct)))
+
+;;; init.el ends here
