@@ -4,7 +4,7 @@
 
 ;;; Code:
 (add-to-list 'load-path "/usr/local/share/emacs/site-lisp/mu4e")
-
+(add-to-list 'load-path "/home/shellhead/.dotfiles/emacs/org-reveal")
 
 ;; general settings
 (setq-default user-full-name "Michael Hunsinger")
@@ -276,14 +276,12 @@
          ("C-c a" . org-agenda)
          ("C-c c" . org-capture))
   :config
-  (use-package abbrev)
+  (load-library "ox-reveal")
   (defun my/org-mode-hook ()
     (setq fill-column 79)
     (turn-on-auto-fill)
     (turn-on-flyspell))
-
   (add-hook 'org-mode-hook #'my/org-mode-hook)
-
   ;; special keybindings for org-mode only
   (define-key org-mode-map (kbd "C-c t") 'org-todo)
   ;; agenda
