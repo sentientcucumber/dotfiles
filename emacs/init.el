@@ -5,6 +5,7 @@
 ;;; Code:
 (add-to-list 'load-path "/usr/local/share/emacs/site-lisp/mu4e")
 
+
 ;; general settings
 (setq-default user-full-name "Michael Hunsinger")
 (setq-default user-mail-address "mike.hunsinger@gmail.com")
@@ -333,66 +334,73 @@
   (setq mu4e-contexts
         `(,(make-mu4e-context
             :name "gmail"
-            :match-func (lambda (msg)
-                          (when msg
-                            (mu4e-message-contact-field-matches msg
-                                                                :to "mike.hunsinger@gmail.com")))
+            :match-func
+            (lambda (msg)
+              (when msg
+                (mu4e-message-contact-field-matches msg
+                                                    :to "mike.hunsinger@gmail.com")))
             :vars '((user-mail-address . "mike.hunsinger@gmail.com" )
                     (user-full-name . "Michael Hunsinger")
                     (mu4e-sent-folder . "/gmail/[Gmail].Sent Mail/")
                     (mu4e-drafts-folder . "/gmail/[Gmail].Drafts")
                     (mu4e-trash-folder . "/gmail/[Gmail].Trash")))
-          ,(make-mu4e-context
-            :name "school"
-            :enter-func (lambda () (mu4e-message "Switch to the Work context"))
-            :match-func (lambda (msg)
-                          (when msg
-                            (mu4e-message-contact-field-matches msg
-                                                                :to "michael.hunsinger@ucdenver.edu")))
-            :vars '((user-mail-address . "michael.hunsinger@ucdenver.edu")
-                    (user-full-name . "Michael Hunsinger")
-                    (mu4e-sent-folder . "/school/Sent/")
-                    (mu4e-drafts-folder . "/school/Drafts")
-                    (mu4e-trash-folder . "/school/Trash"))))))
+            ,(make-mu4e-context
+              :name "school"
+              :enter-func (lambda () (mu4e-message "Switch to the Work context"))
+              :match-func
+              (lambda (msg)
+                (when msg
+                  (mu4e-message-contact-field-matches msg
+                                                      :to "michael.hunsinger@ucdenver.edu")))
+              :vars '((user-mail-address . "michael.hunsinger@ucdenver.edu")
+                      (user-full-name . "Michael Hunsinger")
+                      (mu4e-sent-folder . "/school/Sent/")
+                      (mu4e-drafts-folder . "/school/Drafts")
+                      (mu4e-trash-folder . "/school/Trash")))))
+  (define-key mu4e-view-mode-map (kbd "j") 'next-line)
+  (define-key mu4e-view-mode-map (kbd "k") 'previous-line)
+  (define-key mu4e-headers-mode-map (kbd "J") 'mu4e~headers-jump-to-maildir)
+  (define-key mu4e-headers-mode-map (kbd "j") 'next-line)
+  (define-key mu4e-headers-mode-map (kbd "k") 'previous-line))
 
-(use-package yasnippet
-  :diminish yas-minor-mode
-  :config
-  (setq yas-snippet-dirs '("~/.emacs.d/snippets" "~/.emacs.d/misc"))
-  (yas-global-mode t))
+  (use-package yasnippet
+    :diminish yas-minor-mode
+    :config
+    (setq yas-snippet-dirs '("~/.emacs.d/snippets" "~/.emacs.d/misc"))
+    (yas-global-mode t))
 
-(use-package avy
-  :bind ("C-=" . avy-goto-char)
-  :config
-  (setq avy-keys '(?a ?o ?e ?u ?h ?t ?n ?s)))
+  (use-package avy
+    :bind ("C-=" . avy-goto-char)
+    :config
+    (setq avy-keys '(?a ?o ?e ?u ?h ?t ?n ?s)))
 
-(use-package flycheck
-  :bind (("M-g M-n" . flycheck-next-error)
-         ("M-g M-p" . flycheck-previous-error)
-         ("M-g M-=" . flycheck-list-errors))
-  :init (global-flycheck-mode)
-  :diminish flycheck-mode
-  :config
-  (setq flycheck-javascript-eslint-executable "/home/shellhead/.npm-packages/bin/eslint")
-  (setq flycheck-eslintrc "/home/shellhead/development/swagger-lint/.eslintrc"))
+  (use-package flycheck
+    :bind (("M-g M-n" . flycheck-next-error)
+           ("M-g M-p" . flycheck-previous-error)
+           ("M-g M-=" . flycheck-list-errors))
+    :init (global-flycheck-mode)
+    :diminish flycheck-mode
+    :config
+    (setq flycheck-javascript-eslint-executable "/home/shellhead/.npm-packages/bin/eslint")
+    (setq flycheck-eslintrc "/home/shellhead/development/swagger-lint/.eslintrc"))
 
-(use-package flyspell
-  :defer t
-  :init (add-hook 'prog-mode-hook #'flyspell-prog-mode)
-  :config
-  (when (executable-find "aspell")
-    (setq ispell-program-name (executable-find "aspell"))
-    (setq ispell-extra-args
-          (list "--sug-mode=fast"
-                "--lang=en_US"
-                "--ignore=4")))
-  (use-package helm-flyspell
+  (use-package flyspell
+    :defer t
+    :init (add-hook 'prog-mode-hook #'flyspell-prog-mode)
+    :config
+    (when (executable-find "aspell")
+      (setq ispell-program-name (executable-find "aspell"))
+      (setq ispell-extra-args
+            (list "--sug-mode=fast"
+                  "--lang=en_US"
+                  "--ignore=4")))
+    (use-package helm-flyspell
+      :init
+      (define-key flyspell-mode-map (kbd "M-S") #'helm-flyspell-correct)))
+
+  (use-package puml
+    :interpreter "plantuml"
     :init
-    (define-key flyspell-mode-map (kbd "M-S") #'helm-flyspell-correct)))
-
-(use-package puml
-  :interpreter "plantuml"
-  :init
-  (setq puml-plantuml-jar-path "/usr/share/java/plantuml.jar"))
+    (setq puml-plantuml-jar-path "/usr/share/java/plantuml.jar"))
 
 ;;; init.el ends here
