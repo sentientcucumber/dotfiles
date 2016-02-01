@@ -55,6 +55,7 @@
 (setq-default read-file-name-completion-ignore-case t)
 (setq-default delete-auto-save-files t)
 (setq-default make-backup-files nil)
+(setq initial-major-mode 'fundamental-mode)
 
 ;; hooks
 (defun my/nxml-mode-init ()
@@ -70,7 +71,7 @@
 
 ;; various functions
 (defun toggle-fullscreen ()
-  "Toggle full screen"
+  "Toggle full screen."
   (interactive)
   (when (eq window-system 'x)
     (set-frame-parameter
@@ -101,12 +102,9 @@
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
 (package-initialize)
 
-(require 'use-package)
+(load-theme 'solarized-dark t)
 
-(use-package solarized-theme
-  :ensure t
-  :init
-  (load-theme 'solarized-dark t))
+(require 'use-package)
 
 (use-package delight
   :ensure t)
@@ -200,7 +198,7 @@
   (setq js2-include-node-externs t)
   (setq js2-indent-switch-body t)
   (setq js-indent-level 2)
-  (setq js2-global-externs '("describe" "xdescribe" "it" "xit" "beforeEach" "afterEach")))
+  (setq js2-global-externs '("describe" "xdescribe" "it" "xit" "beforeEach" "afterEach" "before" "after")))
 
 (use-package dired
   :bind ("C-x C-j" . dired-jump)
@@ -277,10 +275,12 @@
          ("C-c a" . org-agenda)
          ("C-c c" . org-capture))
   :config
+  (use-package abbrev)
   (defun my/org-mode-hook ()
     (setq fill-column 79)
     (turn-on-auto-fill)
     (turn-on-flyspell))
+
   (add-hook 'org-mode-hook #'my/org-mode-hook)
 
   ;; special keybindings for org-mode only
@@ -315,34 +315,45 @@
   :bind ("C-c m" . mu4e)
   :config
   (setq mu4e-mu-binary (executable-find "mu"))
-  (setq mu4e-html2text-command (concat (executable-find "html2text") " -utf8 -width 72"))
+  (setq mu4e-html2text-command (concat
+                                (executable-find "html2text") " -utf8 -width 80"))
   (setq mu4e-get-mail-command (executable-find "offlineimap"))
-
   (setq send-mail-function 'sendmail-send-it)
-  (add-hook 'mu4e-view-mode-hook 'visual-line-mode)
   (setq message-kill-buffer-on-exit t)
   (setq sendmail-program (executable-find "msmtp"))
   (setq smtpmail-queue-mail t)
   (setq mail-user-agent 'mu4e-user-agent)
-
   (setq mu4e-maildir "~/.mail")
-  (setq mu4e-drafts-folder "/[Gmail].Drafts")
-  (setq mu4e-sent-folder "/[Gmail].Sent Mail")
-  (setq mu4e-trash-folder "/[Gmail].Trash")
   (setq smtpmail-queue-dir "/.mail/queue")
   (setq mu4e-attachment-dir "~/Downloads")
-
   (setq mu4e-sent-messages-behavior 'delete)
-  (setq mu4e-maildir-shortcuts
-        '(("/INBOX" . ?i)
-          ("/[Gmail].Sent Mail" . ?s)
-          ("/[Gmail].Trash" . ?t)
-          ("/[Gmail].All Mail" . ?a)))
   (setq mu4e-update-interval 300)
   (setq mu4e-view-show-images t)
-
-  (setq mu4e-user-mail-address-list '("mike.hunsinger@gmail.com"))
-  (setq mu4e-compose-signature "Cheers, Mike"))
+  (setq mu4e-compose-signature "Cheers, Mike")
+  (setq mu4e-contexts
+        `(,(make-mu4e-context
+            :name "gmail"
+            :match-func (lambda (msg)
+                          (when msg
+                            (mu4e-message-contact-field-matches msg
+                                                                :to "mike.hunsinger@gmail.com")))
+            :vars '((user-mail-address . "mike.hunsinger@gmail.com" )
+                    (user-full-name . "Michael Hunsinger")
+                    (mu4e-sent-folder . "/gmail/[Gmail].Sent Mail/")
+                    (mu4e-drafts-folder . "/gmail/[Gmail].Drafts")
+                    (mu4e-trash-folder . "/gmail/[Gmail].Trash")))
+          ,(make-mu4e-context
+            :name "school"
+            :enter-func (lambda () (mu4e-message "Switch to the Work context"))
+            :match-func (lambda (msg)
+                          (when msg
+                            (mu4e-message-contact-field-matches msg
+                                                                :to "michael.hunsinger@ucdenver.edu")))
+            :vars '((user-mail-address . "michael.hunsinger@ucdenver.edu")
+                    (user-full-name . "Michael Hunsinger")
+                    (mu4e-sent-folder . "/school/Sent/")
+                    (mu4e-drafts-folder . "/school/Drafts")
+                    (mu4e-trash-folder . "/school/Trash"))))))
 
 (use-package yasnippet
   :diminish yas-minor-mode
@@ -378,5 +389,10 @@
   (use-package helm-flyspell
     :init
     (define-key flyspell-mode-map (kbd "M-S") #'helm-flyspell-correct)))
+
+(use-package puml
+  :interpreter "plantuml"
+  :init
+  (setq puml-plantuml-jar-path "/usr/share/java/plantuml.jar"))
 
 ;;; init.el ends here
