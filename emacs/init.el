@@ -103,7 +103,7 @@
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
 (package-initialize)
 
-(load-theme 'solarized-dark t)
+(load-theme 'tao-yin t)
 
 (require 'use-package)
 
@@ -370,7 +370,7 @@
   (use-package avy
     :bind ("C-=" . avy-goto-char)
     :config
-    (setq avy-keys '(?a ?o ?e ?u ?h ?t ?n ?s)))
+    (setq avy-keys '(?a ?o ?e ?u ?i ?d ?h ?t ?n ?s)))
 
   (use-package flycheck
     :bind (("M-g M-n" . flycheck-next-error)
@@ -400,5 +400,8 @@
     :interpreter "plantuml"
     :init
     (setq puml-plantuml-jar-path "/usr/share/java/plantuml.jar"))
+
+(use-package nxml-mode
+  :mode "\\.xml|wsdl|xsd\\'")
 
 ;;; init.el ends here
