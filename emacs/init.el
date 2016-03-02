@@ -103,7 +103,7 @@
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
 (package-initialize)
 
-(load-theme 'tao-yin t)
+(load-theme 'spacegray t)
 
 (require 'use-package)
 
@@ -205,6 +205,8 @@
   :bind ("C-x C-j" . dired-jump)
   :config
   (use-package dired-x)
+  (use-package dired-narrow
+    :bind ("C-s" . dired-narrow))
   (setq ls-lisp-dirs-first t)
   (setq delete-by-moving-to-trash t)
   (setq dired-dwim-target t)
@@ -315,7 +317,7 @@
   :config
   (setq mu4e-mu-binary (executable-find "mu"))
   (setq mu4e-html2text-command (concat
-                                (executable-find "html2text") " -utf8 -width 80"))
+                                (executable-find "elinks") " -dump"))
   (setq mu4e-get-mail-command (executable-find "offlineimap"))
   (setq send-mail-function 'sendmail-send-it)
   (setq message-kill-buffer-on-exit t)
