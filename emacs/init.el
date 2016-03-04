@@ -202,11 +202,12 @@
   (setq js2-global-externs '("describe" "xdescribe" "it" "xit" "beforeEach" "afterEach" "before" "after")))
 
 (use-package dired
-  :bind ("C-x C-j" . dired-jump)
+  :bind
+  ("C-x C-j" . dired-jump)
   :config
   (use-package dired-x)
   (use-package dired-narrow
-    :bind ("C-s" . dired-narrow))
+    :bind ("C-c C-s" . dired-narrow))
   (setq ls-lisp-dirs-first t)
   (setq delete-by-moving-to-trash t)
   (setq dired-dwim-target t)
@@ -221,24 +222,37 @@
 (use-package helm
   :ensure t
   :bind
-  (("C-x b" . helm-mini)
-   ("C-x k" . helm-mini)
-   ("M-x" . helm-M-x)
-   ("C-x C-i" . helm-semantic-or-imenu)
+  (("C-M-z" . helm-resume)
+   ("C-x C-f" . helm-find-files)
+   ("C-x C-r" . helm-mini)
+   ("C-c C-o" . helm-occur)
    ("M-y" . helm-show-kill-ring)
-   ("C-x f" . helm-find-files)
-   ("C-h b" . helm-descbinds))
+   ("C-h a" . helm-apropos)
+   ("C-h m" . helm-man-woman)
+   ("C-h SPC" . helm-all-mark-rings)
+   ("C-x C-i" . helm-semantic-or-imenu)
+   ("M-x" . helm-M-x)
+   ("C-x C-b" . helm-buffers-list)
+   ("C-x C-r" . helm-mini)
+   ("C-x b" . helm-mini)
+   ("C-h t" . helm-world-time)
+   ("C-h b" . helm-descbinds)
+   ("M-=" . helm-yas-complete)
+   ("M-i" . helm-swoop)
+   ("M-I" . helm-multi-swoop))
   :config
-  (use-package helm-files)
-  (use-package helm-config)
-  (use-package helm-swoop
-    :bind
-    (("M-i" . helm-swoop)
-     ("M-I" . helm-multi-swoop)))
+  (defun my-update-cursor ()
+    (setq cursor-type (if (or god-local-mode buffer-read-only)
+                          'box
+                        'bar)))
+  (add-hook 'god-mode-enabled-hook 'my-update-cursor)
+  (add-hook 'god-mode-disabled-hook 'my-update-cursor)
   (setq helm-buffers-fuzzy-matching t
-        helm-truncate-lines t)
-  (use-package helm-c-yasnippet
-    :bind ("M-=" . helm-yas-complete)))
+        helm-truncate-lines t))
+
+(use-package helm-flyspell
+  :init
+  (define-key flyspell-mode-map (kbd "M-S") #'helm-flyspell-correct))
 
 (use-package eww
   :ensure t
@@ -337,73 +351,77 @@
             :match-func
             (lambda (msg)
               (when msg
-                (mu4e-message-contact-field-matches msg
-                                                    :to "mike.hunsinger@gmail.com")))
+                (mu4e-message-contact-field-matches
+                 msg :to "mike.hunsinger@gmail.com")))
             :vars '((user-mail-address . "mike.hunsinger@gmail.com" )
                     (user-full-name . "Michael Hunsinger")
                     (mu4e-sent-folder . "/gmail/[Gmail].Sent Mail/")
                     (mu4e-drafts-folder . "/gmail/[Gmail].Drafts")
                     (mu4e-trash-folder . "/gmail/[Gmail].Trash")))
-            ,(make-mu4e-context
-              :name "school"
-              :enter-func (lambda () (mu4e-message "Switch to the Work context"))
-              :match-func
-              (lambda (msg)
-                (when msg
-                  (mu4e-message-contact-field-matches msg
-                                                      :to "michael.hunsinger@ucdenver.edu")))
-              :vars '((user-mail-address . "michael.hunsinger@ucdenver.edu")
-                      (user-full-name . "Michael Hunsinger")
-                      (mu4e-sent-folder . "/school/Sent/")
-                      (mu4e-drafts-folder . "/school/Drafts")
-                      (mu4e-trash-folder . "/school/Trash")))))
+          ,(make-mu4e-context
+            :name "school"
+            :enter-func (lambda ()
+                          (mu4e-message "Switch to the Work context"))
+            :match-func
+            (lambda (msg)
+              (when msg
+                (mu4e-message-contact-field-matches
+                 msg :to "michael.hunsinger@ucdenver.edu")))
+            :vars '((user-mail-address . "michael.hunsinger@ucdenver.edu")
+                    (user-full-name . "Michael Hunsinger")
+                    (mu4e-sent-folder . "/school/Sent/")
+                    (mu4e-drafts-folder . "/school/Drafts")
+                    (mu4e-trash-folder . "/school/Trash")))))
   (define-key mu4e-view-mode-map (kbd "j") 'next-line)
   (define-key mu4e-view-mode-map (kbd "k") 'previous-line)
   (define-key mu4e-headers-mode-map (kbd "J") 'mu4e~headers-jump-to-maildir)
   (define-key mu4e-headers-mode-map (kbd "j") 'next-line)
   (define-key mu4e-headers-mode-map (kbd "k") 'previous-line))
 
-  (use-package yasnippet
-    :diminish yas-minor-mode
-    :config
-    (setq yas-snippet-dirs '("~/.emacs.d/snippets" "~/.emacs.d/misc"))
-    (yas-global-mode t))
+(use-package yasnippet
+  :diminish yas-minor-mode
+  :config
+  (setq yas-snippet-dirs '("~/.emacs.d/snippets" "~/.emacs.d/misc"))
+  (yas-global-mode t))
 
-  (use-package avy
-    :bind ("C-=" . avy-goto-char)
-    :config
-    (setq avy-keys '(?a ?o ?e ?u ?i ?d ?h ?t ?n ?s)))
+(use-package avy
+  :bind ("C-=" . avy-goto-char)
+  :config
+  (setq avy-keys '(?a ?o ?e ?u ?i ?d ?h ?t ?n ?s)))
 
-  (use-package flycheck
-    :bind (("M-g M-n" . flycheck-next-error)
-           ("M-g M-p" . flycheck-previous-error)
-           ("M-g M-=" . flycheck-list-errors))
-    :init (global-flycheck-mode)
-    :diminish flycheck-mode
-    :config
-    (setq flycheck-javascript-eslint-executable "/home/shellhead/.npm-packages/bin/eslint")
-    (setq flycheck-eslintrc "/home/shellhead/development/swagger-lint/.eslintrc"))
+(use-package flycheck
+  :bind (("M-g M-n" . flycheck-next-error)
+         ("M-g M-p" . flycheck-previous-error)
+         ("M-g M-=" . flycheck-list-errors))
+  :init (global-flycheck-mode)
+  :diminish flycheck-mode
+  :config
+  (setq flycheck-javascript-eslint-executable "/home/shellhead/.npm-packages/bin/eslint")
+  (setq flycheck-eslintrc "/home/shellhead/development/swagger-lint/.eslintrc"))
 
-  (use-package flyspell
-    :defer t
-    :init (add-hook 'prog-mode-hook #'flyspell-prog-mode)
-    :config
-    (when (executable-find "aspell")
-      (setq ispell-program-name (executable-find "aspell"))
-      (setq ispell-extra-args
-            (list "--sug-mode=fast"
-                  "--lang=en_US"
-                  "--ignore=4")))
-    (use-package helm-flyspell
-      :init
-      (define-key flyspell-mode-map (kbd "M-S") #'helm-flyspell-correct)))
+(use-package flyspell
+  :defer t
+  :init (add-hook 'prog-mode-hook #'flyspell-prog-mode)
+  :config
+  (when (executable-find "aspell")
+    (setq ispell-program-name (executable-find "aspell"))
+    (setq ispell-extra-args
+          (list "--sug-mode=fast"
+                "--lang=en_US"
+                "--ignore=4"))))
 
-  (use-package puml
-    :interpreter "plantuml"
-    :init
-    (setq puml-plantuml-jar-path "/usr/share/java/plantuml.jar"))
+(use-package puml
+  :interpreter "plantuml"
+  :init
+  (setq puml-plantuml-jar-path "/usr/share/java/plantuml.jar"))
 
 (use-package nxml-mode
   :mode "\\.xml|wsdl|xsd\\'")
 
+(use-package god-mode
+  :bind ("<escape>" . god-local-mode)
+  :config
+  (define-key god-local-mode-map (kbd ".") 'repeat)
+  (define-key god-local-mode-map (kbd "i") 'god-local-mode)
+  (define-key god-local-mode-map (kbd "t") 'Control-X-prefix))
 ;;; init.el ends here
