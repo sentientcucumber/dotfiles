@@ -31,11 +31,6 @@
 (defalias 'yes-or-no-p 'y-or-n-p)
 
 ;; keybindings
-(define-key key-translation-map "\C-x" "\C-t")
-(define-key key-translation-map "\C-t" "\C-x")
-(global-set-key (kbd "C-s") 'isearch-forward-regexp)
-(global-set-key (kbd "C-r") 'isearch-backward-regexp)
-(global-set-key (kbd "M-%") 'query-replace-regexp)
 (global-set-key (kbd "C-x C-l") 'toggle-truncate-lines)
 (global-set-key (kbd "M-'") 'other-window)
 (global-set-key (kbd "C-x m") 'eshell)
@@ -72,7 +67,7 @@
 
 ;; various functions
 (defun toggle-fullscreen ()
-  "Toggle full screen."
+  "Toggle full screen in x server based environment."
   (interactive)
   (when (eq window-system 'x)
     (set-frame-parameter
@@ -121,15 +116,11 @@
   :ensure t
   :config (setq smooth-scroll-margin 4))
 
-(use-package undo-tree
-  :ensure t
-  :bind ("C-x u" . undo-tree-visualize)
-  :config
-  (setq undo-tree-visualizer-diff t))
-
 (use-package magit
   :ensure t
-  :bind ("M-g M-g" . magit-status))
+  :init
+  (evil-leader/set-key
+    "g" 'magit-status))
 
 (use-package git-gutter
   :ensure t
@@ -139,12 +130,6 @@
    ("M-g p" . git-gutter:previous-hunk))
   :init
   (global-git-gutter-mode t))
-
-;; (electric-pair-mode 1)
-;; (setq electric-pair-preserve-balance t
-;;       electric-pair-delete-adjacent-pairs t
-;;       electric-pair-open-newline-between-pairs nil)
-;; (show-paren-mode 1)
 
 (use-package smartparens
   :ensure t
@@ -156,9 +141,10 @@
 
 (use-package expand-region
   :ensure t
-  :bind (("C-c e"   . er/expand-region)
-         ("C-c C-e" . er/contract-region))
-  :config (pending-delete-mode t))
+  :init
+  (evil-leader/set-key
+    "e" 'er/expand-region
+    "E" 'er/contract-region))
 
 (use-package rainbow-delimiters
   :ensure t
@@ -223,32 +209,24 @@
   :ensure t
   :bind
   (("C-M-z" . helm-resume)
-   ("C-x C-f" . helm-find-files)
-   ("C-x C-r" . helm-mini)
    ("C-c C-o" . helm-occur)
    ("M-y" . helm-show-kill-ring)
    ("C-h a" . helm-apropos)
    ("C-h m" . helm-man-woman)
    ("C-h SPC" . helm-all-mark-rings)
    ("C-x C-i" . helm-semantic-or-imenu)
-   ("M-x" . helm-M-x)
-   ("C-x C-b" . helm-buffers-list)
-   ("C-x C-r" . helm-mini)
-   ("C-x b" . helm-mini)
-   ("C-h t" . helm-world-time)
    ("C-h b" . helm-descbinds)
    ("M-=" . helm-yas-complete)
    ("M-i" . helm-swoop)
    ("M-I" . helm-multi-swoop))
   :config
-  (defun my-update-cursor ()
-    (setq cursor-type (if (or god-local-mode buffer-read-only)
-                          'box
-                        'bar)))
-  (add-hook 'god-mode-enabled-hook 'my-update-cursor)
-  (add-hook 'god-mode-disabled-hook 'my-update-cursor)
-  (setq helm-buffers-fuzzy-matching t
-        helm-truncate-lines t))
+  (evil-leader/set-key
+    "x" 'helm-M-x
+    "b" 'helm-buffers-list
+    "m" 'helm-mini
+    "f" 'helm-find-files
+    "f" 'helm-yas-complete)
+  (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action))
 
 (use-package helm-flyspell
   :init
@@ -259,26 +237,6 @@
   :bind
   (("C-c w" . eww)
    ("C-c o" . eww-browse-with-external-browser)))
-
-(use-package ido
-  :ensure t
-  :init (ido-mode t)
-  :config
-  (use-package ido-ubiquitous)
-  (use-package flx-ido
-    :ensure t
-    :init (flx-ido-mode t)
-    :config (setq ido-use-faces nil))
-  (use-package ido-vertical-mode
-    :ensure t
-    :init (ido-vertical-mode t))
-  (setq ido-use-virtual-buffers nil)
-  (setq ido-enable-prefix nil)
-  (setq ido-enable-flex-matching t)
-  (setq ido-auto-merge-work-directories-length nil)
-  (setq ido-create-new-buffer 'always)
-  (setq ido-save-directory-list-file
-        (concat user-emacs-directory "misc/ido/.ido")))
 
 (use-package alert
   :defer t
@@ -385,7 +343,6 @@
   (yas-global-mode t))
 
 (use-package avy
-  :bind ("C-=" . avy-goto-char)
   :config
   (setq avy-keys '(?a ?o ?e ?u ?i ?d ?h ?t ?n ?s)))
 
@@ -410,18 +367,31 @@
                 "--lang=en_US"
                 "--ignore=4"))))
 
-(use-package puml
-  :interpreter "plantuml"
-  :init
-  (setq puml-plantuml-jar-path "/usr/share/java/plantuml.jar"))
-
 (use-package nxml-mode
   :mode "\\.xml|wsdl|xsd\\'")
 
-(use-package god-mode
-  :bind ("<escape>" . god-local-mode)
+(use-package evil
+  :ensure t
   :config
-  (define-key god-local-mode-map (kbd ".") 'repeat)
-  (define-key god-local-mode-map (kbd "i") 'god-local-mode)
-  (define-key god-local-mode-map (kbd "t") 'Control-X-prefix))
+  (evil-mode t)
+  ;; key bindings for dvorak
+  ;; normal state
+  (define-key evil-normal-state-map "s" nil)
+  (define-key evil-normal-state-map "a" 'evil-beginning-of-line)
+  (define-key evil-normal-state-map "e" 'evil-end-of-line)
+
+  ;; motion state
+  (define-key evil-motion-state-map "h" 'evil-backward-char)
+  (define-key evil-motion-state-map "H" 'evil-backward-word-begin)
+  (define-key evil-motion-state-map "t" 'evil-forward-char)
+  (define-key evil-motion-state-map "T" 'evil-forward-word-begin)
+  (define-key evil-motion-state-map "n" 'evil-next-line)
+  (define-key evil-motion-state-map "s" 'evil-previous-line))
+
+(use-package evil-leader
+  :ensure t
+  :config
+  (global-evil-leader-mode)
+  (evil-leader/set-leader ","))
+
 ;;; init.el ends here
