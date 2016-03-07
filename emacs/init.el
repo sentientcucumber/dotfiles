@@ -32,7 +32,6 @@
 
 ;; keybindings
 (global-set-key (kbd "C-x C-l") 'toggle-truncate-lines)
-(global-set-key (kbd "M-'") 'other-window)
 (global-set-key (kbd "C-x m") 'eshell)
 
 ;; global values
@@ -120,7 +119,7 @@
   :ensure t
   :init
   (evil-leader/set-key
-    "g" 'magit-status))
+    "G" 'magit-status))
 
 (use-package git-gutter
   :ensure t
@@ -171,8 +170,6 @@
         popwin:special-display-config)
   (push '("*Warnings*" :stick t :height 20 :position bottom :noselect t)
         popwin:special-display-config)
-  (push '(" *undo-tree*" :stick t :height 20 :position bottom :noselect t)
-        popwin:special-display-config)
   (push '("*Compile-Log*" :stick f :noselect t)
         popwin:special-display-config))
 
@@ -188,12 +185,12 @@
   (setq js2-global-externs '("describe" "xdescribe" "it" "xit" "beforeEach" "afterEach" "before" "after")))
 
 (use-package dired
-  :bind
-  ("C-x C-j" . dired-jump)
   :config
   (use-package dired-x)
   (use-package dired-narrow
-    :bind ("C-c C-s" . dired-narrow))
+    )
+  (evil-leader/set-key
+    "d" 'dired-jump)
   (setq ls-lisp-dirs-first t)
   (setq delete-by-moving-to-trash t)
   (setq dired-dwim-target t)
@@ -223,14 +220,9 @@
   (evil-leader/set-key
     "x" 'helm-M-x
     "b" 'helm-buffers-list
-    "m" 'helm-mini
-    "f" 'helm-find-files
-    "f" 'helm-yas-complete)
+    "h" 'helm-mini
+    "f" 'helm-find-files)
   (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action))
-
-(use-package helm-flyspell
-  :init
-  (define-key flyspell-mode-map (kbd "M-S") #'helm-flyspell-correct))
 
 (use-package eww
   :ensure t
@@ -278,15 +270,14 @@
   :commands projectile-global-mode
   :diminish projectile-mode
   :config
-  (projectile-global-mode)
-  (use-package helm-projectile
-    :config (helm-projectile-on)))
+  (projectile-global-mode))
 
 ;; download from https://github.com/djcb/mu
 (use-package mu4e
   :if (eq window-system 'x)
-  :bind ("C-c m" . mu4e)
   :config
+  (evil-leader/set-key
+    "m" 'mu4e)
   (setq mu4e-mu-binary (executable-find "mu"))
   (setq mu4e-html2text-command (concat
                                 (executable-find "elinks") " -dump"))
@@ -374,24 +365,33 @@
   :ensure t
   :config
   (evil-mode t)
+   (defun my/evil-escape (prompt)
+     (cond
+      ((or (evil-insert-state-p)
+           (evil-normal-state-p)
+           (evil-replace-state-p)
+           (evil-visual-state-p))
+       [escape])
+      (t (kbd "C-g"))))
+   (define-key key-translation-map (kbd "C-c") 'my/evil-escape)
+   (define-key evil-operator-state-map (kbd "C-g") 'keyboard-quit)
+   
   ;; key bindings for dvorak
   ;; normal state
-  (define-key evil-normal-state-map "s" nil)
   (define-key evil-normal-state-map "a" 'evil-beginning-of-line)
   (define-key evil-normal-state-map "e" 'evil-end-of-line)
-
+  (define-key evil-normal-state-map "E" 'evil-append-line)
+  (define-key evil-normal-state-map "U" 'redo)
+ 
   ;; motion state
   (define-key evil-motion-state-map "h" 'evil-backward-char)
   (define-key evil-motion-state-map "H" 'evil-backward-word-begin)
   (define-key evil-motion-state-map "t" 'evil-forward-char)
-  (define-key evil-motion-state-map "T" 'evil-forward-word-begin)
-  (define-key evil-motion-state-map "n" 'evil-next-line)
-  (define-key evil-motion-state-map "s" 'evil-previous-line))
+  (define-key evil-motion-state-map "T" 'evil-forward-word-begin))
 
 (use-package evil-leader
   :ensure t
   :config
   (global-evil-leader-mode)
   (evil-leader/set-leader ","))
-
 ;;; init.el ends here
