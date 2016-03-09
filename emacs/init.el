@@ -361,21 +361,22 @@
 (use-package nxml-mode
   :mode "\\.xml|wsdl|xsd\\'")
 
+(use-package evil-escape
+  :demand
+  :diminish evil-escape
+  :ensure t
+  :init
+  (evil-escape-mode)
+  :config
+  (setq-default evil-escape-key-sequence "eu")
+  (setq-default evil-escape-delay 0.2)
+  (setq-default evil-escape-unordered-key-sequence t))
+
 (use-package evil
   :ensure t
   :config
   (evil-mode t)
-   (defun my/evil-escape (prompt)
-     (cond
-      ((or (evil-insert-state-p)
-           (evil-normal-state-p)
-           (evil-replace-state-p)
-           (evil-visual-state-p))
-       [escape])
-      (t (kbd "C-g"))))
-   (define-key key-translation-map (kbd "C-c") 'my/evil-escape)
-   (define-key evil-operator-state-map (kbd "C-g") 'keyboard-quit)
-   
+
   ;; key bindings for dvorak
   ;; normal state
   (define-key evil-normal-state-map "a" 'evil-beginning-of-line)
