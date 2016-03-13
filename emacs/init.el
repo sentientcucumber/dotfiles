@@ -216,12 +216,7 @@
    ("M-=" . helm-yas-complete)
    ("M-i" . helm-swoop)
    ("M-I" . helm-multi-swoop))
-  :config
-  (evil-leader/set-key
-    "x" 'helm-M-x
-    "b" 'helm-buffers-list
-    "h" 'helm-mini
-    "f" 'helm-find-files)
+  :config  
   (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action))
 
 (use-package eww
@@ -363,12 +358,11 @@
 
 (use-package evil-escape
   :demand
-  :diminish evil-escape
   :ensure t
   :init
   (evil-escape-mode)
   :config
-  (setq-default evil-escape-key-sequence "eu")
+  (setq-default evil-escape-key-sequence "jk")
   (setq-default evil-escape-delay 0.2)
   (setq-default evil-escape-unordered-key-sequence t))
 
@@ -376,23 +370,29 @@
   :ensure t
   :config
   (evil-mode t)
-
   ;; key bindings for dvorak
   ;; normal state
   (define-key evil-normal-state-map "a" 'evil-beginning-of-line)
   (define-key evil-normal-state-map "e" 'evil-end-of-line)
   (define-key evil-normal-state-map "E" 'evil-append-line)
   (define-key evil-normal-state-map "U" 'redo)
- 
   ;; motion state
   (define-key evil-motion-state-map "h" 'evil-backward-char)
   (define-key evil-motion-state-map "H" 'evil-backward-word-begin)
   (define-key evil-motion-state-map "t" 'evil-forward-char)
   (define-key evil-motion-state-map "T" 'evil-forward-word-begin))
 
+(use-package evil-magit
+  :init (evil-magit-init))
+
 (use-package evil-leader
   :ensure t
   :config
   (global-evil-leader-mode)
-  (evil-leader/set-leader ","))
+  (evil-leader/set-leader ",")
+  (evil-leader/set-key
+    "x" 'helm-M-x
+    "b" 'helm-buffers-list
+    "h" 'helm-mini
+    "f" 'helm-find-files))
 ;;; init.el ends here
