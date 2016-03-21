@@ -30,10 +30,6 @@
 
 (defalias 'yes-or-no-p 'y-or-n-p)
 
-;; keybindings
-(global-set-key (kbd "C-x C-l") 'toggle-truncate-lines)
-(global-set-key (kbd "C-x m") 'eshell)
-
 ;; global values
 (setq-default line-number-mode t)
 (setq-default column-number-mode t)
@@ -91,22 +87,28 @@
   (untabify-buffer)
   (delete-trailing-whitespace))
 
+;; miscellaneous
+(auto-revert-mode t)
+
 ;; package setup
 (require 'package)
 (add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/"))
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
 (package-initialize)
 
-(load-theme 'spacegray t)
-
 (require 'use-package)
+
+(use-package spacegray
+  :init
+  (load-theme 'spacegray t))
+
+(use-package diminish
+  :config
+  (diminish 'auto-revert-mode)
+  (diminish 'visual-line-mode))
 
 (use-package delight
   :ensure t)
-
-(use-package subword
-  :diminish subword-mode
-  :init (global-subword-mode))
 
 (use-package uniquify
   :config (setq uniquify-buffer-name-style 'forward))
@@ -116,10 +118,7 @@
   :config (setq smooth-scroll-margin 4))
 
 (use-package magit
-  :ensure t
-  :init
-  (evil-leader/set-key
-    "G" 'magit-status))
+  :ensure t)
 
 (use-package git-gutter
   :ensure t
@@ -139,11 +138,7 @@
   :config (use-package smartparens-config))
 
 (use-package expand-region
-  :ensure t
-  :init
-  (evil-leader/set-key
-    "e" 'er/expand-region
-    "E" 'er/contract-region))
+  :ensure t)
 
 (use-package rainbow-delimiters
   :ensure t
@@ -187,10 +182,7 @@
 (use-package dired
   :config
   (use-package dired-x)
-  (use-package dired-narrow
-    )
-  (evil-leader/set-key
-    "d" 'dired-jump)
+  (use-package dired-narrow)
   (setq ls-lisp-dirs-first t)
   (setq delete-by-moving-to-trash t)
   (setq dired-dwim-target t)
@@ -205,7 +197,8 @@
 (use-package helm
   :ensure t
   :bind
-  (("C-M-z" . helm-resume)
+  (("M-x" . helm-M-x)
+   ("C-M-z" . helm-resume)
    ("C-c C-o" . helm-occur)
    ("M-y" . helm-show-kill-ring)
    ("C-h a" . helm-apropos)
@@ -218,6 +211,13 @@
    ("M-I" . helm-multi-swoop))
   :config  
   (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action))
+
+(use-package helm-descbinds
+  :ensure t)
+
+(use-package helm-projectile
+  :config
+  (setq helm-projectile-fuzzy-match nil))
 
 (use-package eww
   :ensure t
@@ -260,8 +260,6 @@
                                  (gnuplot . t))))
 
 (use-package projectile
-  ;; checkout perspective at some point
-  :defer 5
   :commands projectile-global-mode
   :diminish projectile-mode
   :config
@@ -271,8 +269,6 @@
 (use-package mu4e
   :if (eq window-system 'x)
   :config
-  (evil-leader/set-key
-    "m" 'mu4e)
   (setq mu4e-mu-binary (executable-find "mu"))
   (setq mu4e-html2text-command (concat
                                 (executable-find "elinks") " -dump"))
@@ -328,20 +324,6 @@
   (setq yas-snippet-dirs '("~/.emacs.d/snippets" "~/.emacs.d/misc"))
   (yas-global-mode t))
 
-(use-package avy
-  :config
-  (setq avy-keys '(?a ?o ?e ?u ?i ?d ?h ?t ?n ?s)))
-
-(use-package flycheck
-  :bind (("M-g M-n" . flycheck-next-error)
-         ("M-g M-p" . flycheck-previous-error)
-         ("M-g M-=" . flycheck-list-errors))
-  :init (global-flycheck-mode)
-  :diminish flycheck-mode
-  :config
-  (setq flycheck-javascript-eslint-executable "/home/shellhead/.npm-packages/bin/eslint")
-  (setq flycheck-eslintrc "/home/shellhead/development/swagger-lint/.eslintrc"))
-
 (use-package flyspell
   :defer t
   :init (add-hook 'prog-mode-hook #'flyspell-prog-mode)
@@ -357,8 +339,8 @@
   :mode "\\.xml|wsdl|xsd\\'")
 
 (use-package evil-escape
-  :demand
   :ensure t
+  :diminish evil-escape-mode
   :init
   (evil-escape-mode)
   :config
@@ -368,22 +350,10 @@
 
 (use-package evil
   :ensure t
-  :config
+  :init
   (evil-mode t)
-  ;; key bindings for dvorak
-  ;; normal state
-  (define-key evil-normal-state-map "a" 'evil-beginning-of-line)
-  (define-key evil-normal-state-map "e" 'evil-end-of-line)
-  (define-key evil-normal-state-map "E" 'evil-append-line)
-  (define-key evil-normal-state-map "U" 'redo)
-  ;; motion state
-  (define-key evil-motion-state-map "h" 'evil-backward-char)
-  (define-key evil-motion-state-map "H" 'evil-backward-word-begin)
-  (define-key evil-motion-state-map "t" 'evil-forward-char)
-  (define-key evil-motion-state-map "T" 'evil-forward-word-begin))
-
-(use-package evil-magit
-  :init (evil-magit-init))
+  :config
+  (diminish 'undo-tree-mode))
 
 (use-package evil-leader
   :ensure t
@@ -391,8 +361,21 @@
   (global-evil-leader-mode)
   (evil-leader/set-leader ",")
   (evil-leader/set-key
+    ;; helm bindings
     "x" 'helm-M-x
     "b" 'helm-buffers-list
-    "h" 'helm-mini
-    "f" 'helm-find-files))
+    "H" 'helm-mini
+    "f" 'helm-find-files
+    ;; dired
+    "d" 'dired-jump
+    ;; projectile
+    "p" 'helm-projectile
+    ;; evil-nerd-commenter
+    "ci" 'evilnc-comment-or-uncomment-lines
+    "cr" 'comment-or-uncomment-region
+    ;; magit
+    "G" 'magit-status))
+
+(use-package evil-nerd-commenter
+  :ensure t)
 ;;; init.el ends here
