@@ -3,8 +3,13 @@
 ;;; Commentary:
 
 ;;; Code:
-(add-to-list 'load-path "/usr/local/share/emacs/site-lisp/mu4e")
-(add-to-list 'load-path "/home/shellhead/.dotfiles/emacs/org-reveal")
+(let ((mu4e-dir "/usr/local/share/emacs/site-lisp/mu4e"))
+  (when (file-exists-p mu4e-dir)
+    (add-to-list 'load-path mu4e-dir)))
+
+(let ((org-reveal-dir "/home/shellhead/.dotfiles/emacs/org-reveal"))
+  (when (file-exists-p org-reveal-dir)
+    (add-to-list 'load-path org-reveal-dir)))
 
 ;; general settings
 (setq-default user-full-name "Michael Hunsinger")
@@ -55,10 +60,10 @@
   (setq nxml-slash-auto-complete-flag t))
 (add-hook 'nxml-mode-hook #'my/nxml-mode-init)
 
-(add-hook 'prog-mode-hook
-          (lambda ()
-            (visual-line-mode t)
-            (hl-line-mode t)))
+(visual-line-mode t)
+(hl-line-mode t)
+(toggle-truncate-lines)
+(setq ring-bell-function (lambda ()))
 
 ;; various functions
 (defun toggle-fullscreen ()
@@ -209,7 +214,7 @@
    ("M-=" . helm-yas-complete)
    ("M-i" . helm-swoop)
    ("M-I" . helm-multi-swoop))
-  :config  
+  :config
   (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action))
 
 (use-package helm-descbinds
@@ -350,31 +355,31 @@
 
 (use-package evil
   :ensure t
-  :init
-  (evil-mode t)
   :config
-  (diminish 'undo-tree-mode))
-
-(use-package evil-leader
-  :ensure t
-  :config
-  (global-evil-leader-mode)
-  (evil-leader/set-leader ",")
-  (evil-leader/set-key
-    ;; helm bindings
-    "x" 'helm-M-x
-    "b" 'helm-buffers-list
-    "H" 'helm-mini
-    "f" 'helm-find-files
-    ;; dired
-    "d" 'dired-jump
-    ;; projectile
-    "p" 'helm-projectile
-    ;; evil-nerd-commenter
-    "ci" 'evilnc-comment-or-uncomment-lines
-    "cr" 'comment-or-uncomment-region
-    ;; magit
-    "G" 'magit-status))
+  (use-package evil-leader
+    :ensure t
+    :config
+    (global-evil-leader-mode)
+    (evil-leader/set-leader ",")
+    (evil-leader/set-key
+      ;; helm bindings
+      "x" 'helm-M-x
+      "b" 'helm-buffers-list
+      "H" 'helm-mini
+      "f" 'helm-find-files
+      ;; dired
+      "d" 'dired-jump
+      ;; projectile
+      "p" 'helm-projectile
+      "g" 'helm-projectile-grep
+      "F" 'helm-projectile-find-file
+      ;; evil-nerd-commenter
+      "ci" 'evilnc-comment-or-uncomment-lines
+      "cr" 'comment-or-uncomment-region
+      ;; magit
+      "G" 'magit-status))
+  (diminish 'undo-tree-mode)
+  (evil-mode t))
 
 (use-package evil-nerd-commenter
   :ensure t)
