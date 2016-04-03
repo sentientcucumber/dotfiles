@@ -13,7 +13,6 @@
 
 ;; general settings
 (setq-default user-full-name "Michael Hunsinger")
-(setq-default user-mail-address "mike.hunsinger@gmail.com")
 
 ;; window settings
 (when (not (eq window-system nil))
@@ -187,7 +186,10 @@
 (use-package dired
   :config
   (use-package dired-x)
-  (use-package dired-narrow)
+  (use-package dired-narrow
+    :ensure t
+    :config
+    (define-key dired-mode-map (kbd "/") 'dired-narrow))
   (setq ls-lisp-dirs-first t)
   (setq delete-by-moving-to-trash t)
   (setq dired-dwim-target t)
@@ -274,6 +276,9 @@
 (use-package mu4e
   :if (eq window-system 'x)
   :config
+  (use-package mu4e-alert
+    :config
+    (setq mu4e-alert-set-default-style 'notifications))
   (setq mu4e-mu-binary (executable-find "mu"))
   (setq mu4e-html2text-command (concat
                                 (executable-find "elinks") " -dump"))
@@ -287,9 +292,9 @@
   (setq smtpmail-queue-dir "/.mail/queue")
   (setq mu4e-attachment-dir "~/Downloads")
   (setq mu4e-sent-messages-behavior 'delete)
-  (setq mu4e-update-interval 300)
+  (setq mu4e-update-interval 60)
   (setq mu4e-view-show-images t)
-  (setq mu4e-compose-signature "Cheers, Mike")
+  (setq mu4e-compose-signature "Cheers,\nMike")
   (setq mu4e-contexts
         `(,(make-mu4e-context
             :name "gmail"
@@ -299,29 +304,20 @@
                 (mu4e-message-contact-field-matches
                  msg :to "mike.hunsinger@gmail.com")))
             :vars '((user-mail-address . "mike.hunsinger@gmail.com" )
-                    (user-full-name . "Michael Hunsinger")
                     (mu4e-sent-folder . "/gmail/[Gmail].Sent Mail/")
                     (mu4e-drafts-folder . "/gmail/[Gmail].Drafts")
                     (mu4e-trash-folder . "/gmail/[Gmail].Trash")))
           ,(make-mu4e-context
             :name "school"
-            :enter-func (lambda ()
-                          (mu4e-message "Switch to the Work context"))
             :match-func
             (lambda (msg)
               (when msg
                 (mu4e-message-contact-field-matches
                  msg :to "michael.hunsinger@ucdenver.edu")))
             :vars '((user-mail-address . "michael.hunsinger@ucdenver.edu")
-                    (user-full-name . "Michael Hunsinger")
                     (mu4e-sent-folder . "/school/Sent/")
                     (mu4e-drafts-folder . "/school/Drafts")
-                    (mu4e-trash-folder . "/school/Trash")))))
-  (define-key mu4e-view-mode-map (kbd "j") 'next-line)
-  (define-key mu4e-view-mode-map (kbd "k") 'previous-line)
-  (define-key mu4e-headers-mode-map (kbd "J") 'mu4e~headers-jump-to-maildir)
-  (define-key mu4e-headers-mode-map (kbd "j") 'next-line)
-  (define-key mu4e-headers-mode-map (kbd "k") 'previous-line))
+                    (mu4e-trash-folder . "/school/Trash"))))))
 
 (use-package yasnippet
   :diminish yas-minor-mode
@@ -362,22 +358,18 @@
     (global-evil-leader-mode)
     (evil-leader/set-leader ",")
     (evil-leader/set-key
-      ;; helm bindings
       "x" 'helm-M-x
       "b" 'helm-buffers-list
       "H" 'helm-mini
       "f" 'helm-find-files
-      ;; dired
       "d" 'dired-jump
-      ;; projectile
       "p" 'helm-projectile
       "g" 'helm-projectile-grep
       "F" 'helm-projectile-find-file
-      ;; evil-nerd-commenter
       "ci" 'evilnc-comment-or-uncomment-lines
       "cr" 'comment-or-uncomment-region
-      ;; magit
-      "G" 'magit-status))
+      "G" 'magit-status
+      "m" 'mu4e))
   (diminish 'undo-tree-mode)
   (evil-mode t))
 
