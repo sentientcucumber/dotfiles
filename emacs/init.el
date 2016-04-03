@@ -122,7 +122,12 @@
   :config (setq smooth-scroll-margin 4))
 
 (use-package magit
-  :ensure t)
+  :ensure t
+  :init
+  (use-package evil-magit
+    :ensure t
+    :init
+    (evil-magit-init)))
 
 (use-package git-gutter
   :ensure t
