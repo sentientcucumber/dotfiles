@@ -38,7 +38,7 @@ alias grep="egrep --color=auto"
 alias tmux="tmux -2"
 
 # exports
-export PATH="$PATH:$HOME/.npm-packages/bin:$HOME/.cask/bin:$HOME/intellij/bin"
+export PATH="$PATH:$HOME/.npm-packages/bin:$HOME/.cask/bin:$HOME/intellij/bin:$HOME/bin"
 
 # load files
 ZSHD=$HOME/.zsh.d

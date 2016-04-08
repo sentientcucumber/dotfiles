@@ -331,15 +331,15 @@
   (yas-global-mode t))
 
 (use-package flyspell
+  :if (executable-find "aspell")
   :defer t
   :init (add-hook 'prog-mode-hook #'flyspell-prog-mode)
   :config
-  (when (executable-find "aspell")
-    (setq ispell-program-name (executable-find "aspell"))
-    (setq ispell-extra-args
-          (list "--sug-mode=fast"
-                "--lang=en_US"
-                "--ignore=4"))))
+  (setq ispell-program-name (executable-find "aspell"))
+  (setq ispell-extra-args
+        (list "--sug-mode=fast"
+              "--lang=en_US"
+              "--ignore=4")))
 
 (use-package nxml-mode
   :mode "\\.xml|wsdl|xsd\\'")
@@ -363,6 +363,7 @@
     (global-evil-leader-mode)
     (evil-leader/set-leader ",")
     (evil-leader/set-key
+      "e" 'eshell
       "x" 'helm-M-x
       "b" 'helm-buffers-list
       "H" 'helm-mini
@@ -379,5 +380,11 @@
   (evil-mode t))
 
 (use-package evil-nerd-commenter
+  :ensure t)
+
+(use-package evil-org
+  :ensure t)
+
+(use-package evil-matchit
   :ensure t)
 ;;; init.el ends here
