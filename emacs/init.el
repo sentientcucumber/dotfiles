@@ -7,10 +7,6 @@
   (when (file-exists-p mu4e-dir)
     (add-to-list 'load-path mu4e-dir)))
 
-(let ((org-reveal-dir "/home/shellhead/.dotfiles/emacs/org-reveal"))
-  (when (file-exists-p org-reveal-dir)
-    (add-to-list 'load-path org-reveal-dir)))
-
 ;; general settings
 (setq-default user-full-name "Michael Hunsinger")
 
@@ -249,21 +245,8 @@
          ("C-c a" . org-agenda)
          ("C-c c" . org-capture))
   :config
-  (load-library "ox-reveal")
-  (defun my/org-mode-hook ()
-    (setq fill-column 79)
-    (turn-on-auto-fill)
-    (turn-on-flyspell))
   (add-hook 'org-mode-hook #'my/org-mode-hook)
-  ;; special keybindings for org-mode only
-  (define-key org-mode-map (kbd "C-c t") 'org-todo)
-  ;; agenda
-  (setq org-agenda-files '("~/org/work.org"
-                           "~/org/personal.org"))
-  ;; randomness
   (setq org-list-allow-alphabetical t)
-  (org-display-inline-images t)
-  (add-to-list 'org-export-backends '(odt))
   (setq org-confirm-babel-evaluate nil)
   (setq org-plantuml-jar-path "/usr/share/java/plantuml.jar")
   (org-babel-do-load-languages 'org-babel-load-languages
@@ -386,5 +369,8 @@
   :ensure t)
 
 (use-package evil-matchit
+  :ensure t)
+
+(use-package evil-surround
   :ensure t)
 ;;; init.el ends here
