@@ -3,22 +3,16 @@
 ;;; Commentary:
 
 ;;; Code:
-(let ((mu4e-dir "/usr/local/share/emacs/site-lisp/mu4e"))
-  (when (file-exists-p mu4e-dir)
-    (add-to-list 'load-path mu4e-dir)))
-
-;; general settings
 (setq-default user-full-name "Michael Hunsinger")
 
-;; window settings
-(when (not (eq window-system nil))
+(when window-system
   (set-fontset-font "fontset-default" 'symbol "Inconsolata")
   (set-frame-font "Inconsolata")
   (set-face-attribute 'default nil :height 120)
   (when (functionp 'menu-bar-mode)
     (menu-bar-mode -1))
   (when (functionp 'set-scroll-bar-mode)
-    (set-scroll-bar-mode 'nil))
+    (set-scroll-bar-mode nil))
   (when (functionp 'mouse-wheel-mode)
     (mouse-wheel-mode -1))
   (when (functionp 'tooltip-mode)
@@ -57,7 +51,6 @@
 
 (visual-line-mode t)
 (hl-line-mode t)
-(toggle-truncate-lines)
 (setq ring-bell-function (lambda ()))
 
 ;; various functions
@@ -90,6 +83,8 @@
 ;; miscellaneous
 (auto-revert-mode t)
 
+(load-theme 'tao-yin t)
+
 ;; package setup
 (require 'package)
 (add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/"))
@@ -98,13 +93,8 @@
 
 (require 'use-package)
 
-(use-package spacegray
-  :init
-  (load-theme 'spacegray t))
-
 (use-package diminish
   :config
-  (diminish 'auto-revert-mode)
   (diminish 'visual-line-mode))
 
 (use-package delight
@@ -133,17 +123,6 @@
    ("M-g p" . git-gutter:previous-hunk))
   :init
   (global-git-gutter-mode t))
-
-(use-package smartparens
-  :ensure t
-  :diminish smartparens-mode
-  :bind (("C-c (" . sp-forward-barf-sexp)
-         ("C-c )" . sp-forward-slurp-sexp))
-  :init (add-hook 'prog-mode-hook 'smartparens-mode t)
-  :config (use-package smartparens-config))
-
-(use-package expand-region
-  :ensure t)
 
 (use-package rainbow-delimiters
   :ensure t
@@ -234,7 +213,6 @@
    ("C-c o" . eww-browse-with-external-browser)))
 
 (use-package alert
-  :defer t
   :config
   (when (eq system-type 'gnu/linux)
     (setq alert-default-style 'notifications)))
@@ -245,7 +223,8 @@
          ("C-c a" . org-agenda)
          ("C-c c" . org-capture))
   :config
-  (add-hook 'org-mode-hook #'my/org-mode-hook)
+  (use-package evil-org
+    :ensure t)
   (setq org-list-allow-alphabetical t)
   (setq org-confirm-babel-evaluate nil)
   (setq org-plantuml-jar-path "/usr/share/java/plantuml.jar")
@@ -262,28 +241,29 @@
 
 ;; download from https://github.com/djcb/mu
 (use-package mu4e
-  :if (eq window-system 'x)
+  :if (executable-find "mu")
+  :load-path "/usr/local/share/emacs/site-lisp/mu4e"
   :config
   (use-package mu4e-alert
     :config
     (setq mu4e-alert-set-default-style 'notifications))
-  (setq mu4e-mu-binary (executable-find "mu"))
-  (setq mu4e-html2text-command (concat
-                                (executable-find "elinks") " -dump"))
-  (setq mu4e-get-mail-command (executable-find "offlineimap"))
-  (setq send-mail-function 'sendmail-send-it)
-  (setq message-kill-buffer-on-exit t)
-  (setq sendmail-program (executable-find "msmtp"))
-  (setq smtpmail-queue-mail t)
-  (setq mail-user-agent 'mu4e-user-agent)
-  (setq mu4e-maildir "~/.mail")
-  (setq smtpmail-queue-dir "/.mail/queue")
-  (setq mu4e-attachment-dir "~/Downloads")
-  (setq mu4e-sent-messages-behavior 'delete)
-  (setq mu4e-update-interval 60)
-  (setq mu4e-view-show-images t)
-  (setq mu4e-compose-signature "Cheers,\nMike")
-  (setq mu4e-contexts
+  (use-package evil-mu4e
+    :ensure t)
+  (setq mu4e-mu-binary              (executable-find "mu")
+        mu4e-get-mail-command       (executable-find "offlineimap")
+        sendmail-program            (executable-find "msmtp")
+        send-mail-function          'sendmail-send-it
+        mail-user-agent             'mu4e-user-agent
+        mu4e-update-interval        60
+        mu4e-maildir                "~/.mail"
+        smtpmail-queue-dir          "~/.mail/queue"
+        mu4e-attachment-dir         "~/Downloads"
+        mu4e-sent-messages-behavior 'delete
+        mu4e-view-show-images       t
+        mu4e-html2text-command      (concat (executable-find "elinks")
+                                            " -dump -dump-width 80")
+        mu4e-compose-signature      "Cheers,\nMike"
+        mu4e-contexts
         `(,(make-mu4e-context
             :name "gmail"
             :match-func
@@ -315,7 +295,6 @@
 
 (use-package flyspell
   :if (executable-find "aspell")
-  :defer t
   :init (add-hook 'prog-mode-hook #'flyspell-prog-mode)
   :config
   (setq ispell-program-name (executable-find "aspell"))
@@ -365,12 +344,18 @@
 (use-package evil-nerd-commenter
   :ensure t)
 
-(use-package evil-org
-  :ensure t)
-
 (use-package evil-matchit
-  :ensure t)
+  :ensure t
+  :config (global-evil-matchit-mode))
 
 (use-package evil-surround
-  :ensure t)
+  :ensure t
+  :config (evil-surround-mode))
+
+(use-package evil-easymotion
+  :ensure t
+  :config
+  (use-package avy
+    :ensure t)
+  (evilem-default-keybindings "SPC"))
 ;;; init.el ends here
