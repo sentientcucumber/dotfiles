@@ -24,7 +24,6 @@
 
 (defalias 'yes-or-no-p 'y-or-n-p)
 
-;; global values
 (setq-default line-number-mode t)
 (setq-default column-number-mode t)
 (setq-default transient-mark-mode t)
@@ -40,22 +39,14 @@
 (setq-default read-file-name-completion-ignore-case t)
 (setq-default delete-auto-save-files t)
 (setq-default make-backup-files nil)
-(setq initial-major-mode 'fundamental-mode)
+(setq ring-bell-function (lambda ())
 
-;; hooks
 (defun my/nxml-mode-init ()
-  "Various style settings for XML."
   (setq nxml-child-indent 4)
   (setq nxml-slash-auto-complete-flag t))
 (add-hook 'nxml-mode-hook #'my/nxml-mode-init)
 
-(visual-line-mode t)
-(hl-line-mode t)
-(setq ring-bell-function (lambda ()))
-
-;; various functions
 (defun toggle-fullscreen ()
-  "Toggle full screen in x server based environment."
   (interactive)
   (when (eq window-system 'x)
     (set-frame-parameter
@@ -64,26 +55,18 @@
 (global-set-key [f11] 'toggle-fullscreen)
 
 (defun untabify-buffer()
-  "Replace all tabs with spaces."
   (interactive)
   (untabify (point-min) (point-max)))
 
 (defun indent-buffer()
-  "Indent the buffer."
   (interactive)
   (indent-region (point-min) (point-max)))
 
 (defun cleanup-buffer ()
-  "Indent, untabify, and delete trailing whitespace."
   (interactive)
   (indent-buffer)
   (untabify-buffer)
   (delete-trailing-whitespace))
-
-;; miscellaneous
-(auto-revert-mode t)
-
-(load-theme 'tao-yin t)
 
 ;; package setup
 (require 'package)
@@ -92,6 +75,9 @@
 (package-initialize)
 
 (require 'use-package)
+
+(use-package tao-theme
+  :init (load-theme 'tao-yin t))
 
 (use-package diminish
   :config
@@ -359,3 +345,17 @@
     :ensure t)
   (evilem-default-keybindings "SPC"))
 ;;; init.el ends here
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(custom-safe-themes
+   (quote
+    ("d8f76414f8f2dcb045a37eb155bfaa2e1d17b6573ed43fb1d18b936febc7bbc2" default))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(org-level-1 ((t (:foreground "#F9F9F9" :slant normal :height 1.0)))))
