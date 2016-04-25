@@ -8,7 +8,7 @@
 (when window-system
   (set-fontset-font "fontset-default" 'symbol "Inconsolata")
   (set-frame-font "Inconsolata")
-  (set-face-attribute 'default nil :height 120)
+  (face-remap-add-relative 'default :height 2.0)
   (when (functionp 'menu-bar-mode)
     (menu-bar-mode -1))
   (when (functionp 'set-scroll-bar-mode)
@@ -39,7 +39,7 @@
 (setq-default read-file-name-completion-ignore-case t)
 (setq-default delete-auto-save-files t)
 (setq-default make-backup-files nil)
-(setq ring-bell-function (lambda ())
+(setq ring-bell-function (lambda ()))
 
 (defun my/nxml-mode-init ()
   (setq nxml-child-indent 4)
@@ -70,18 +70,21 @@
 
 ;; package setup
 (require 'package)
+
+;; package repositories
 (add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/"))
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
+
 (package-initialize)
 
 (require 'use-package)
 
-(use-package tao-theme
-  :init (load-theme 'tao-yin t))
+(use-package zenburn-theme
+  :ensure t
+  :init (load-theme 'zenburn t))
 
 (use-package diminish
-  :config
-  (diminish 'visual-line-mode))
+  :ensure t)
 
 (use-package delight
   :ensure t)
@@ -100,15 +103,6 @@
     :ensure t
     :init
     (evil-magit-init)))
-
-(use-package git-gutter
-  :ensure t
-  :diminish git-gutter-mode
-  :bind
-  (("M-g n" . git-gutter:next-hunk)
-   ("M-g p" . git-gutter:previous-hunk))
-  :init
-  (global-git-gutter-mode t))
 
 (use-package rainbow-delimiters
   :ensure t
@@ -189,6 +183,7 @@
   :ensure t)
 
 (use-package helm-projectile
+  :ensure t
   :config
   (setq helm-projectile-fuzzy-match nil))
 
@@ -305,6 +300,13 @@
 (use-package evil
   :ensure t
   :config
+  (use-package evil-surround
+    :ensure t
+    :config (evil-surround-mode))
+  (use-package evil-easymotion
+    :ensure t
+    :config
+    (evilem-default-keybindings "SPC"))
   (use-package evil-leader
     :ensure t
     :config
@@ -333,29 +335,4 @@
 (use-package evil-matchit
   :ensure t
   :config (global-evil-matchit-mode))
-
-(use-package evil-surround
-  :ensure t
-  :config (evil-surround-mode))
-
-(use-package evil-easymotion
-  :ensure t
-  :config
-  (use-package avy
-    :ensure t)
-  (evilem-default-keybindings "SPC"))
-;;; init.el ends here
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(custom-safe-themes
-   (quote
-    ("d8f76414f8f2dcb045a37eb155bfaa2e1d17b6573ed43fb1d18b936febc7bbc2" default))))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(org-level-1 ((t (:foreground "#F9F9F9" :slant normal :height 1.0)))))
+;; init.el ends here
