@@ -1,10 +1,10 @@
 # Configuration
 set $mod Mod1 
-set $left n
-set $right s
-set $up t
-set $down h
-font pango:monospace 11
+set $left h
+set $right t
+set $up n
+set $down s
+font pango:sans 10
 
 # Keybindings 
 bindsym $mod+Return exec i3-sensible-terminal 
@@ -64,11 +64,12 @@ mode "resize" {
 
 # Bar
 bar {
-  status_command i3status
+  font pango:FontAwesome 11
+  status_command i3blocks
+  position top
+  height 28
 }
 
-new_window none
-
 # i3-gaps 
-for_window [class="^.*"] border pixel 0
+for_window [class="^.*"] border pixel 2
 gaps inner 10
