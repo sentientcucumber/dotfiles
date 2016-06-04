@@ -20,8 +20,7 @@ bindsym $mod+Shift+$up move up
 bindsym $mod+Shift+$down move down
 bindsym $mod+Shift+$left move left 
 bindsym $mod+Shift+$right move right
-bindsym $mod+a split h 
-bindsym $mod+o split v
+bindsym $mod+s split toggle
 bindsym $mod+f fullscreen  toggle
 bindsym $mod+Shift+q kill
 bindsym $mod+comma layout stacking 
