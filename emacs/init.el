@@ -39,14 +39,6 @@
     :ensure t)
   (evil-mode t))
 
-;; Putting temporary autosave files in the same directory is annoying. Move them
-;; to "$EMACS_USER_DIRECTORY/tmp". Per the advisory at
-;; https://www.emacswiki.org/emacs/AutoSave, lets not put it in "/tmp", incase
-;; the computer crashes.
-(defconst emacs-tmp-directory (concat user-emacs-directory "tmp"))
-(setq backup-directory-alist `((".*" . ,emacs-tmp-directory)))
-(setq auto-save-file-name-transforms `((".*" ,emacs-tmp-directory t)))
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Settings
 
@@ -55,6 +47,14 @@
 (setq indent-tabs-mode nil)             ; Only use spaces, never tabs.
 (setq vc-follow-symlinks t)		; Follow symbollic links.
 (setq echo-keystrokes 0.1)              ; Echo keystroke immediately
+
+;; Putting temporary autosave files in the same directory is annoying. Move them
+;; to "$EMACS_USER_DIRECTORY/tmp". Per the advisory at
+;; https://www.emacswiki.org/emacs/AutoSave, lets not put it in "/tmp", incase
+;; the computer crashes.
+(defconst emacs-tmp-directory (concat user-emacs-directory "tmp"))
+(setq backup-directory-alist `((".*" . ,emacs-tmp-directory)))
+(setq auto-save-file-name-transforms `((".*" ,emacs-tmp-directory t)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Appearance
@@ -98,4 +98,7 @@ auto-fill-mode."
   :ensure helm
   :demand t
   :config
+  (use-package helm
+    :bind (:map helm-map
+                ("<tab>" . helm-execute-persistent-action)))
   (setq helm-split-window-in-side-p t))  ; Open helm in current window

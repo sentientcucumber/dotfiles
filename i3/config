@@ -1,15 +1,17 @@
 # Configuration
 set $mod Mod1 
-set $left h
-set $right t
-set $up n
-set $down s
+set $left d
+set $right n
+set $up h
+set $down t
 font pango:sans 10
-
 # Keybindings 
+# Rofi
+bindsym $mod+u exec --no-startup-id rofi -show run 
+bindsym $mod+Shift+u exec --no-startup-id rofi -show window 
+# Terminal
 bindsym $mod+Return exec i3-sensible-terminal 
-bindsym $mod+d exec --no-startup-id rofi -show run 
-bindsym $mod+Shift+d exec --no-startup-id rofi -show window 
+# Navigation
 bindsym $mod+$up focus up
 bindsym $mod+$down focus down
 bindsym $mod+$left focus left  
@@ -29,7 +31,6 @@ bindsym $mod+r mode "resize"
 bindsym $mod+Shift+c reload
 bindsym $mod+Shift+r restart
 bindsym $mod+Shift+e exec "i3-msg exit"
-
 # Workspaces
 bindsym $mod+1 workspace 1
 bindsym $mod+2 workspace 2
@@ -51,7 +52,6 @@ bindsym $mod+Shift+7 move container to workspace 7
 bindsym $mod+Shift+8 move container to workspace 8
 bindsym $mod+Shift+9 move container to workspace 9
 bindsym $mod+Shift+0 move container to workspace 10
-
 # Resize mode
 mode "resize" {
    bindsym $up resize grow height 10 px
@@ -61,7 +61,6 @@ mode "resize" {
    bindsym Return mode "default"
    bindsym Escape mode "default"
 }
-
 # Bar
 bar {
   font pango:FontAwesome 11
@@ -69,7 +68,6 @@ bar {
   position top
   height 28
 }
-
 # i3-gaps 
 for_window [class="^.*"] border pixel 2
 gaps inner 10
