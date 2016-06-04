@@ -22,6 +22,11 @@ vimfx.set('mode.normal.scroll_right', RIGHT);
 vimfx.set('mode.normal.scroll_to_top', 'gg');
 vimfx.set('mode.normal.scroll_to_bottom', 'G');
 
+// Follow
+vimfx.set('mode.normal.follow', 'f');
+vimfx.set('mode.normal.follow_in_tab', 'F');
+vimfx.set('mode.hints.exit', '<escape>');
+
 // Tabs
 vimfx.set('mode.normal.tab_select_previous', LEFT.toUpperCase());
 vimfx.set('mode.normal.tab_select_next', RIGHT.toUpperCase());
@@ -33,3 +38,5 @@ vimfx.set('mode.normal.find', '/');
 vimfx.set('mode.normal.find_highlight_all', 'a/');
 vimfx.set('mode.normal.find_next', 'l');
 vimfx.set('mode.normal.find_previous', 'L');
+vimfx.set('mode.find.exit', '<escape>	<enter>');
+
