@@ -20,6 +20,7 @@
     (global-evil-leader-mode)
     (evil-leader/set-leader ",")
     (evil-leader/set-key
+      ;; NOTE "e" and "E" are used in Flycheck
       ;; Commenting
       "ci" 'evilnc-comment-or-uncomment-lines
       "cp" 'evilnc-comment-or-uncomment-paragraphs
@@ -77,33 +78,24 @@
 
 ;; Some help from https://www.emacswiki.org/emacs/DelightedModes on getting this
 ;; to work with auto-fill-mode.
-(defun shellhead/auto-fill-hook ()
-  "Setup auto-fill-mode by setting the fill-column, and only apply to comments,
-diminish (or delight) the mode."
+(defun shellhead/turn-on-auto-fill ()
+  "Enable auto-fill-mode."
   (auto-fill-mode 1)
   (set-fill-column 80)
   (setq comment-auto-fill-only-comments t)
   (delight 'auto-fill-function nil t))
 
-(add-hook 'prog-mode-hook #'shellhead/auto-fill-hook)
-
-(defun shellhead/company-hook ()
-  (company-mode 1))
-
-(add-hook 'prog-mode-hook #'shellhead/company-hook)
+(add-hook 'prog-mode-hook #'shellhead/turn-on-auto-fill)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Packages
 
-;; Have avy use the Dvorak home row.
-(use-package avy
+(use-package avy			; Jump to characters.
   :ensure t
-  :config (setq avy-keys '(?a ?o ?e ?u ?i ?d ?h ?t ?t ?n ?s)))
+  :config
+  (setq avy-keys '(?a ?o ?e ?u ?i ?d ?h ?t ?t ?n ?s))) ; Use Dvorak home row.
 
-;; Powerline status line for emacs.
-;; TODO Build out personal theme, this or powerline-evil don't provide
-;; the themes I want.
-(use-package powerline
+(use-package powerline			; Powerline for the emacs' mode line.
   :ensure t
   :config (powerline-default-theme))
 
@@ -114,8 +106,10 @@ diminish (or delight) the mode."
   (use-package helm
     :ensure t
     :bind (:map helm-map
-                ("<tab>" . helm-execute-persistent-action)))
-  (setq helm-split-window-in-side-p t) ; Open helm in current window.
+                ("<tab>" . helm-execute-persistent-action))
+    :config
+    (setq helm-split-window-in-side-p t) ; Open helm in current window.
+    (setq helm-apropos-fuzzy-match t))	 ; Enable fuzzy searchi in apropos.
   (use-package helm-descbinds	       ; Better way to lookup keys.
     :ensure t))
 
@@ -125,14 +119,23 @@ diminish (or delight) the mode."
   (add-hook 'org-mode-hook #'shellhead/auto-fill-hook) ; Turn on auto-fill-mode
   (setq org-hide-leading-stars t))		       ; Hide all but the last star.
 
-(use-package flycheck
-  :ensure t)
+(use-package flycheck			; Syntax checker.
+  :ensure t
+  :diminish flycheck-mode
+  :init
+  (add-hook 'prog-mode-hook #'flycheck-mode)
+  :config
+  (evil-leader/set-key			; Set these keys if 
+    "e" 'flycheck-next-error
+    "E" 'flycheck-previous-error))
 
 (use-package company			; Autocompletion.
   :ensure t
+  :diminish company-mode
   :bind (:map company-active-map	; Remap active keymap.
               ("C-h" . company-select-next)
               ("C-t" . company-select-previous))
+  :init (add-hook 'prog-mode-hook #'company-mode)
   :config
   (setq company-minimum-prefix-length 5) ; Look for completions after 5 chars.
   (setq company-idle-delay 0.25))	 ; Look for completions after 0.25s.
