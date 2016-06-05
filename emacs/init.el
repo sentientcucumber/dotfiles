@@ -13,6 +13,19 @@
   :ensure t
   :demand
   :config
+  ;; Redefine evil bindings to make more sense on Dvorak. I wasn't a huge fan of
+  ;; evil-dvorak as it overwrote some bindings that I find really useful (like
+  ;; evil-find-char-to) and didn't reassign them. With that said, there are a
+  ;; couple of bindings I'm overwriting without rebinding.
+  (define-key evil-normal-state-map "d" 'evil-backward-char)
+  (define-key evil-normal-state-map "h" 'evil-next-line)
+  (define-key evil-normal-state-map "t" 'evil-previous-line)
+  (define-key evil-normal-state-map "s" 'evil-forward-char)
+  (define-key evil-normal-state-map "k" 'evil-delete)
+  (define-key evil-normal-state-map "j" 'evil-find-char-to)
+  (define-key evil-normal-state-map "J" 'evil-find-char-to-backward)
+  (define-key evil-motion-state-map "l" 'evil-search-next)
+  (define-key evil-motion-state-map "L" 'evil-search-previous)
   ;; Practically a requirement if you're using evil-mode.
   (use-package evil-leader
     :ensure t
@@ -24,6 +37,7 @@
       ;; Commenting
       "ci" 'evilnc-comment-or-uncomment-lines
       "cp" 'evilnc-comment-or-uncomment-paragraphs
+      "cr" 'comment-or-uncomment-region
       "cl" 'comment-indent
       ;; Helm
       "a"  'helm-apropos
@@ -39,6 +53,7 @@
   (use-package evil-easymotion
     :ensure t
     :config
+    ;; TODO Crap. Rebinding the keys breaks this.
     (evilem-default-keybindings "SPC"))
   ;; Package for better commenting in evil.
   (use-package evil-nerd-commenter
@@ -139,3 +154,9 @@
   :config
   (setq company-minimum-prefix-length 5) ; Look for completions after 5 chars.
   (setq company-idle-delay 0.25))	 ; Look for completions after 0.25s.
+
+(use-package smooth-scroll
+  :disabled t
+  :ensure t
+  :diminish smooth-scroll-mode
+  :init (add-hook 'after-init-hook #'smooth-scroll-mode))
