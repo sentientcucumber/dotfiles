@@ -1,9 +1,12 @@
 ;; Package initialization 
 (require 'package)
-(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
+(add-to-list 'package-archives
+	     '("melpa" . "https://melpa.org/packages")) ; Add MELPA packages. 
+(add-to-list 'package-archives
+	     '("org" . "https://orgmode.org/elpa")) ; Add org packages.
 (package-initialize)
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; evil-mode
 
 ;; I've come to rely on evil-mode a fair amount, so it get's its own section.
@@ -24,8 +27,11 @@
       "cp" 'evilnc-comment-or-uncomment-paragraphs
       "cl" 'comment-indent
       ;; Helm
+      "a"  'helm-apropos
+      "m"  'helm-man-woman
       "x"  'helm-M-x
-      "f"  'helm-find-files))
+      "f"  'helm-find-files
+      "b"  'helm-buffers-list))
   ;; Expands matching delimiters to include quotes and more.
   (use-package evil-matchit
     :ensure t)
@@ -39,11 +45,12 @@
     :ensure t)
   (evil-mode t))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Settings
 
 (defalias 'yes-or-no-p 'y-or-n-p)	; A more sane "yes or no" default.
 (setq inhibit-startup-message t)	; Open to scratch buffer instead.
+(setq initial-major-mode 'fundamental-mode) ; Use a fundamental-mode on startup.
 (setq indent-tabs-mode nil)             ; Only use spaces, never tabs.
 (setq vc-follow-symlinks t)		; Follow symbollic links.
 (setq echo-keystrokes 0.1)              ; Echo keystroke immediately
@@ -56,18 +63,17 @@
 (setq backup-directory-alist `((".*" . ,emacs-tmp-directory)))
 (setq auto-save-file-name-transforms `((".*" ,emacs-tmp-directory t)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Appearance
 
-;; "monospace" is defined outside of emacs, in .config/fontconfig/font.conf
-(set-frame-font "monospace 12")
+(set-frame-font "monospace 12")         ; "monospace" set in fonts.conf
 (menu-bar-mode -1)                      ; Disable menu bar.
 (scroll-bar-mode -1)                    ; Disable scroll bar.
 (tool-bar-mode -1)                      ; Disable tool bar.
 (blink-cursor-mode -1)                  ; Disable blinking cursor.
 (load-theme 'base16-eighties-dark t)	; Theme from base16-theme package
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Hooks
 
 (defun shellhead/auto-fill-hook ()
@@ -75,12 +81,13 @@
 diminish (or delight) the mode. Some help from 
 https://www.emacswiki.org/emacs/DelightedModes on getting this to work with
 auto-fill-mode."
+  (auto-fill-mode 1)
   (set-fill-column 80)
   (setq comment-auto-fill-only-comments t)
   (delight 'auto-fill-function nil t))
 (add-hook 'prog-mode-hook #'shellhead/auto-fill-hook)
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Packages
 
 ;; Have avy use the Dvorak home row.
@@ -101,4 +108,9 @@ auto-fill-mode."
   (use-package helm
     :bind (:map helm-map
                 ("<tab>" . helm-execute-persistent-action)))
-  (setq helm-split-window-in-side-p t))  ; Open helm in current window
+  (setq helm-split-window-in-side-p t)) ; Open helm in current window.
+
+(use-package org
+  :config
+  (add-hook 'org-mode-hook #'shellhead/auto-fill-hook) ; Turn on auto-fill-mode
+  (setq org-hide-leading-stars t)		       ; Hide all but the last star.
