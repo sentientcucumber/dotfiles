@@ -13,27 +13,30 @@
   :ensure t
   :demand
   :config
-  ;; Redefine evil bindings to make more sense on Dvorak. I wasn't a huge fan of
-  ;; evil-dvorak as it overwrote some bindings that I find really useful (like
-  ;; evil-find-char-to) and didn't reassign them. With that said, there are a
-  ;; couple of bindings I'm overwriting without rebinding.
+  ;; Redefine evil bindings to make more sense on Dvorak. I want to define my
+  ;; own, as evil-dvorak didn't use the same keys I wanted to setup.
   (define-key evil-normal-state-map "d" 'evil-backward-char)
   (define-key evil-normal-state-map "h" 'evil-next-line)
   (define-key evil-normal-state-map "t" 'evil-previous-line)
-  (define-key evil-normal-state-map "s" 'evil-forward-char)
-  (define-key evil-normal-state-map "k" 'evil-delete)
-  (define-key evil-normal-state-map "j" 'evil-find-char-to)
+  (define-key evil-normal-state-map "n" 'evil-forward-char)
+  (define-key evil-normal-state-map "k" 'evil-delete)	    ; Think "kill".
+  (define-key evil-normal-state-map "j" 'evil-find-char-to) ; Think "jump".
   (define-key evil-normal-state-map "J" 'evil-find-char-to-backward)
-  (define-key evil-motion-state-map "l" 'evil-search-next)
+  (define-key evil-motion-state-map "l" 'evil-search-next)  ; Think "look".
   (define-key evil-motion-state-map "L" 'evil-search-previous)
-  ;; Practically a requirement if you're using evil-mode.
+  (define-key evil-normal-state-map "gj" 'evil-join)
+  ;; Practically a requirement if you're using evil-mode. I like setting these
+  ;; keys here, rather than with their respective packages, so I can easily find
+  ;; confilcts, should they arise.
   (use-package evil-leader
     :ensure t
     :config
     (global-evil-leader-mode)
     (evil-leader/set-leader ",")
+    (evil-leader/set-key-for-mode 'flycheck-mode
+      "e" 'flycheck-next-error
+      "E" 'flycheck-previous-error)
     (evil-leader/set-key
-      ;; NOTE "e" and "E" are used in Flycheck
       ;; Commenting
       "ci" 'evilnc-comment-or-uncomment-lines
       "cp" 'evilnc-comment-or-uncomment-paragraphs
@@ -53,8 +56,13 @@
   (use-package evil-easymotion
     :ensure t
     :config
-    ;; TODO Crap. Rebinding the keys breaks this.
-    (evilem-default-keybindings "SPC"))
+    ;; The changes made to evil-mode do not carry over to evil-easymotion.
+    (evilem-default-keybindings "SPC")
+    (evilem-define (kbd "SPC h") 'evil-next-line)
+    (evilem-define (kbd "SPC t") 'evil-previous-line)
+    (evilem-define (kbd "SPC j") 'evil-find-char-to)
+    (evilem-define (kbd "SPC J") 'evil-find-char-to-backward)
+    (evilem-define (kbd "SPC k") nil))
   ;; Package for better commenting in evil.
   (use-package evil-nerd-commenter
     :ensure t)
@@ -94,7 +102,7 @@
 ;; Some help from https://www.emacswiki.org/emacs/DelightedModes on getting this
 ;; to work with auto-fill-mode.
 (defun shellhead/turn-on-auto-fill ()
-  "Enable auto-fill-mode."
+  "Enable auto-fill-mode, set fill-column to 80, and apply only to comments."
   (auto-fill-mode 1)
   (set-fill-column 80)
   (setq comment-auto-fill-only-comments t)
@@ -111,10 +119,13 @@
   (setq avy-keys '(?a ?o ?e ?u ?i ?d ?h ?t ?t ?n ?s))) ; Use Dvorak home row.
 
 (use-package powerline			; Powerline for the emacs' mode line.
+  ;; TODO Not a fan the evil theme this or evil-powerline provide. Make my own.
   :ensure t
   :config (powerline-default-theme))
 
 (use-package helm-config		; Narrowing framework.
+  ;; TODO Look into setting up helm-dabbrev, helm-moccur, helm-projectile, and
+  ;; helm-grep. 
   :ensure helm
   :demand t
   :config
@@ -124,25 +135,34 @@
                 ("<tab>" . helm-execute-persistent-action))
     :config
     (setq helm-split-window-in-side-p t) ; Open helm in current window.
+    (setq helm-M-x-fuzzy-match t)	 ; Fuzzy match in M-x.
+    (setq helm-buffers-fuzzy-matching t) ; Fuzzy match in buffers list.
     (setq helm-apropos-fuzzy-match t))	 ; Enable fuzzy searchi in apropos.
-  (use-package helm-descbinds	       ; Better way to lookup keys.
+  (use-package helm-descbinds		 ; Better way to lookup keys.
     :ensure t))
 
 (use-package org
   :delight org-mode "org"		; I like lowercase.
   :config
-  (add-hook 'org-mode-hook #'shellhead/auto-fill-hook) ; Turn on auto-fill-mode
+  ;; Not a fan of the bindings evil-org provides, so here are my own.
+  (defun shellhead/smart-org-insert ()
+    "Creates a new heading if currently in a heading, creates a new list item 
+     if in a list, or creates a newline if neither."
+    (interactive)
+    (cond
+     ((org-at-heading-p) (org-insert-heading-respect-content))
+     ((org-at-item-p) (org-insert-item))))
+
+  (evil-define-key 'insert org-mode-map
+    (kbd "C-o") 'shellhead/smart-org-insert)
+  (add-hook 'org-mode-hook #'shellhead/turn-on-auto-fill) ; Turn on auto-fill-mode
   (setq org-hide-leading-stars t))		       ; Hide all but the last star.
 
 (use-package flycheck			; Syntax checker.
   :ensure t
   :diminish flycheck-mode
   :init
-  (add-hook 'prog-mode-hook #'flycheck-mode)
-  :config
-  (evil-leader/set-key			; Set these keys if 
-    "e" 'flycheck-next-error
-    "E" 'flycheck-previous-error))
+  (add-hook 'prog-mode-hook #'flycheck-mode))
 
 (use-package company			; Autocompletion.
   :ensure t
@@ -155,8 +175,6 @@
   (setq company-minimum-prefix-length 5) ; Look for completions after 5 chars.
   (setq company-idle-delay 0.25))	 ; Look for completions after 0.25s.
 
-(use-package smooth-scroll
-  :disabled t
+(use-package smooth-scrolling		; Make scrolling MUCH smoother.
   :ensure t
-  :diminish smooth-scroll-mode
-  :init (add-hook 'after-init-hook #'smooth-scroll-mode))
+  :init (add-hook 'after-init-hook #'smooth-scrolling-mode))
