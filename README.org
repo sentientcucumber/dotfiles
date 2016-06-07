@@ -43,4 +43,4 @@ A masterpiece in progress.
 
    #+BEGIN_SRC sh
    $ sudo pacman -S zsh
-   #+END
+   #+END_SRC

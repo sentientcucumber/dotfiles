@@ -89,12 +89,20 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Appearance
 
+(defun is-windows-p ()
+  "Returns t if the current window-system is Windows, or nil."
+  (eq window-system 'w32))
+    
+;; I run emacs on a Windows machine at work, where none of my X config works
+;; (thus "monospace" is not defined). I really want to use the X value where
+;; possible, so whenever I have a change of heart and want to try a new
+;; monospace font, I don't have to change it everywhere.
 (let
     ((font (cond
-            ((eq window-system 'w32) "Fantasque Sans Mono")
+            ((is-windows-p) "Fantasque Sans Mono")
             (t "monospace"))))
   (set-frame-font (concat font " 12")))
-(set-frame-font "Fantasque Sans Mono 12") ; "monospace" set in fonts.conf
+
 (menu-bar-mode -1)                      ; Disable menu bar.
 (scroll-bar-mode -1)                    ; Disable scroll bar.
 (tool-bar-mode -1)                      ; Disable tool bar.
@@ -183,17 +191,3 @@
 (use-package smooth-scrolling		; Make scrolling MUCH smoother.
   :ensure t
   :init (add-hook 'after-init-hook #'smooth-scrolling-mode))
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   (quote
-    (base16-theme flycheck zenburn-theme yaml-mode use-package tao-theme spacegray-theme solarized-theme smooth-scrolling rainbow-delimiters powerline popwin json-mode js2-mode helm-projectile helm-descbinds helm-c-yasnippet git-gutter evil-surround evil-org evil-nerd-commenter evil-matchit evil-magit evil-escape evil-easymotion dired-narrow delight company base16))))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
