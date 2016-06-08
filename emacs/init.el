@@ -1,5 +1,13 @@
-;; Package initialization 
-(require 'package)
+;;; init.el -- A masterpiece in progress.
+
+;; Author: Michael Hunsinger <mike.hunsinger@gmail.com>
+
+;;; Commentary:
+
+;; I really just wanted the flycheck highlighting to stop.
+
+;;; Code:
+(require 'package)			; Setup packages
 (add-to-list 'package-archives
 	     '("melpa" . "https://melpa.org/packages/")) ; Add MELPA packages. 
 (package-initialize)
@@ -12,17 +20,24 @@
   :diminish undo-tree-mode
   :ensure t
   :demand
+  :init
+  (setq evil-find-skip-newlines t)      ; Don't restrict find to current line.
   :config
   ;; Redefine evil bindings to make more sense on Dvorak. I want to define my
   ;; own, as evil-dvorak didn't use the same keys I wanted to setup.
   (define-key evil-normal-state-map "d" 'evil-backward-char)
   (define-key evil-normal-state-map "h" 'evil-next-line)
   (define-key evil-normal-state-map "t" 'evil-previous-line)
+  (define-key evil-visual-state-map "n" 'evil-forward-char)
+  (define-key evil-visual-state-map "d" 'evil-backward-char)
+  (define-key evil-visual-state-map "h" 'evil-next-line)
+  (define-key evil-visual-state-map "t" 'evil-previous-line)
   (define-key evil-normal-state-map "n" 'evil-forward-char)
-  (define-key evil-normal-state-map "k" 'evil-delete)	    ; Think "kill".
-  (define-key evil-normal-state-map "j" 'evil-find-char-to) ; Think "jump".
+  (define-key evil-normal-state-map "k" 'evil-delete)
+  (define-key evil-normal-state-map "K" 'evil-delete-line)
+  (define-key evil-normal-state-map "j" 'evil-find-char-to)
   (define-key evil-normal-state-map "J" 'evil-find-char-to-backward)
-  (define-key evil-motion-state-map "l" 'evil-search-next)  ; Think "look".
+  (define-key evil-motion-state-map "l" 'evil-search-next)
   (define-key evil-motion-state-map "L" 'evil-search-previous)
   (define-key evil-normal-state-map "gj" 'evil-join)
   ;; Practically a requirement if you're using evil-mode. I like setting these
@@ -30,13 +45,13 @@
   ;; confilcts, should they arise.
   (use-package evil-leader
     :ensure t
+    :init (global-evil-leader-mode)
     :config
-    (global-evil-leader-mode)
     (evil-leader/set-leader ",")
-    (evil-leader/set-key-for-mode 'flycheck-mode
-      "e" 'flycheck-next-error
-      "E" 'flycheck-previous-error)
     (evil-leader/set-key
+      ;; Org
+      "oa" 'org-agenda
+      "oc" 'org-capture
       ;; Commenting
       "ci" 'evilnc-comment-or-uncomment-lines
       "cp" 'evilnc-comment-or-uncomment-paragraphs
@@ -48,10 +63,16 @@
       "m"  'helm-man-woman
       "x"  'helm-M-x
       "f"  'helm-find-files
-      "b"  'helm-buffers-list))
+      "b"  'helm-buffers-list)
+    ;; flycheck-mode specific bindings
+    ;; FIXME figure out why this isn't working.
+    (evil-leader/set-key-for-mode 'global-flycheck-mode
+      "e"  'flycheck-next-error
+      "E"  'flycheck-previous-error))
   ;; Expands matching delimiters to include quotes and more.
   (use-package evil-matchit
-    :ensure t)
+    :ensure t
+    :init (global-evil-matchit-mode 1))
   ;; Makes moving around in evil so much easier by using avy.
   (use-package evil-easymotion
     :ensure t
@@ -107,8 +128,7 @@
 (scroll-bar-mode -1)                    ; Disable scroll bar.
 (tool-bar-mode -1)                      ; Disable tool bar.
 (blink-cursor-mode -1)                  ; Disable blinking cursor.
-(load-theme 'base16-eighties-dark t)	; Theme from base16-theme package
-(delight 'emacs-lisp-mode "elisp" :major) ; Me being neurotic.
+(delight 'emacs-lisp-mode "emacs-lisp" :major) ; Me being neurotic.
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Hooks
@@ -121,8 +141,16 @@
   (set-fill-column 80)
   (setq comment-auto-fill-only-comments t)
   (delight 'auto-fill-function nil t))
-
 (add-hook 'prog-mode-hook #'shellhead/turn-on-auto-fill)
+
+(defun my/add-watchwords ()
+  "Highlight FIXME, TODO, and NOCOMMIT in code TODO"
+  (font-lock-add-keywords
+   nil '(("\\<\\(FIXME:?\\)\\>"
+	  1 '((:foreground "#EF7373") (:slant italic)) t)
+	 ("\\<\\(TODO:?\\)\\>"
+          1 '((:foreground "#FFCC80") (:slant italic)) t))))
+(add-hook 'prog-mode-hook #'my/add-watchwords)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Packages
@@ -131,12 +159,6 @@
   :ensure t
   :config
   (setq avy-keys '(?a ?o ?e ?u ?i ?d ?h ?t ?t ?n ?s))) ; Use Dvorak home row.
-
-;; (use-package powerline			; Powerline for the emacs' mode line.
-;;   ;; TODO Not a fan the evil theme this or evil-powerline provide. Make my own.
-;;   :disabled t
-;;   :ensure t
-;;   :config (powerline-default-theme))
 
 (use-package helm-config		; Narrowing framework.
   ;; TODO Look into setting up helm-dabbrev, helm-moccur, helm-projectile, and
@@ -147,6 +169,7 @@
   (use-package helm
     :ensure t
     :bind (:map helm-map
+		("C-z" . helm-select-action)
                 ("<tab>" . helm-execute-persistent-action))
     :config
     (setq helm-split-window-in-side-p t) ; Open helm in current window.
@@ -159,7 +182,12 @@
 (use-package org
   :delight org-mode "org"               ; I like lowercase.
   :config
+  (setq org-catch-invisible-edits 'show)    ; Prevent editing folded sections.
+
   ;; Not a fan of the bindings evil-org provides, so here are my own.
+  ;; TODO create an additional state, org, that can be entered from INSERT
+  ;; mode. This mode should then have its own keymap devoted to various org
+  ;; functions (there are so many).
   (defun shellhead/smart-org-insert ()
     "Creates a new heading if currently in a heading, creates a new list item 
      if in a list, or creates a newline if neither." 
@@ -167,7 +195,7 @@
     (cond
      ((org-at-heading-p) (org-insert-heading-respect-content))
      ((org-at-item-p) (org-insert-item))
-     (t (evil-open-below))))
+     (t (evil-open-below 1))))
 
   (evil-define-key 'insert org-mode-map
     (kbd "C-o") 'shellhead/smart-org-insert)
@@ -178,7 +206,7 @@
   :ensure t
   :diminish flycheck-mode
   :init
-  (add-hook 'prog-mode-hook #'flycheck-mode))
+  (add-hook 'after-init-hook 'global-flycheck-mode))
 
 (use-package company			; Autocompletion.
   :ensure t
@@ -195,17 +223,21 @@
   :ensure t
   :init (add-hook 'after-init-hook #'smooth-scrolling-mode))
 
+;; Setup powerline theme for emacs, offers much better evil integration than the
+;; powerline and powerline-evil packages.
 (use-package telephone-line
   :ensure t
   :config
   (setq telephone-line-lhs
         '((evil . (telephone-line-evil-tag-segment))
-          (accent . (telephone-line-vc-segment
-                     telephone-line-process-segment))
-          (nil . (telephone-line-minor-mode-segment
-		  telephone-line-buffer-segment))))
+          (accent . (telephone-line-major-mode-segment
+		     telephone-line-minor-mode-segment))
+	  (nil . (telephone-line-vc-segment))))
   (setq telephone-line-rhs
-        '((nil . (telephone-line-misc-info-segment))
-          (accent . (telephone-line-major-mode-segment))
-          (evil . (telephone-line-airline-position-segment))))
+	'((nil . (telephone-line-airline-position-segment))
+	  (accent . (telephone-line-buffer-segment))))
   (telephone-line-mode t))
+
+(use-package apropospriate-theme
+  :ensure t
+  :config (load-theme 'apropospriate-dark t))
