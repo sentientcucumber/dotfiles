@@ -54,6 +54,9 @@
 URxvt.font: xft:FantasqueSansMono:size=12
 ! scrollbar
 URxvt.scrollBar: false
+! copy and paste
+! requires urxvt-perls to be installed
+URxvt.perl-ext-common: selection-to-clipboard
 
 ! rofi configuration
 rofi.width:      50

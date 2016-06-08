@@ -108,6 +108,7 @@
 (tool-bar-mode -1)                      ; Disable tool bar.
 (blink-cursor-mode -1)                  ; Disable blinking cursor.
 (load-theme 'base16-eighties-dark t)	; Theme from base16-theme package
+(delight 'emacs-lisp-mode "elisp" :major) ; Me being neurotic.
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Hooks
@@ -131,10 +132,11 @@
   :config
   (setq avy-keys '(?a ?o ?e ?u ?i ?d ?h ?t ?t ?n ?s))) ; Use Dvorak home row.
 
-(use-package powerline			; Powerline for the emacs' mode line.
-  ;; TODO Not a fan the evil theme this or evil-powerline provide. Make my own.
-  :ensure t
-  :config (powerline-default-theme))
+;; (use-package powerline			; Powerline for the emacs' mode line.
+;;   ;; TODO Not a fan the evil theme this or evil-powerline provide. Make my own.
+;;   :disabled t
+;;   :ensure t
+;;   :config (powerline-default-theme))
 
 (use-package helm-config		; Narrowing framework.
   ;; TODO Look into setting up helm-dabbrev, helm-moccur, helm-projectile, and
@@ -155,16 +157,17 @@
     :ensure t))
 
 (use-package org
-  :delight org-mode "org"		; I like lowercase.
+  :delight org-mode "org"               ; I like lowercase.
   :config
   ;; Not a fan of the bindings evil-org provides, so here are my own.
   (defun shellhead/smart-org-insert ()
     "Creates a new heading if currently in a heading, creates a new list item 
-     if in a list, or creates a newline if neither."
+     if in a list, or creates a newline if neither." 
     (interactive)
     (cond
      ((org-at-heading-p) (org-insert-heading-respect-content))
-     ((org-at-item-p) (org-insert-item))))
+     ((org-at-item-p) (org-insert-item))
+     (t (evil-open-below))))
 
   (evil-define-key 'insert org-mode-map
     (kbd "C-o") 'shellhead/smart-org-insert)
@@ -191,3 +194,18 @@
 (use-package smooth-scrolling		; Make scrolling MUCH smoother.
   :ensure t
   :init (add-hook 'after-init-hook #'smooth-scrolling-mode))
+
+(use-package telephone-line
+  :ensure t
+  :config
+  (setq telephone-line-lhs
+        '((evil . (telephone-line-evil-tag-segment))
+          (accent . (telephone-line-vc-segment
+                     telephone-line-process-segment))
+          (nil . (telephone-line-minor-mode-segment
+		  telephone-line-buffer-segment))))
+  (setq telephone-line-rhs
+        '((nil . (telephone-line-misc-info-segment))
+          (accent . (telephone-line-major-mode-segment))
+          (evil . (telephone-line-airline-position-segment))))
+  (telephone-line-mode t))
