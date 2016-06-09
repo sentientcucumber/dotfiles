@@ -28,3 +28,4 @@ vimfx.set('mode.normal.find_previous', 'L');
 vimfx.set('mode.find.exit', '<escape>	<enter>');
 vimfx.set('mode.normal.esc', '<force><escape>');
 vimfx.set('hint_chars', 'aoeuidhtns-');
+vimfx.set('blacklist', '*codio.com*');
