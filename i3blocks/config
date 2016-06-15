@@ -43,8 +43,7 @@ signal=10
 #
 # The battery instance defaults to 0.
 [battery]
-label= 
-#instance=1
+command=echo "$(python ~/.dotfiles/i3blocks/scripts/battery.py)"
 interval=30
 
 # Date Time

@@ -34,6 +34,7 @@
   (define-key evil-visual-state-map "t" 'evil-previous-line)
   (define-key evil-normal-state-map "n" 'evil-forward-char)
   (define-key evil-normal-state-map "k" 'evil-delete)
+  (define-key evil-visual-state-map "k" 'evil-delete)
   (define-key evil-normal-state-map "K" 'evil-delete-line)
   (define-key evil-normal-state-map "j" 'evil-find-char-to)
   (define-key evil-normal-state-map "J" 'evil-find-char-to-backward)
@@ -49,7 +50,11 @@
     :config
     (evil-leader/set-leader ",")
     (evil-leader/set-key
-      ;; Org
+      ;; NOTE evil-leader/set-key-for-mode only works for major modes
+      ;; Flycheck
+      "e"  'flycheck-next-error
+      "E"  'flycheck-previous-error
+      ;; Org, while a major mode, I want these available all the time
       "oa" 'org-agenda
       "oc" 'org-capture
       ;; Commenting
@@ -64,11 +69,8 @@
       "x"  'helm-M-x
       "f"  'helm-find-files
       "b"  'helm-buffers-list)
-    ;; flycheck-mode specific bindings
-    ;; FIXME figure out why this isn't working.
-    (evil-leader/set-key-for-mode 'global-flycheck-mode
-      "e"  'flycheck-next-error
-      "E"  'flycheck-previous-error))
+    (evil-leader/set-key-for-mode 'org-mode
+      "cp" 'org-set-property))
   ;; Expands matching delimiters to include quotes and more.
   (use-package evil-matchit
     :ensure t
@@ -95,7 +97,8 @@
 (defalias 'yes-or-no-p 'y-or-n-p)	; A more sane "yes or no" default.
 (setq inhibit-startup-message t)	; Open to scratch buffer instead.
 (setq initial-major-mode 'fundamental-mode) ; Use a fundamental-mode on startup.
-(setq indent-tabs-mode nil)             ; Only use spaces, never tabs.
+(setq-default default-tab-width 2) 
+(setq-default indent-tabs-mode nil)	; Only use spaces, never tabs.
 (setq vc-follow-symlinks t)		; Follow symbollic links.
 (setq echo-keystrokes 0.1)              ; Echo keystroke immediately
 
@@ -128,6 +131,7 @@
 (scroll-bar-mode -1)                    ; Disable scroll bar.
 (tool-bar-mode -1)                      ; Disable tool bar.
 (blink-cursor-mode -1)                  ; Disable blinking cursor.
+(load-theme 'base16-ocean-dark t)       ; Current theme of the month.
 (delight 'emacs-lisp-mode "emacs-lisp" :major) ; Me being neurotic.
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -144,18 +148,20 @@
 (add-hook 'prog-mode-hook #'shellhead/turn-on-auto-fill)
 
 (defun my/add-watchwords ()
-  "Highlight FIXME, TODO, and NOCOMMIT in code TODO"
+  "Highlight FIXME, TODO, and NOTE."
   (font-lock-add-keywords
    nil '(("\\<\\(FIXME:?\\)\\>"
-	  1 '((:foreground "#EF7373") (:slant italic)) t)
-	 ("\\<\\(TODO:?\\)\\>"
-          1 '((:foreground "#FFCC80") (:slant italic)) t))))
+          1 '((:foreground "#BF616A") (:slant italic)) t)
+         ("\\<\\(TODO:?\\)\\>"
+          1 '((:foreground "#EBCB8B") (:slant italic)) t)
+         ("\\<\\(NOTE:?\\)\\>"
+          1 '((:foreground "#8FA1B3") (:slant italic)) t))))
 (add-hook 'prog-mode-hook #'my/add-watchwords)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Packages
 
-(use-package avy			; Jump to characters.
+(use-package avy			; Used in evil-easymotion.
   :ensure t
   :config
   (setq avy-keys '(?a ?o ?e ?u ?i ?d ?h ?t ?t ?n ?s))) ; Use Dvorak home row.
@@ -183,11 +189,14 @@
   :delight org-mode "org"               ; I like lowercase.
   :config
   (setq org-catch-invisible-edits 'show)    ; Prevent editing folded sections.
+  (setq org-hide-leading-stars t)           ; Hide all but the last star.
+  (setq org-use-property-inheritance t)     ; Inherit parent properties.
 
-  ;; Not a fan of the bindings evil-org provides, so here are my own.
-  ;; TODO create an additional state, org, that can be entered from INSERT
+  ;; TODO create an additional state, "org", that can be entered from INSERT
   ;; mode. This mode should then have its own keymap devoted to various org
   ;; functions (there are so many).
+
+  ;; Not a fan of the bindings evil-org provides, so here are my own.
   (defun shellhead/smart-org-insert ()
     "Creates a new heading if currently in a heading, creates a new list item 
      if in a list, or creates a newline if neither." 
@@ -199,8 +208,8 @@
 
   (evil-define-key 'insert org-mode-map
     (kbd "C-o") 'shellhead/smart-org-insert)
-  (add-hook 'org-mode-hook #'shellhead/turn-on-auto-fill) ; Turn on auto-fill-mode
-  (setq org-hide-leading-stars t))		       ; Hide all but the last star.
+
+  (add-hook 'org-mode-hook #'shellhead/turn-on-auto-fill))
 
 (use-package flycheck			; Syntax checker.
   :ensure t
@@ -216,16 +225,14 @@
               ("C-t" . company-select-previous))
   :init (add-hook 'prog-mode-hook #'company-mode)
   :config
-  (setq company-minimum-prefix-length 5) ; Look for completions after 5 chars.
-  (setq company-idle-delay 0.25))	 ; Look for completions after 0.25s.
+  (setq company-minimum-prefix-length 4) 
+  (setq company-idle-delay 0.15))	; Look up completions after delay 
 
 (use-package smooth-scrolling		; Make scrolling MUCH smoother.
   :ensure t
   :init (add-hook 'after-init-hook #'smooth-scrolling-mode))
 
-;; Setup powerline theme for emacs, offers much better evil integration than the
-;; powerline and powerline-evil packages.
-(use-package telephone-line
+(use-package telephone-line		; Powerline for the mode-line.
   :ensure t
   :config
   (setq telephone-line-lhs
@@ -238,6 +245,6 @@
 	  (accent . (telephone-line-buffer-segment))))
   (telephone-line-mode t))
 
-(use-package apropospriate-theme
-  :ensure t
-  :config (load-theme 'apropospriate-dark t))
+(use-package tramp
+  :config
+  (setq tramp-use-ssh-controlmaster-options nil))
