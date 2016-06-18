@@ -146,8 +146,9 @@
   (setq comment-auto-fill-only-comments t)
   (delight 'auto-fill-function nil t))
 (add-hook 'prog-mode-hook #'shellhead/turn-on-auto-fill)
+(add-hook 'conf-mode-hook #'shellhead/turn-on-auto-fill)
 
-(defun my/add-watchwords ()
+(defun shellhead/add-watchwords ()
   "Highlight FIXME, TODO, and NOTE."
   (font-lock-add-keywords
    nil '(("\\<\\(FIXME:?\\)\\>"
@@ -156,7 +157,8 @@
           1 '((:foreground "#EBCB8B") (:slant italic)) t)
          ("\\<\\(NOTE:?\\)\\>"
           1 '((:foreground "#8FA1B3") (:slant italic)) t))))
-(add-hook 'prog-mode-hook #'my/add-watchwords)
+(add-hook 'prog-mode-hook #'shellhead/add-watchwords)
+(add-hook 'conf-mode-hook #'shellhead/add-watchwords)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Packages
@@ -197,6 +199,7 @@
   ;; functions (there are so many).
 
   ;; Not a fan of the bindings evil-org provides, so here are my own.
+  ;; FIXME This doesn't work on multiline list entries.
   (defun shellhead/smart-org-insert ()
     "Creates a new heading if currently in a heading, creates a new list item 
      if in a list, or creates a newline if neither." 

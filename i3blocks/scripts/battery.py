@@ -2,63 +2,56 @@ import re
 from subprocess import check_output, CalledProcessError
 
 try:
-    output = check_output(['acpi', '-b'], universal_newlines=True)
-except CalledProcessError:
-    print('Error running "acpi -b"')
+    # Sample "acpi -b" output:
+    #   Battery 0: Discharging, 86%, 02:10:07 remaining
+    #   Battery 1: Full, 100%
+    battery_output = check_output(['acpi', '-b'], universal_newlines = True)
 
-# Sample "acpi -b" output:
-#   Battery 0: Discharging, 86%, 02:10:07 remaining
-#   Battery 1: Full, 100%
-# Capture the state of the battery (Charging, Discharging, Full or Unknown), the
-# percentage of charge, and time remaining.
-regex = re.compile('^Battery \d+: (\w+), (\d+)%(?:, ([\d:]+))?.*$', re.M)
-batteries = regex.findall(output)
+    # Sample "acpi -a" output:
+    # Adapter 0: on-line
+    charger_output = check_output(['acpi', '-a'], universal_newlines = True)
+except CalledProcessError:
+    print('Error running "acpi"!')
+
+# Capture percentage of charge, state, and time remaining.
+battery_re = re.compile('^Battery \d+: (\w+), (\d+)%(?:, ([\d:]+))?.*$', re.M)
+batteries = battery_re.findall(battery_output)
 sum = 0
-is_charging = False
 
 for battery in batteries:
     state = battery[0]
 
-    # The smaller of my two laptop batteries is considered depleated at 5%, and
-    # the state becomes "Unknown". For more accurate readings, I don't want that
-    # 5% to be part of the calculations.
-    if state != 'Unknown' and state != 'Charging':
-        sum += int(battery[1])
+    # FIXME I have two batteries in my laptop. The first is considered depleated
+    # with 5% remaining. I would like the calculation to eliminate this (minor)
+    # error.
+    sum += int(battery[1])
 
-    # Check if at least one of the batteries is charging.
-    if state == 'Charging' and not is_charging:
-        is_charging = True
-
+# Determine total percentage
 count = len(batteries)
 percentage = int(sum / (count * 100) * 100)
-color = ''
 icon = ''
 
 if percentage > 80:
-    color = 'some color'
     icon = '\uf240'             # full battery
 elif percentage > 60:
-    color = 'some color'
     icon = '\uf241'             # 3/4 battery
 elif percentage > 40:
-    color = 'some color'
     icon = '\uf242'             # 1/2 battery
 elif percentage > 20:
-    color = 'some color'
     icon = '\uf243'             # 1/4 battery
 else:
-    color = 'some color'
     icon = '\uf243'             # empty battery
-    
-if is_charging:
+
+charger_re = re.compile('^Adapter \d: (?P<status>\w+)-line$')
+adapter = charger_re.match(charger_output)
+is_charging = adapter.group('status')
+
+if is_charging == 'on':
     icon = '\uf1e6'             # plug
     
 # Display the battery percentage
 print('<span font=\'FontAwesome\'>{}</span> {}%'.format(icon, percentage))
 
-# TODO Change some sort of color based on the amount of battery left. I'm not
-# sure where this would be used (possibly on underline, highlighting the percent
-# left, not really sure). Decide where it would go before spending time on
-# implementation.
-# TODO Calculate the amount of time remaining. Pretty low-priority as I rarely
-# use it, but could be useful to.
+# TODO Turn into command line tool that can format output based on flags/options
+# passed to it.
+# TODO Calculate time remaining.
