@@ -125,14 +125,14 @@
     ((font (cond
             ((is-windows-p) "Fantasque Sans Mono")
             (t "monospace"))))
-  (set-frame-font (concat font " 12")))
+  (set-frame-font (concat font " 11")))
 
 (menu-bar-mode -1)                      ; Disable menu bar.
 (scroll-bar-mode -1)                    ; Disable scroll bar.
 (tool-bar-mode -1)                      ; Disable tool bar.
 (blink-cursor-mode -1)                  ; Disable blinking cursor.
-(load-theme 'base16-ocean-dark t)       ; Current theme of the month.
 (delight 'emacs-lisp-mode "emacs-lisp" :major) ; Me being neurotic.
+(load-theme 'gruvbox t)                 ; Flavor of the month
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Hooks
@@ -152,11 +152,11 @@
   "Highlight FIXME, TODO, and NOTE."
   (font-lock-add-keywords
    nil '(("\\<\\(FIXME:?\\)\\>"
-          1 '((:foreground "#BF616A") (:slant italic)) t)
+          1 '((:foreground "#fb4934") (:slant italic)) t)
          ("\\<\\(TODO:?\\)\\>"
-          1 '((:foreground "#EBCB8B") (:slant italic)) t)
+          1 '((:foreground "#fabd2f") (:slant italic)) t)
          ("\\<\\(NOTE:?\\)\\>"
-          1 '((:foreground "#8FA1B3") (:slant italic)) t))))
+          1 '((:foreground "#8ec07c") (:slant italic)) t))))
 (add-hook 'prog-mode-hook #'shellhead/add-watchwords)
 (add-hook 'conf-mode-hook #'shellhead/add-watchwords)
 
@@ -251,3 +251,7 @@
 (use-package tramp
   :config
   (setq tramp-use-ssh-controlmaster-options nil))
+
+(use-package gruvbox-theme
+  :ensure t)
+;;; init.el ends here
