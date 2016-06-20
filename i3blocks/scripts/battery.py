@@ -8,7 +8,7 @@ try:
     battery_output = check_output(['acpi', '-b'], universal_newlines = True)
 
     # Sample "acpi -a" output:
-    # Adapter 0: on-line
+    #   Adapter 0: on-line
     charger_output = check_output(['acpi', '-a'], universal_newlines = True)
 except CalledProcessError:
     print('Error running "acpi"!')
@@ -50,8 +50,6 @@ if is_charging == 'on':
     icon = '\uf1e6'             # plug
     
 # Display the battery percentage
-print('<span font=\'FontAwesome\'>{}</span> {}%'.format(icon, percentage))
+print('{} {}%'.format(icon, percentage))
 
-# TODO Turn into command line tool that can format output based on flags/options
-# passed to it.
 # TODO Calculate time remaining.

@@ -22,7 +22,7 @@
 *color15: #ebdbb2
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-! rofi
+! urxvt
 
 ! font
 URxvt.font: xft:monospace
@@ -33,4 +33,5 @@ URxvt.perl-ext-common: selection-to-clipboard
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! rofi
+
 rofi.font:         sans-serif 20

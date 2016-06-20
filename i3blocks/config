@@ -1,52 +1,28 @@
-# i3blocks config file
-#
-# Please see man i3blocks for a complete reference!
-# The man page is also hosted at http://vivien.github.io/i3blocks
-#
-# List of valid properties:
-#
-# align
-# color
-# command
-# full_text
-# instance
-# interval
-# label
-# min_width
-# name
-# separator
-# separator_block_width
-# short_text
-# signal
-# urgent
+separator=false
+separator_block_width=10
+border_top=0
+border_left=0
+border_right=0
+border_bottom=2
 
-# Global properties
-#
-# The top properties below are applied to every block, but can be overridden.
-# Each block command defaults to the script name to avoid boilerplate.
-command=/usr/lib/i3blocks/$BLOCK_NAME
-separator_block_width=15
-markup=pango
-
-# Volume indicator
-#
-# The first parameter sets the step (and units to display)
-# The second parameter overrides the mixer selection
-# See the script for details.
 [volume]
-label= 
-instance=Master
-interval=once
+command=echo "$(python ~/.dotfiles/i3blocks/scripts/volume.py)"
+interval=5
 signal=10
+border=#cc241d
 
-# Battery indicator
-#
-# The battery instance defaults to 0.
+[wireless]
+label=
+command=[[ -z "$(iwgetid -r)" ]] || echo "$(iwgetid -r) "
+interval=2
+border=#d65d0e
+
 [battery]
 command=echo "$(python ~/.dotfiles/i3blocks/scripts/battery.py)"
 interval=30
+border=#d79921
 
-# Date Time
 [time]
-command=date '+%l:%M '
+command=echo "$(date '+%l:%M %P')"
 interval=60
+border=#458588

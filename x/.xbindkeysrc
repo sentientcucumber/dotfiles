@@ -31,10 +31,10 @@
 "xbacklight -inc 10"
   XF86MonBrightnessUp
 
-"amixer sset Master 10+; pkill -RTMIN+10 i3blocks"
+"amixer sset Master 10%+; pkill -RTMIN+10 i3blocks"
   XF86AudioRaiseVolume
 
-"amixer sset Master 10-; pkill -RTMIN+10 i3blocks"
+"amixer sset Master 10%-; pkill -RTMIN+10 i3blocks"
   XF86AudioLowerVolume
 
 "amixer sset Master toggle; pkill -RTMIN+10 i3blocks"
