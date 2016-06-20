@@ -48,6 +48,5 @@ interval=30
 
 # Date Time
 [time]
-label= 
-command=date '+%H:%M'
-interval=5
+command=date '+%l:%M '
+interval=60
