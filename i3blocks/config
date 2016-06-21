@@ -25,4 +25,4 @@ border=#d79921
 [time]
 command=echo "$(date '+%l:%M %P')"
 interval=60
-border=#458588
+border=#98971a
