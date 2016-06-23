@@ -40,7 +40,6 @@ bindsym $mod+e layout toggle split
 bindsym $mod+r mode "resize"
 bindsym $mod+Shift+c reload
 bindsym $mod+Shift+r restart
-bindsym $mod+Shift+e exec "i3-msg exit"
 
 # workspaces
 set $ws1 "1:  "
@@ -53,11 +52,6 @@ set $ws7 "7:  "
 set $ws8 "8:  "
 set $ws9 "9:  "
 set $ws10 "10:  "
-
-assign [class="(?i)urxvt"]   $ws1
-assign [class="(?i)emacs"]   $ws2
-assign [class="(?i)firefox"] $ws3
-assign [class="(?i)slack"]   $ws4
 
 bindsym $mod+1 workspace $ws1
 bindsym $mod+2 workspace $ws2
@@ -96,9 +90,9 @@ set $locker i3lock-wrapper && sleep 1
 set $power (l) lock, (e) logout, (s) suspend, (r) reboot, (s) shutdown
 
 mode "$power" {
-    bindsym l exec --no-startup-id $Locker, mode "default"
+    bindsym l exec --no-startup-id $locker, mode "default"
     bindsym e exec --no-startup-id i3-msg exit, mode "default"
-    bindsym s exec --no-startup-id $Locker && systemctl suspend, mode "default"
+    bindsym s exec --no-startup-id $locker && systemctl suspend, mode "default"
     bindsym r exec --no-startup-id systemctl reboot, mode "default"
     bindsym s exec --no-startup-id systemctl poweroff -i, mode "default"  
 
@@ -137,8 +131,8 @@ for_window [class="^.*"] border pixel 2
 gaps inner 10
 
 # autostart
-exec --no-startup-id urxvt
-exec --no-startup-id firefox
-exec --no-startup-id emacs
-exec --no-startup-id slack
+exec --no-startup-id i3-msg 'workspace $ws1; exec urxvt'
+exec --no-startup-id i3-msg 'workspace $ws2; exec emacs'
+exec --no-startup-id i3-msg 'workspace $ws3; exec firefox'
+exec --no-startup-id i3-msg 'workspace $ws4; exec slack'
 exec --no-startup-id compton

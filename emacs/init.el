@@ -25,7 +25,7 @@
   :config
   ;; Redefine evil bindings to make more sense on Dvorak. I want to define my
   ;; own, as evil-dvorak didn't use the same keys I wanted to setup.
-  (define-key evil-normal-state-map "d" 'evil-backward-char)
+  (define-key evil-normal-state-map "d" 'evil-backward-char) ;
   (define-key evil-normal-state-map "h" 'evil-next-line)
   (define-key evil-normal-state-map "t" 'evil-previous-line)
   (define-key evil-visual-state-map "n" 'evil-forward-char)
@@ -94,13 +94,14 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Settings
 
-(defalias 'yes-or-no-p 'y-or-n-p)	; A more sane "yes or no" default.
-(setq inhibit-startup-message t)	; Open to scratch buffer instead.
-(setq initial-major-mode 'fundamental-mode) ; Use a fundamental-mode on startup.
+(defalias 'yes-or-no-p 'y-or-n-p)       ; A more sane "yes or no" default.
 (setq-default default-tab-width 2) 
-(setq-default indent-tabs-mode nil)	; Only use spaces, never tabs.
-(setq vc-follow-symlinks t)		; Follow symbollic links.
-(setq echo-keystrokes 0.1)              ; Echo keystroke immediately
+(setq-default indent-tabs-mode nil)         ; Only use spaces, never tabs.
+(setq inhibit-startup-message t)            ; Open to scratch buffer instead.
+(setq initial-major-mode 'fundamental-mode) ; Use a fundamental-mode on startup.
+(setq vc-follow-symlinks t)                 ; Follow symbollic links.
+(setq echo-keystrokes 0.1)                  ; Echo keystroke immediately.
+(setq auto-save-default nil)                ; Turn off autosaves - "foo.txt~"
 
 ;; Putting temporary autosave files in the same directory is annoying. Move them
 ;; to "$EMACS_USER_DIRECTORY/tmp". Per the advisory at
@@ -108,7 +109,6 @@
 ;; the computer crashes.
 (defconst emacs-tmp-directory (concat user-emacs-directory "tmp"))
 (setq backup-directory-alist `((".*" . ,emacs-tmp-directory)))
-(setq auto-save-file-name-transforms `((".*" ,emacs-tmp-directory t)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Appearance
@@ -121,10 +121,8 @@
 ;; (thus "monospace" is not defined). I really want to use the X value where
 ;; possible, so whenever I have a change of heart and want to try a new
 ;; monospace font, I don't have to change it everywhere.
-(let
-    ((font (cond
-            ((is-windows-p) "Fantasque Sans Mono")
-            (t "monospace"))))
+(let ((font (cond ((is-windows-p) "Fantasque Sans Mono")
+                  (t "monospace"))))
   (set-frame-font (concat font " 11")))
 
 (menu-bar-mode -1)                      ; Disable menu bar.
