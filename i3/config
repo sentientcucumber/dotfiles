@@ -37,7 +37,6 @@ bindsym $mod+Shift+q kill
 bindsym $mod+comma layout stacking 
 bindsym $mod+period layout tabbed 
 bindsym $mod+e layout toggle split
-bindsym $mod+r mode "resize"
 bindsym $mod+Shift+c reload
 bindsym $mod+Shift+r restart
 
@@ -85,8 +84,9 @@ mode "resize" {
    bindsym Escape mode "default"
 }
 
-set $locker i3lock-wrapper && sleep 1
+bindsym $mod+r mode "resize"
 
+set $locker i3lock-wrapper -u && sleep 1
 set $power (l) lock, (e) logout, (s) suspend, (r) reboot, (s) shutdown
 
 mode "$power" {
@@ -127,7 +127,7 @@ bar {
 }
 
 # i3-gaps 
-for_window [class="^.*"] border pixel 2
+for_window [class="^.*"] border pixel 5
 gaps inner 10
 
 # autostart

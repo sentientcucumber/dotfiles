@@ -7,9 +7,9 @@
 ;; I really just wanted the flycheck highlighting to stop.
 
 ;;; Code:
-(require 'package)			; Setup packages
+(require 'package)
 (add-to-list 'package-archives
-	     '("melpa" . "https://melpa.org/packages/")) ; Add MELPA packages. 
+	     '("melpa" . "https://melpa.org/packages/"))
 (package-initialize)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -21,7 +21,7 @@
   :ensure t
   :demand
   :init
-  (setq evil-find-skip-newlines t)      ; Don't restrict find to current line.
+  (setq evil-find-skip-newlines t)
   :config
   ;; Redefine evil bindings to make more sense on Dvorak. I want to define my
   ;; own, as evil-dvorak didn't use the same keys I wanted to setup.
@@ -57,6 +57,8 @@
       ;; Org, while a major mode, I want these available all the time
       "oa" 'org-agenda
       "oc" 'org-capture
+      ;; Dired
+      "d"  'dired-jump
       ;; Commenting
       "ci" 'evilnc-comment-or-uncomment-lines
       "cp" 'evilnc-comment-or-uncomment-paragraphs
@@ -94,14 +96,14 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Settings
 
-(defalias 'yes-or-no-p 'y-or-n-p)       ; A more sane "yes or no" default.
-(setq-default default-tab-width 2) 
-(setq-default indent-tabs-mode nil)         ; Only use spaces, never tabs.
-(setq inhibit-startup-message t)            ; Open to scratch buffer instead.
-(setq initial-major-mode 'fundamental-mode) ; Use a fundamental-mode on startup.
-(setq vc-follow-symlinks t)                 ; Follow symbollic links.
-(setq echo-keystrokes 0.1)                  ; Echo keystroke immediately.
-(setq auto-save-default nil)                ; Turn off autosaves - "foo.txt~"
+(defalias 'yes-or-no-p 'y-or-n-p)
+(setq-default default-tab-width 2 
+              indent-tabs-mode nil)
+(setq inhibit-startup-message t
+      initial-major-mode 'fundamental-mode
+      vc-follow-symlinks t
+      echo-keystrokes 0.1
+      auto-save-default nil)
 
 ;; Putting temporary autosave files in the same directory is annoying. Move them
 ;; to "$EMACS_USER_DIRECTORY/tmp". Per the advisory at
@@ -125,12 +127,13 @@
                   (t "monospace"))))
   (set-frame-font (concat font " 11")))
 
-(menu-bar-mode -1)                      ; Disable menu bar.
-(scroll-bar-mode -1)                    ; Disable scroll bar.
-(tool-bar-mode -1)                      ; Disable tool bar.
-(blink-cursor-mode -1)                  ; Disable blinking cursor.
-(delight 'emacs-lisp-mode "emacs-lisp" :major) ; Me being neurotic.
-(load-theme 'gruvbox t)                 ; Flavor of the month
+(menu-bar-mode -1)
+(scroll-bar-mode -1)
+(tool-bar-mode -1)
+(blink-cursor-mode -1)
+(load-theme 'gruvbox t)
+
+(delight 'emacs-lisp-mode "emacs-lisp" :major)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Hooks
@@ -161,12 +164,13 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Packages
 
-(use-package avy			; Used in evil-easymotion.
+(use-package avy
+  ;; evil-easymotion uses avy.
   :ensure t
   :config
-  (setq avy-keys '(?a ?o ?e ?u ?i ?d ?h ?t ?t ?n ?s))) ; Use Dvorak home row.
+  (setq avy-keys '(?a ?o ?e ?u ?i ?d ?h ?t ?t ?n ?s)))
 
-(use-package helm-config		; Narrowing framework.
+(use-package helm-config
   ;; TODO Look into setting up helm-dabbrev, helm-moccur, helm-projectile, and
   ;; helm-grep. 
   :ensure helm
@@ -178,19 +182,19 @@
 		("C-z" . helm-select-action)
                 ("<tab>" . helm-execute-persistent-action))
     :config
-    (setq helm-split-window-in-side-p t) ; Open helm in current window.
-    (setq helm-M-x-fuzzy-match t)	 ; Fuzzy match in M-x.
-    (setq helm-buffers-fuzzy-matching t) ; Fuzzy match in buffers list.
-    (setq helm-apropos-fuzzy-match t))	 ; Enable fuzzy searchi in apropos.
-  (use-package helm-descbinds		 ; Better way to lookup keys.
+    (setq helm-split-window-in-side-p t
+          helm-M-x-fuzzy-match t
+          helm-buffers-fuzzy-matching t
+          helm-apropos-fuzzy-match t))
+  (use-package helm-descbinds
     :ensure t))
 
 (use-package org
-  :delight org-mode "org"               ; I like lowercase.
+  :delight org-mode "org"
   :config
-  (setq org-catch-invisible-edits 'show)    ; Prevent editing folded sections.
-  (setq org-hide-leading-stars t)           ; Hide all but the last star.
-  (setq org-use-property-inheritance t)     ; Inherit parent properties.
+  (setq org-catch-invisible-edits 'show
+        org-hide-leading-stars t
+        org-use-property-inheritance t)
 
   ;; TODO create an additional state, "org", that can be entered from INSERT
   ;; mode. This mode should then have its own keymap devoted to various org
@@ -212,13 +216,13 @@
 
   (add-hook 'org-mode-hook #'shellhead/turn-on-auto-fill))
 
-(use-package flycheck			; Syntax checker.
+(use-package flycheck
   :ensure t
   :diminish flycheck-mode
   :init
   (add-hook 'after-init-hook 'global-flycheck-mode))
 
-(use-package company			; Autocompletion.
+(use-package company
   :ensure t
   :diminish company-mode
   :bind (:map company-active-map	; Remap active keymap.
@@ -226,30 +230,31 @@
               ("C-t" . company-select-previous))
   :init (add-hook 'prog-mode-hook #'company-mode)
   :config
-  (setq company-minimum-prefix-length 4) 
-  (setq company-idle-delay 0.15))	; Look up completions after delay 
+  (setq company-minimum-prefix-length 4 
+        company-idle-delay 0.15))
 
-(use-package smooth-scrolling		; Make scrolling MUCH smoother.
+(use-package smooth-scrolling
   :ensure t
   :init (add-hook 'after-init-hook #'smooth-scrolling-mode))
 
-(use-package telephone-line		; Powerline for the mode-line.
-  :ensure t
-  :config
-  (setq telephone-line-lhs
-        '((evil . (telephone-line-evil-tag-segment))
-          (accent . (telephone-line-major-mode-segment
-		     telephone-line-minor-mode-segment))
-	  (nil . (telephone-line-vc-segment))))
-  (setq telephone-line-rhs
-	'((nil . (telephone-line-airline-position-segment))
-	  (accent . (telephone-line-buffer-segment))))
-  (telephone-line-mode t))
-
 (use-package tramp
   :config
-  (setq tramp-use-ssh-controlmaster-options nil))
+  (setq tramp-default-method "ssh"
+        tramp-use-ssh-controlmaster-options nil))
 
 (use-package gruvbox-theme
   :ensure t)
+
+(use-package dired
+  :bind (:map dired-mode-map
+              ("RET" . dired-find-alternate-file)
+              ("/" . dired-narrow))
+  :config
+  (use-package dired-narrow
+    :ensure t)
+  (put 'dired-find-alternate-file 'disabled nil)
+  (setq dired-listing-switches "-ahl"
+        dired-recursive-copies 'always
+        ls-lisp-dirs-first t
+        ls-lisp-ignore-case t))
 ;;; init.el ends here

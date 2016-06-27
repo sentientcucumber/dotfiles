@@ -9,4 +9,6 @@ bindkey -v
 export PATH=$PATH:$HOME/.gem/ruby/2.3.0/bin
 
 alias l='ls --color=auto'
-alias ll='ls -la --color=auto'
+alias ll='ls -lah --color=auto'
+
+export PROMPT='%5~ '
