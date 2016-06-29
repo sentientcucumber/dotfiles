@@ -130,6 +130,12 @@ bar {
 for_window [class="^.*"] border pixel 5
 gaps inner 10
 
+# class                 border  bg      fg      indicator child border
+client.focused          #7c6f64 #504945 #ebdbb2 #d79921   #7c6f64 
+client.focused_inactive #504945 #504945 #ebdbb2 #a89984   #504945
+client.unfocused        #504945 #504945 #ebdbb2 #a89984   #504945
+client.urgent           #504945 #504945 #ebdbb2 #a89984   #504945
+
 # autostart
 exec --no-startup-id i3-msg 'workspace $ws1; exec urxvt'
 exec --no-startup-id i3-msg 'workspace $ws2; exec emacs'

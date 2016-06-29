@@ -73,11 +73,9 @@
       "b"  'helm-buffers-list)
     (evil-leader/set-key-for-mode 'org-mode
       "cp" 'org-set-property))
-  ;; Expands matching delimiters to include quotes and more.
   (use-package evil-matchit
     :ensure t
     :init (global-evil-matchit-mode 1))
-  ;; Makes moving around in evil so much easier by using avy.
   (use-package evil-easymotion
     :ensure t
     :config
@@ -88,8 +86,9 @@
     (evilem-define (kbd "SPC j") 'evil-find-char-to)
     (evilem-define (kbd "SPC J") 'evil-find-char-to-backward)
     (evilem-define (kbd "SPC k") nil))
-  ;; Package for better commenting in evil.
   (use-package evil-nerd-commenter
+    :ensure t)
+  (use-package evil-surround
     :ensure t)
   (evil-mode t))
 
@@ -187,7 +186,9 @@
           helm-buffers-fuzzy-matching t
           helm-apropos-fuzzy-match t))
   (use-package helm-descbinds
-    :ensure t))
+    :ensure t)
+  (helm-autoresize-mode t)
+  (setq helm-autoresize-min-height 30))
 
 (use-package org
   :delight org-mode "org"
