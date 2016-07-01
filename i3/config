@@ -18,6 +18,7 @@ set $yellow     "#fabd2f"
 
 default_orientation horizontal
 workspace_auto_back_and_forth yes
+focus_follows_mouse no
 
 # rofi
 bindsym $mod+u exec --no-startup-id rofi -show run 

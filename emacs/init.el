@@ -70,9 +70,14 @@
       "m"  'helm-man-woman
       "x"  'helm-M-x
       "f"  'helm-find-files
+      "y"  'helm-show-kill-ring
       "b"  'helm-buffers-list)
+    ;; org-mode specific keybindings
     (evil-leader/set-key-for-mode 'org-mode
-      "cp" 'org-set-property))
+      "cp" 'org-set-property)
+    ;; dired-mode specific keybindings
+    (evil-leader/set-key-for-mode 'dired-mode
+      "ch"  'wdired-change-to-wdired-mode))
   (use-package evil-matchit
     :ensure t
     :init (global-evil-matchit-mode 1))
@@ -97,7 +102,8 @@
 
 (defalias 'yes-or-no-p 'y-or-n-p)
 (setq-default default-tab-width 2 
-              indent-tabs-mode nil)
+              indent-tabs-mode nil
+              ring-bell-function (lambda ()))
 (setq inhibit-startup-message t
       initial-major-mode 'fundamental-mode
       vc-follow-symlinks t
