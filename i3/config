@@ -87,7 +87,7 @@ mode "resize" {
 
 bindsym $mod+r mode "resize"
 
-set $locker i3lock-wrapper -u && sleep 1
+set $locker lock -f Channel4Chadwick
 set $power (l) lock, (e) logout, (s) suspend, (r) reboot, (s) shutdown
 
 mode "$power" {

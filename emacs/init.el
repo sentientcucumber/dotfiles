@@ -108,7 +108,8 @@
       initial-major-mode 'fundamental-mode
       vc-follow-symlinks t
       echo-keystrokes 0.1
-      auto-save-default nil)
+      auto-save-default nil
+      column-number-mode t)
 
 ;; Putting temporary autosave files in the same directory is annoying. Move them
 ;; to "$EMACS_USER_DIRECTORY/tmp". Per the advisory at
@@ -264,4 +265,8 @@
         dired-recursive-copies 'always
         ls-lisp-dirs-first t
         ls-lisp-ignore-case t))
+
+(use-package linum
+  :ensure t
+  :init (linum-mode t))
 ;;; init.el ends here

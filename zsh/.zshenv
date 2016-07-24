@@ -1,2 +1,2 @@
-export PATH="$HOME/.rbenv/bin:$PATH"
+export PATH=$PATH:$HOME/.gem/ruby/2.3.0/bin:$HOME/.rbenv/bin
 eval "$(rbenv init -)"
