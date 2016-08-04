@@ -54,7 +54,7 @@
       ;; Flycheck
       "e"  'flycheck-next-error
       "E"  'flycheck-previous-error
-      ;; Org, while a major mode, I want these available all the time
+      ;; Org
       "oa" 'org-agenda
       "oc" 'org-capture
       ;; Dired
