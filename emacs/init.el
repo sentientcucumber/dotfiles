@@ -23,24 +23,27 @@
   :init
   (setq evil-find-skip-newlines t)
   :config
+  ;; motion state
+  (define-key evil-motion-state-map "L" 'evil-search-previous)
+  (define-key evil-motion-state-map "l" 'evil-search-next)
+  ;; normal state
+  (define-key evil-normal-state-map "J" 'evil-find-char-to-backward)
+  (define-key evil-normal-state-map "K" 'evil-delete-line)
   (define-key evil-normal-state-map "d" 'evil-backward-char)
+  (define-key evil-normal-state-map "gj" 'evil-join)
   (define-key evil-normal-state-map "h" 'evil-next-line)
+  (define-key evil-normal-state-map "j" 'evil-find-char-to)
+  (define-key evil-normal-state-map "k" 'evil-delete)
+  (define-key evil-normal-state-map "n" 'evil-forward-char)
   (define-key evil-normal-state-map "t" 'evil-previous-line)
-  (define-key evil-visual-state-map "n" 'evil-forward-char)
+  ;; visual state
+  (define-key evil-visual-state-map "J" 'evil-find-char-to-backward)
   (define-key evil-visual-state-map "d" 'evil-backward-char)
   (define-key evil-visual-state-map "h" 'evil-next-line)
-  (define-key evil-visual-state-map "t" 'evil-previous-line)
-  (define-key evil-normal-state-map "n" 'evil-forward-char)
-  (define-key evil-normal-state-map "k" 'evil-delete)
-  (define-key evil-visual-state-map "k" 'evil-delete)
-  (define-key evil-normal-state-map "K" 'evil-delete-line)
-  (define-key evil-normal-state-map "j" 'evil-find-char-to)
   (define-key evil-visual-state-map "j" 'evil-find-char-to)
-  (define-key evil-normal-state-map "J" 'evil-find-char-to-backward)
-  (define-key evil-visual-state-map "J" 'evil-find-char-to-backward)
-  (define-key evil-motion-state-map "l" 'evil-search-next)
-  (define-key evil-motion-state-map "L" 'evil-search-previous)
-  (define-key evil-normal-state-map "gj" 'evil-join)
+  (define-key evil-visual-state-map "k" 'evil-delete)
+  (define-key evil-visual-state-map "n" 'evil-forward-char)
+  (define-key evil-visual-state-map "t" 'evil-previous-line)
   (use-package evil-leader
     :ensure t
     :init (global-evil-leader-mode)
@@ -72,7 +75,9 @@
     (evil-leader/set-key-for-mode 'org-mode
       "cp" 'org-set-property)
     (evil-leader/set-key-for-mode 'dired-mode
-      "ch" 'wdired-change-to-wdired-mode)
+      "ch" 'wdired-change-to-wdired-mode
+      "i"  'dired-subtree-insert
+      "k"  'dired-subtree-remove)
     (evil-leader/set-key-for-mode 'python-mode
       "va" 'venv-workon
       "vd" 'venv-deactivate))
@@ -159,6 +164,7 @@
          ("\\<\\(NOTE:?\\)\\>"
           1 '((:foreground "#8ec07c") (:slant italic)) t))))
 
+
 (defun shellhead/turn-on-electric-pairs ()
   "Enable variable `electric-pair-mode'."
   (electric-pair-mode 1)
@@ -181,7 +187,7 @@
 
 
 (use-package python
-  ;; TODO checkout anaconda-mode, cinspect, pytest/py-test
+  ;; TODO checkout cinspect, pytest/py-test
   :config
   (use-package virtualenvwrapper
     :ensure t
@@ -195,7 +201,7 @@
   ;; evil-easymotion uses avy.
   :ensure t
   :config
-  (setq avy-keys '(?a ?o ?e ?u ?i ?d ?h ?t ?t ?n ?s)))
+  (setq avy-keys '(?a ?o ?e ?u ?i ?d ?h ?t ?n ?s)))
 
 
 (use-package helm-config
@@ -262,7 +268,7 @@
               ("C-t" . company-select-previous))
   :init (add-hook 'prog-mode-hook #'company-mode)
   :config
-  (setq company-minimum-prefix-length 4 
+  (setq company-minimum-prefix-length 3 
         company-idle-delay 0.15))
 
 
@@ -288,11 +294,16 @@
   :config
   (use-package dired-narrow
     :ensure t)
+  (use-package dired-filter
+    :ensure t)
+  (use-package dired-subtree
+    :ensure t)
   (put 'dired-find-alternate-file 'disabled nil)
   (setq dired-listing-switches "-ahl"
         dired-recursive-copies 'always
         ls-lisp-dirs-first t
-        ls-lisp-ignore-case t))
+        ls-lisp-ignore-case t
+        directory-free-space-args "-Pkh"))
 
 
 (use-package eldoc
