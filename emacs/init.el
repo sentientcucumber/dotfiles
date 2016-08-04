@@ -9,13 +9,13 @@
 ;;; Code:
 (require 'package)
 (add-to-list 'package-archives
-	     '("melpa" . "https://melpa.org/packages/"))
+             '("melpa" . "https://melpa.org/packages/"))
 (package-initialize)
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; evil-mode
 
-;; I've come to rely on evil-mode a fair amount, so it get's its own section.
 (use-package evil
   :diminish undo-tree-mode
   :ensure t
@@ -23,9 +23,7 @@
   :init
   (setq evil-find-skip-newlines t)
   :config
-  ;; Redefine evil bindings to make more sense on Dvorak. I want to define my
-  ;; own, as evil-dvorak didn't use the same keys I wanted to setup.
-  (define-key evil-normal-state-map "d" 'evil-backward-char) ;
+  (define-key evil-normal-state-map "d" 'evil-backward-char)
   (define-key evil-normal-state-map "h" 'evil-next-line)
   (define-key evil-normal-state-map "t" 'evil-previous-line)
   (define-key evil-visual-state-map "n" 'evil-forward-char)
@@ -37,13 +35,12 @@
   (define-key evil-visual-state-map "k" 'evil-delete)
   (define-key evil-normal-state-map "K" 'evil-delete-line)
   (define-key evil-normal-state-map "j" 'evil-find-char-to)
+  (define-key evil-visual-state-map "j" 'evil-find-char-to)
   (define-key evil-normal-state-map "J" 'evil-find-char-to-backward)
+  (define-key evil-visual-state-map "J" 'evil-find-char-to-backward)
   (define-key evil-motion-state-map "l" 'evil-search-next)
   (define-key evil-motion-state-map "L" 'evil-search-previous)
   (define-key evil-normal-state-map "gj" 'evil-join)
-  ;; Practically a requirement if you're using evil-mode. I like setting these
-  ;; keys here, rather than with their respective packages, so I can easily find
-  ;; confilcts, should they arise.
   (use-package evil-leader
     :ensure t
     :init (global-evil-leader-mode)
@@ -72,12 +69,13 @@
       "f"  'helm-find-files
       "y"  'helm-show-kill-ring
       "b"  'helm-buffers-list)
-    ;; org-mode specific keybindings
     (evil-leader/set-key-for-mode 'org-mode
       "cp" 'org-set-property)
-    ;; dired-mode specific keybindings
     (evil-leader/set-key-for-mode 'dired-mode
-      "ch"  'wdired-change-to-wdired-mode))
+      "ch" 'wdired-change-to-wdired-mode)
+    (evil-leader/set-key-for-mode 'python-mode
+      "va" 'venv-workon
+      "vd" 'venv-deactivate))
   (use-package evil-matchit
     :ensure t
     :init (global-evil-matchit-mode 1))
@@ -121,15 +119,15 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Appearance
 
-(defun is-windows-p ()
-  "Returns t if the current window-system is Windows, or nil."
+(defun windows-p ()
+  "Return t if the variable `window-system' is Windows."
   (eq window-system 'w32))
     
 ;; I run emacs on a Windows machine at work, where none of my X config works
 ;; (thus "monospace" is not defined). I really want to use the X value where
 ;; possible, so whenever I have a change of heart and want to try a new
 ;; monospace font, I don't have to change it everywhere.
-(let ((font (cond ((is-windows-p) "Fantasque Sans Mono")
+(let ((font (cond ((windows-p) "Fantasque Sans Mono")
                   (t "monospace"))))
   (set-frame-font (concat font " 11")))
 
@@ -139,23 +137,19 @@
 (blink-cursor-mode -1)
 (load-theme 'gruvbox t)
 
-(delight 'emacs-lisp-mode "emacs-lisp" :major)
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Hooks
 
-;; Some help from https://www.emacswiki.org/emacs/DelightedModes on getting this
-;; to work with auto-fill-mode.
+
 (defun shellhead/turn-on-auto-fill ()
-  "Enable auto-fill-mode, set fill-column to 80, and apply only to comments."
+  "Enable `auto-fill-mode', set `fill-column' to 80, and apply only to comments."
   (auto-fill-mode 1)
-  (set-fill-column 80)
+  (set-fill-column 79)
   (setq comment-auto-fill-only-comments t)
   (delight 'auto-fill-function nil t))
-(add-hook 'prog-mode-hook #'shellhead/turn-on-auto-fill)
-(add-hook 'conf-mode-hook #'shellhead/turn-on-auto-fill)
 
-(defun shellhead/add-watchwords ()
+
+(defun shellhead/highlight-watchwords ()
   "Highlight FIXME, TODO, and NOTE."
   (font-lock-add-keywords
    nil '(("\\<\\(FIXME:?\\)\\>"
@@ -164,17 +158,45 @@
           1 '((:foreground "#fabd2f") (:slant italic)) t)
          ("\\<\\(NOTE:?\\)\\>"
           1 '((:foreground "#8ec07c") (:slant italic)) t))))
-(add-hook 'prog-mode-hook #'shellhead/add-watchwords)
-(add-hook 'conf-mode-hook #'shellhead/add-watchwords)
+
+(defun shellhead/turn-on-electric-pairs ()
+  "Enable variable `electric-pair-mode'."
+  (electric-pair-mode 1)
+  (setq electric-pair-preserve-balance t
+        electric-pair-delete-adjacent-pairs t
+        electric-pair-open-newline-between-pairs t)
+  (show-paren-mode 1))
+
+;; prog-mode hooks
+(add-hook 'prog-mode-hook #'shellhead/turn-on-auto-fill)
+(add-hook 'prog-mode-hook #'shellhead/turn-on-electric-pairs)
+(add-hook 'prog-mode-hook #'shellhead/highlight-watchwords)
+
+;; conf-mode hooks
+(add-hook 'conf-mode-hook #'shellhead/turn-on-auto-fill)
+(add-hook 'conf-mode-hook #'shellhead/highlight-watchwords)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Packages
+
+
+(use-package python
+  ;; TODO checkout anaconda-mode, cinspect, pytest/py-test
+  :config
+  (use-package virtualenvwrapper
+    :ensure t
+    :config
+    (venv-initialize-interactive-shells)
+    (venv-initialize-eshell)
+    (setq venv-location "~/.virtualenvs")))
+
 
 (use-package avy
   ;; evil-easymotion uses avy.
   :ensure t
   :config
   (setq avy-keys '(?a ?o ?e ?u ?i ?d ?h ?t ?t ?n ?s)))
+
 
 (use-package helm-config
   ;; TODO Look into setting up helm-dabbrev, helm-moccur, helm-projectile, and
@@ -185,7 +207,7 @@
   (use-package helm
     :ensure t
     :bind (:map helm-map
-		("C-z" . helm-select-action)
+                ("C-z" . helm-select-action)
                 ("<tab>" . helm-execute-persistent-action))
     :config
     (setq helm-split-window-in-side-p t
@@ -197,13 +219,13 @@
   (helm-autoresize-mode t)
   (setq helm-autoresize-min-height 30))
 
+
 (use-package org
   :delight org-mode "org"
   :config
   (setq org-catch-invisible-edits 'show
         org-hide-leading-stars t
         org-use-property-inheritance t)
-
   ;; TODO create an additional state, "org", that can be entered from INSERT
   ;; mode. This mode should then have its own keymap devoted to various org
   ;; functions (there are so many).
@@ -224,11 +246,13 @@
 
   (add-hook 'org-mode-hook #'shellhead/turn-on-auto-fill))
 
+
 (use-package flycheck
   :ensure t
-  :diminish flycheck-mode
+  :delight flycheck-mode
   :init
   (add-hook 'after-init-hook 'global-flycheck-mode))
+
 
 (use-package company
   :ensure t
@@ -241,17 +265,21 @@
   (setq company-minimum-prefix-length 4 
         company-idle-delay 0.15))
 
+
 (use-package smooth-scrolling
   :ensure t
   :init (add-hook 'after-init-hook #'smooth-scrolling-mode))
+
 
 (use-package tramp
   :config
   (setq tramp-default-method "ssh"
         tramp-use-ssh-controlmaster-options nil))
 
+
 (use-package gruvbox-theme
   :ensure t)
+
 
 (use-package dired
   :bind (:map dired-mode-map
@@ -266,7 +294,36 @@
         ls-lisp-dirs-first t
         ls-lisp-ignore-case t))
 
-(use-package linum
+
+(use-package eldoc
+  :delight eldoc-mode "")
+
+
+(use-package flyspell
+  ;; Dependencies for aspell and aspell-en 
+  :ensure helm-flyspell
+  :if (executable-find "aspell")
+  :diminish flyspell-mode
+  :bind (:map flyspell-mode-map
+              ("C-;" . helm-flyspell-correct))
+  :init (add-hook 'prog-mode-hook #'flyspell-prog-mode)
+  :config
+  (setq ispell-program-name (executable-find "aspell"))
+  (setq ispell-extra-args '("--sug-mode=fast"
+                            "--lang=en_US"
+                            "--ignore=4")))
+
+
+(use-package ido
   :ensure t
-  :init (linum-mode t))
+  :init (ido-mode 1)
+  (use-package ido-ubiquitous
+    :ensure t
+    :init (ido-ubiquitous 1))
+  (use-package ido-vertical-mode
+    :ensure t
+    :init
+    (ido-vertical-mode 1)
+    (setq ido-vertical-pad-list nil
+          ido-vertical-show-count t)))
 ;;; init.el ends here
