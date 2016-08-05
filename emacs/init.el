@@ -4,7 +4,22 @@
 
 ;;; Commentary:
 
-;; I really just wanted the flycheck highlighting to stop.
+;; `server-mode'
+
+;; It's best to run Emacs as a server, and then use emacsclient to connect to
+;; the server.  I grabbed this systemd script from
+;; https://wiki.archlinux.org/index.php/Emacs#As_a_systemd_unit to run it as a
+;; service.
+
+;;     [Unit]
+;;     Description=Emacs: the extensible, self-documenting text editor
+;;     [Service]
+;;     Type=forking
+;;     ExecStart=/usr/bin/emacs --daemon
+;;     ExecStop=/usr/bin/emacsclient --eval "(kill-emacs)"
+;;     Restart=always
+;;     [Install]
+;;     WantedBy=default.target
 
 ;;; Code:
 (require 'package)
@@ -118,8 +133,9 @@
       vc-follow-symlinks t
       echo-keystrokes 0.1
       auto-save-default nil
-      column-number-mode t
-      backup-directory-alist '((".*" . ,(concat user-emacs-directory "tmp"))))
+      make-backup-files nil
+      column-number-mode t)
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Appearance
@@ -185,7 +201,7 @@
     :config
     (venv-initialize-interactive-shells)
     (venv-initialize-eshell)
-    (setq venv-location "~/.virtualenvs")))
+    (setq venv-location "~/.venvs")))
 
 
 (use-package avy
@@ -218,7 +234,7 @@
 
 
 (use-package org
-  ;; :delight org-mode "org"
+  :delight org-mode "org"
   :config
   (setq org-catch-invisible-edits 'show
         org-hide-leading-stars t
@@ -246,7 +262,7 @@
 
 (use-package flycheck
   :ensure t
-  ;; :delight flycheck-mode
+  :delight flycheck-mode
   :init
   (add-hook 'after-init-hook 'global-flycheck-mode))
 
@@ -297,8 +313,8 @@
         directory-free-space-args "-Pkh"))
 
 
-(use-package eldoc)
-  ;; :delight eldoc-mode "")
+(use-package eldoc
+  :delight eldoc-mode "")
 
 
 (use-package flyspell
