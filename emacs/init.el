@@ -104,43 +104,34 @@
 ;; Settings
 
 (defalias 'yes-or-no-p 'y-or-n-p)
+
+
+;; default settings
 (setq-default default-tab-width 2 
               indent-tabs-mode nil
               ring-bell-function (lambda ()))
+
+
+;; per buffer settings
 (setq inhibit-startup-message t
       initial-major-mode 'fundamental-mode
       vc-follow-symlinks t
       echo-keystrokes 0.1
       auto-save-default nil
-      column-number-mode t)
-
-;; Putting temporary autosave files in the same directory is annoying. Move them
-;; to "$EMACS_USER_DIRECTORY/tmp". Per the advisory at
-;; https://www.emacswiki.org/emacs/AutoSave, lets not put it in "/tmp", incase
-;; the computer crashes.
-(defconst emacs-tmp-directory (concat user-emacs-directory "tmp"))
-(setq backup-directory-alist `((".*" . ,emacs-tmp-directory)))
+      column-number-mode t
+      backup-directory-alist '((".*" . ,(concat user-emacs-directory "tmp"))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Appearance
 
-(defun windows-p ()
-  "Return t if the variable `window-system' is Windows."
-  (eq window-system 'w32))
-    
-;; I run emacs on a Windows machine at work, where none of my X config works
-;; (thus "monospace" is not defined). I really want to use the X value where
-;; possible, so whenever I have a change of heart and want to try a new
-;; monospace font, I don't have to change it everywhere.
-(let ((font (cond ((windows-p) "Fantasque Sans Mono")
-                  (t "monospace"))))
-  (set-frame-font (concat font " 11")))
 
+(set-frame-font "Hack 11")
 (menu-bar-mode -1)
 (scroll-bar-mode -1)
 (tool-bar-mode -1)
 (blink-cursor-mode -1)
 (load-theme 'gruvbox t)
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Hooks
@@ -227,7 +218,7 @@
 
 
 (use-package org
-  :delight org-mode "org"
+  ;; :delight org-mode "org"
   :config
   (setq org-catch-invisible-edits 'show
         org-hide-leading-stars t
@@ -255,7 +246,7 @@
 
 (use-package flycheck
   :ensure t
-  :delight flycheck-mode
+  ;; :delight flycheck-mode
   :init
   (add-hook 'after-init-hook 'global-flycheck-mode))
 
@@ -306,8 +297,8 @@
         directory-free-space-args "-Pkh"))
 
 
-(use-package eldoc
-  :delight eldoc-mode "")
+(use-package eldoc)
+  ;; :delight eldoc-mode "")
 
 
 (use-package flyspell
