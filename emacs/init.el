@@ -6,8 +6,8 @@
 
 ;; `server-mode'
 
-;; It's best to run Emacs as a server, and then use emacsclient to connect to
-;; the server.  I grabbed this systemd script from
+;; It's best to run Emacs as a server, and then use emacsclient to connect.  I
+;; grabbed this systemd script from
 ;; https://wiki.archlinux.org/index.php/Emacs#As_a_systemd_unit to run it as a
 ;; service.
 
@@ -22,11 +22,14 @@
 ;;     WantedBy=default.target
 
 ;;; Code:
-(require 'package)
-(add-to-list 'package-archives
-             '("melpa" . "https://melpa.org/packages/"))
-(package-initialize)
 
+(require 'package)
+(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
+(package-initialize)
+(eval-when-compile
+  (require 'use-package))
+(require 'diminish)
+(require 'delight)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; evil-mode
@@ -35,8 +38,6 @@
   :diminish undo-tree-mode
   :ensure t
   :demand
-  :init
-  (setq evil-find-skip-newlines t)
   :config
   ;; motion state
   (define-key evil-motion-state-map "L" 'evil-search-previous)
@@ -75,18 +76,23 @@
       ;; Dired
       "d"  'dired-jump
       ;; Commenting
-      "ci" 'evilnc-comment-or-uncomment-lines
+      "cl" 'evilnc-comment-or-uncomment-lines
       "cp" 'evilnc-comment-or-uncomment-paragraphs
       "cr" 'comment-or-uncomment-region
-      "cl" 'comment-indent
+      "ci" 'comment-indent
       ;; Helm
-      "a"  'helm-apropos
-      "k"  'helm-descbinds
-      "m"  'helm-man-woman
       "x"  'helm-M-x
       "f"  'helm-find-files
-      "y"  'helm-show-kill-ring
-      "b"  'helm-buffers-list)
+      "b"  'helm-buffers-list
+      "ha"  'helm-apropos
+      "hk"  'helm-descbinds
+      "hm"  'helm-man-woman
+      "hy"  'helm-show-kill-ring
+      "hp"  'helm-projectile
+      "hg"  'helm-projectile-grep
+      "hf"  'helm-projectile-find-file
+      "hs"  'helm-swoop
+      "hS"  'helm-multi-swoop)
     (evil-leader/set-key-for-mode 'org-mode
       "cp" 'org-set-property)
     (evil-leader/set-key-for-mode 'dired-mode
@@ -113,19 +119,18 @@
     :ensure t)
   (use-package evil-surround
     :ensure t)
-  (evil-mode t))
+  (evil-mode t)
+  (global-evil-surround-mode t))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Settings
 
 (defalias 'yes-or-no-p 'y-or-n-p)
 
-
 ;; default settings
 (setq-default default-tab-width 2 
               indent-tabs-mode nil
               ring-bell-function (lambda ()))
-
 
 ;; per buffer settings
 (setq inhibit-startup-message t
@@ -136,10 +141,8 @@
       make-backup-files nil
       column-number-mode t)
 
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Appearance
-
 
 (set-frame-font "Hack 11")
 (menu-bar-mode -1)
@@ -148,11 +151,8 @@
 (blink-cursor-mode -1)
 (load-theme 'gruvbox t)
 
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Hooks
-
-
 (defun shellhead/turn-on-auto-fill ()
   "Enable `auto-fill-mode', set `fill-column' to 80, and apply only to comments."
   (auto-fill-mode 1)
@@ -185,13 +185,8 @@
 (add-hook 'prog-mode-hook #'shellhead/turn-on-electric-pairs)
 (add-hook 'prog-mode-hook #'shellhead/highlight-watchwords)
 
-;; conf-mode hooks
-(add-hook 'conf-mode-hook #'shellhead/turn-on-auto-fill)
-(add-hook 'conf-mode-hook #'shellhead/highlight-watchwords)
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Packages
-
 
 (use-package python
   ;; TODO checkout cinspect, pytest/py-test
@@ -205,7 +200,6 @@
 
 
 (use-package avy
-  ;; evil-easymotion uses avy.
   :ensure t
   :config
   (setq avy-keys '(?a ?o ?e ?u ?i ?d ?h ?t ?n ?s)))
@@ -221,7 +215,11 @@
     :ensure t
     :bind (:map helm-map
                 ("C-z" . helm-select-action)
-                ("<tab>" . helm-execute-persistent-action))
+                ("<tab>" . helm-execute-persistent-action)
+                ;; get a little vim-esque flavor in there
+                ("C-h" . helm-next-line)
+                ("C-t" . helm-previous-line)
+                ("C-k" . helm-buffer-run-kill-buffers))
     :config
     (setq helm-split-window-in-side-p t
           helm-M-x-fuzzy-match t
@@ -229,6 +227,17 @@
           helm-apropos-fuzzy-match t))
   (use-package helm-descbinds
     :ensure t)
+  (use-package helm-projectile
+    :ensure t
+    :init
+    (helm-projectile-on))
+  (use-package helm-swoop
+    :ensure t
+    :config
+    (setq helm-multi-swoop-edit-save t
+          helm-swoop-split-with-multiple-windows t
+          helm-swoop-split-direction 'split-window-vertically
+          helm-swoop-speed-or-color t))
   (helm-autoresize-mode t)
   (setq helm-autoresize-min-height 30))
 
@@ -255,9 +264,7 @@
      (t (evil-open-below 1))))
 
   (evil-define-key 'insert org-mode-map
-    (kbd "C-o") 'shellhead/smart-org-insert)
-
-  (add-hook 'org-mode-hook #'shellhead/turn-on-auto-fill))
+    (kbd "C-o") 'shellhead/smart-org-insert))
 
 
 (use-package flycheck
@@ -314,7 +321,7 @@
 
 
 (use-package eldoc
-  :delight eldoc-mode "")
+  :diminish eldoc-mode)
 
 
 (use-package flyspell
@@ -344,4 +351,18 @@
     (ido-vertical-mode 1)
     (setq ido-vertical-pad-list nil
           ido-vertical-show-count t)))
+
+
+(use-package lisp-mode
+  :preface
+  (defun shellhead/elisp-mode-hook ()
+    "Settings for `emacs-lisp' modes"
+    (eldoc-mode 1))
+  :config
+  (add-hook 'emacs-lisp-mode 'shellhead/elisp-mode-hook))
+
+
+(use-package paredit-everywhere
+  :ensure t
+  :init (add-hook 'prog-mode-hook 'paredit-everywhere-mode))
 ;;; init.el ends here
