@@ -206,7 +206,7 @@
 
 
 (use-package helm-config
-  ;; TODO Look into setting up helm-dabbrev, helm-moccur, helm-projectile, and
+  ;; TODO Look into setting up helm-dabbrev, helm-moccur, and
   ;; helm-grep. 
   :ensure helm
   :demand t
@@ -277,7 +277,7 @@
 (use-package company
   :ensure t
   :diminish company-mode
-  :bind (:map company-active-map	; Remap active keymap.
+  :bind (:map company-active-map
               ("C-h" . company-select-next)
               ("C-t" . company-select-previous))
   :init (add-hook 'prog-mode-hook #'company-mode)
@@ -359,10 +359,5 @@
     "Settings for `emacs-lisp' modes"
     (eldoc-mode 1))
   :config
-  (add-hook 'emacs-lisp-mode 'shellhead/elisp-mode-hook))
-
-
-(use-package paredit-everywhere
-  :ensure t
-  :init (add-hook 'prog-mode-hook 'paredit-everywhere-mode))
+  (add-hook 'emacs-lisp-mode-hook 'shellhead/elisp-mode-hook))
 ;;; init.el ends here
