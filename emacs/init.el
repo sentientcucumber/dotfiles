@@ -26,10 +26,6 @@
 (require 'package)
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
 (package-initialize)
-(eval-when-compile
-  (require 'use-package))
-(require 'diminish)
-(require 'delight)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; evil-mode
@@ -47,19 +43,19 @@
   (define-key evil-normal-state-map "K" 'evil-delete-line)
   (define-key evil-normal-state-map "d" 'evil-backward-char)
   (define-key evil-normal-state-map "gj" 'evil-join)
-  (define-key evil-normal-state-map "h" 'evil-next-line)
+  (define-key evil-normal-state-map "h" 'evil-next-visual-line)
   (define-key evil-normal-state-map "j" 'evil-find-char-to)
   (define-key evil-normal-state-map "k" 'evil-delete)
   (define-key evil-normal-state-map "n" 'evil-forward-char)
-  (define-key evil-normal-state-map "t" 'evil-previous-line)
+  (define-key evil-normal-state-map "t" 'evil-previous-visual-line)
   ;; visual state
   (define-key evil-visual-state-map "J" 'evil-find-char-to-backward)
   (define-key evil-visual-state-map "d" 'evil-backward-char)
-  (define-key evil-visual-state-map "h" 'evil-next-line)
+  (define-key evil-visual-state-map "h" 'evil-next-visual-line)
   (define-key evil-visual-state-map "j" 'evil-find-char-to)
   (define-key evil-visual-state-map "k" 'evil-delete)
   (define-key evil-visual-state-map "n" 'evil-forward-char)
-  (define-key evil-visual-state-map "t" 'evil-previous-line)
+  (define-key evil-visual-state-map "t" 'evil-previous-visual-line)
   (use-package evil-leader
     :ensure t
     :init (global-evil-leader-mode)
@@ -110,8 +106,8 @@
     :config
     ;; The changes made to evil-mode do not carry over to evil-easymotion.
     (evilem-default-keybindings "SPC")
-    (evilem-define (kbd "SPC h") 'evil-next-line)
-    (evilem-define (kbd "SPC t") 'evil-previous-line)
+    (evilem-define (kbd "SPC h") 'evil-next-visual-line)
+    (evilem-define (kbd "SPC t") 'evil-previous-visual-line)
     (evilem-define (kbd "SPC j") 'evil-find-char-to)
     (evilem-define (kbd "SPC J") 'evil-find-char-to-backward)
     (evilem-define (kbd "SPC k") nil))
@@ -130,6 +126,7 @@
 ;; default settings
 (setq-default default-tab-width 2 
               indent-tabs-mode nil
+              fill-column 80
               ring-bell-function (lambda ()))
 
 ;; per buffer settings
@@ -141,6 +138,8 @@
       make-backup-files nil
       column-number-mode t)
 
+(put 'erase-buffer 'disabled nil)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Appearance
 
@@ -151,15 +150,14 @@
 (blink-cursor-mode -1)
 (load-theme 'gruvbox t)
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Hooks
+
 (defun shellhead/turn-on-auto-fill ()
   "Enable `auto-fill-mode', set `fill-column' to 80, and apply only to comments."
   (auto-fill-mode 1)
-  (set-fill-column 79)
   (setq comment-auto-fill-only-comments t)
-  (delight 'auto-fill-function nil t))
-
+(delight 'auto-fill-function nil t))
 
 (defun shellhead/highlight-watchwords ()
   "Highlight FIXME, TODO, and NOTE."
@@ -227,7 +225,7 @@
           helm-apropos-fuzzy-match t))
   (use-package helm-descbinds
     :ensure t)
-  (use-package helm-projectile
+  (use-package helm-projectile 
     :ensure t
     :init
     (helm-projectile-on))
@@ -242,12 +240,13 @@
   (setq helm-autoresize-min-height 30))
 
 
+(use-package visual-fill-column
+  :ensure t)
+
+
 (use-package org
   :delight org-mode "org"
-  :config
-  (setq org-catch-invisible-edits 'show
-        org-hide-leading-stars t
-        org-use-property-inheritance t)
+  :preface
   ;; TODO create an additional state, "org", that can be entered from INSERT
   ;; mode. This mode should then have its own keymap devoted to various org
   ;; functions (there are so many).
@@ -263,6 +262,18 @@
      ((org-at-item-p) (org-insert-item))
      (t (evil-open-below 1))))
 
+  (defun shellhead/org-mode-hook ()
+    "Setup for org files."
+    (org-indent-mode t)
+    (visual-fill-column-mode t)
+    (visual-line-mode)
+    (eval-after-load 'org-indent '(diminish 'org-indent-mode))
+    (diminish 'visual-line-mode))
+  :config
+  (add-hook 'org-mode-hook 'shellhead/org-mode-hook)
+  (setq org-catch-invisible-edits 'show
+        org-hide-leading-stars t
+        org-use-property-inheritance t)
   (evil-define-key 'insert org-mode-map
     (kbd "C-o") 'shellhead/smart-org-insert))
 
@@ -304,7 +315,9 @@
 (use-package dired
   :bind (:map dired-mode-map
               ("RET" . dired-find-alternate-file)
-              ("/" . dired-narrow))
+              ("/" . dired-narrow)
+              ("C-h" . dired-next-line)
+              ("C-t" . dired-previous-line))
   :config
   (use-package dired-narrow
     :ensure t)
@@ -360,4 +373,14 @@
     (eldoc-mode 1))
   :config
   (add-hook 'emacs-lisp-mode-hook 'shellhead/elisp-mode-hook))
-;;; init.el ends here
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Skeletons
+
+(define-skeleton python/try-except
+  "Create a try/except block."
+  "Exception: "
+  > "try:" \n
+  > _ \n
+  -4 "except " str ":" \n)
+;; init.el ends here
