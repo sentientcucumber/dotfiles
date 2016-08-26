@@ -21,10 +21,10 @@
 ;;     [Install]
 ;;     WantedBy=default.target
 
-;;; Code:
-
+;;; Code
 (require 'package)
-(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
+(add-to-list 'package-archives
+             '("melpa" . "https://melpa.org/packages/") t)
 (package-initialize)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -38,7 +38,13 @@
   ;; motion state
   (define-key evil-motion-state-map "L" 'evil-search-previous)
   (define-key evil-motion-state-map "l" 'evil-search-next)
-  ;; normal state
+  (define-key evil-normal-state-map "d" 'evil-backward-char)
+  (define-key evil-normal-state-map "h" 'evil-next-visual-line)
+  (define-key evil-normal-state-map "j" 'evil-find-char-to)
+  (define-key evil-normal-state-map "k" 'evil-delete)
+  (define-key evil-normal-state-map "n" 'evil-forward-char)
+  (define-key evil-normal-state-map "t" 'evil-previous-visual-line)
+   ;; normal state
   (define-key evil-normal-state-map "J" 'evil-find-char-to-backward)
   (define-key evil-normal-state-map "K" 'evil-delete-line)
   (define-key evil-normal-state-map "d" 'evil-backward-char)
@@ -124,7 +130,7 @@
 (defalias 'yes-or-no-p 'y-or-n-p)
 
 ;; default settings
-(setq-default default-tab-width 2 
+(setq-default default-tab-width 4
               indent-tabs-mode nil
               fill-column 80
               ring-bell-function (lambda ()))
@@ -143,7 +149,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Appearance
 
-(set-frame-font "Hack 11")
+(set-frame-font "Source Code Pro Regular 11")
 (menu-bar-mode -1)
 (scroll-bar-mode -1)
 (tool-bar-mode -1)
@@ -179,9 +185,9 @@
   (show-paren-mode 1))
 
 ;; prog-mode hooks
-(add-hook 'prog-mode-hook #'shellhead/turn-on-auto-fill)
-(add-hook 'prog-mode-hook #'shellhead/turn-on-electric-pairs)
-(add-hook 'prog-mode-hook #'shellhead/highlight-watchwords)
+(add-hook 'prog-mode-hook 'shellhead/turn-on-auto-fill)
+(add-hook 'prog-mode-hook 'shellhead/turn-on-electric-pairs)
+(add-hook 'prog-mode-hook 'shellhead/highlight-watchwords)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Packages
@@ -316,6 +322,7 @@
   :bind (:map dired-mode-map
               ("RET" . dired-find-alternate-file)
               ("/" . dired-narrow)
+              ("C-u" . dired-up-directory)
               ("C-h" . dired-next-line)
               ("C-t" . dired-previous-line))
   :config
@@ -373,6 +380,20 @@
     (eldoc-mode 1))
   :config
   (add-hook 'emacs-lisp-mode-hook 'shellhead/elisp-mode-hook))
+
+(use-package cc-mode
+  :preface
+  (defun shellhead/c-hook ()
+    "Settings for `cc-mode' mode."
+    (c-set-style "k&r"))
+  :config
+  (add-hook 'c-mode-common-hook 'shellhead/c-hook))
+
+;; Not sure what to do with this right now, seems like between it and
+;; evil-surround, it could make things pretty easy.
+(use-package paredit-everywhere
+  :disabled t
+  :ensure t)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Skeletons
