@@ -8,10 +8,11 @@
 # aliases
 alias l='ls --color=auto'
 alias ll='ls -alh --color=auto'
+alias ec='emacsclient -c'
 
-# environment variables
 export WORKON_HOME=~/.venvs
 export EDITOR=/usr/bin/emacsclient
+export PATH=$PATH:$HOME/.local/bin
 
 # prompt
 PS1='[\u@\h \W]\$ '
