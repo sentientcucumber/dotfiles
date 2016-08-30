@@ -149,12 +149,21 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Appearance
 
-(set-frame-font "Source Code Pro Regular 11")
+(set-frame-font "Source Code Pro 11")
 (menu-bar-mode -1)
 (scroll-bar-mode -1)
 (tool-bar-mode -1)
 (blink-cursor-mode -1)
-(load-theme 'gruvbox t)
+
+(use-package gruvbox-theme
+  :ensure t
+  :config
+  (load-theme 'gruvbox t))
+
+(use-package fancy-battery
+  :config
+  (setq fancy-battery-show-percentage t)
+  (fancy-battery-mode 1))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Hooks
@@ -202,12 +211,10 @@
     (venv-initialize-eshell)
     (setq venv-location "~/.venvs")))
 
-
 (use-package avy
   :ensure t
   :config
   (setq avy-keys '(?a ?o ?e ?u ?i ?d ?h ?t ?n ?s)))
-
 
 (use-package helm-config
   ;; TODO Look into setting up helm-dabbrev, helm-moccur, and
@@ -245,10 +252,8 @@
   (helm-autoresize-mode t)
   (setq helm-autoresize-min-height 30))
 
-
 (use-package visual-fill-column
   :ensure t)
-
 
 (use-package org
   :delight org-mode "org"
@@ -283,13 +288,11 @@
   (evil-define-key 'insert org-mode-map
     (kbd "C-o") 'shellhead/smart-org-insert))
 
-
 (use-package flycheck
   :ensure t
   :delight flycheck-mode
   :init
   (add-hook 'after-init-hook 'global-flycheck-mode))
-
 
 (use-package company
   :ensure t
@@ -302,21 +305,14 @@
   (setq company-minimum-prefix-length 3 
         company-idle-delay 0.15))
 
-
 (use-package smooth-scrolling
   :ensure t
   :init (add-hook 'after-init-hook #'smooth-scrolling-mode))
-
 
 (use-package tramp
   :config
   (setq tramp-default-method "ssh"
         tramp-use-ssh-controlmaster-options nil))
-
-
-(use-package gruvbox-theme
-  :ensure t)
-
 
 (use-package dired
   :bind (:map dired-mode-map
@@ -339,10 +335,8 @@
         ls-lisp-ignore-case t
         directory-free-space-args "-Pkh"))
 
-
 (use-package eldoc
   :diminish eldoc-mode)
-
 
 (use-package flyspell
   ;; Dependencies for aspell and aspell-en 
@@ -358,7 +352,6 @@
                             "--lang=en_US"
                             "--ignore=4")))
 
-
 (use-package ido
   :ensure t
   :init (ido-mode 1)
@@ -371,7 +364,6 @@
     (ido-vertical-mode 1)
     (setq ido-vertical-pad-list nil
           ido-vertical-show-count t)))
-
 
 (use-package lisp-mode
   :preface
@@ -395,11 +387,17 @@
   :disabled t
   :ensure t)
 
+(use-package spaceline-config
+  :config
+  (spaceline-emacs-theme)
+  (spaceline-helm-mode)
+  (spaceline-toggle-buffer-position-off)
+  (setq spaceline-highlight-face-func 'spaceline-highlight-face-evil-state))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Skeletons
 
 (define-skeleton python/try-except
-  "Create a try/except block."
   "Exception: "
   > "try:" \n
   > _ \n
