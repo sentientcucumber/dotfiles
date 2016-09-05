@@ -389,7 +389,7 @@
 
 (use-package spaceline-config
   :config
-  (spaceline-emacs-theme)
+  (spaceline-spacemacs-theme)
   (spaceline-helm-mode)
   (spaceline-toggle-buffer-position-off)
   (setq spaceline-highlight-face-func 'spaceline-highlight-face-evil-state))
