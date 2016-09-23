@@ -13,6 +13,7 @@ alias ec='emacsclient -c'
 export WORKON_HOME=~/.venvs
 export EDITOR=/usr/bin/emacsclient
 export PATH=$PATH:$HOME/.local/bin
+export HISTCONTROL=ignoreboth:erasedups
 
 # prompt
 PS1='[\u@\h \W]\$ '

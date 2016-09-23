@@ -25,6 +25,8 @@
 (require 'package)
 (add-to-list 'package-archives
              '("melpa" . "https://melpa.org/packages/") t)
+(add-to-list 'package-archives
+             '("melpa" . "https://marmalade-repo.org/packages") t)
 (package-initialize)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -77,24 +79,33 @@
       "oc" 'org-capture
       ;; Dired
       "d"  'dired-jump
-      ;; Commenting
+      ;; commenting
       "cl" 'evilnc-comment-or-uncomment-lines
       "cp" 'evilnc-comment-or-uncomment-paragraphs
       "cr" 'comment-or-uncomment-region
       "ci" 'comment-indent
-      ;; Helm
-      "x"  'helm-M-x
-      "f"  'helm-find-files
-      "b"  'helm-buffers-list
-      "ha"  'helm-apropos
-      "hk"  'helm-descbinds
-      "hm"  'helm-man-woman
-      "hy"  'helm-show-kill-ring
-      "hp"  'helm-projectile
-      "hg"  'helm-projectile-grep
-      "hf"  'helm-projectile-find-file
-      "hs"  'helm-swoop
-      "hS"  'helm-multi-swoop)
+      ;; Ivy/Swiper/Counsel
+      "x" 'counsel-M-x
+      "f" 'counsel-find-file
+      "b" 'ivy-switch-buffer
+      "/" 'counsel-grep-or-swiper
+      "ip" 'counsel-projectile
+      "ik" 'counsel-descbinds
+      "ig" 'counsel-git-grep
+      "id" 'counsel-dired-jump)
+      ;; Helm - Trying out ivy, we'll leave this commented out for now
+      ;; "x"  'helm-M-x
+      ;; "f"  'helm-find-files
+      ;; "b"  'helm-buffers-list
+      ;; "ha"  'helm-apropos
+      ;; "hk"  'helm-descbinds
+      ;; "hm"  'helm-man-woman
+      ;; "hy"  'helm-show-kill-ring
+      ;; "hp"  'helm-projectile
+      ;; "hg"  'helm-projectile-grep
+      ;; "hf"  'helm-projectile-find-file
+      ;; "hs"  'helm-swoop
+      ;; "hS"  'helm-multi-swoop)
     (evil-leader/set-key-for-mode 'org-mode
       "cp" 'org-set-property)
     (evil-leader/set-key-for-mode 'dired-mode
@@ -175,7 +186,7 @@
 (delight 'auto-fill-function nil t))
 
 (defun shellhead/highlight-watchwords ()
-  "Highlight FIXME, TODO, and NOTE."
+  "Make FIXME, TODO, and NOTE standout in buffers."
   (font-lock-add-keywords
    nil '(("\\<\\(FIXME:?\\)\\>"
           1 '((:foreground "#fb4934") (:slant italic)) t)
@@ -194,9 +205,10 @@
   (show-paren-mode 1))
 
 ;; prog-mode hooks
-(add-hook 'prog-mode-hook 'shellhead/turn-on-auto-fill)
-(add-hook 'prog-mode-hook 'shellhead/turn-on-electric-pairs)
-(add-hook 'prog-mode-hook 'shellhead/highlight-watchwords)
+(add-hook 'prog-mode-hook #'shellhead/turn-on-auto-fill)
+(add-hook 'prog-mode-hook #'shellhead/turn-on-electric-pairs)
+(add-hook 'prog-mode-hook #'shellhead/highlight-watchwords)
+(add-hook 'prog-mode-hook #'hl-line-mode)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Packages
@@ -216,11 +228,22 @@
   :config
   (setq avy-keys '(?a ?o ?e ?u ?i ?d ?h ?t ?n ?s)))
 
+(use-package ivy
+  :ensure t
+  ;; throw some Dvorak flavor in there
+  :bind (("C-h" . ivy-next-line)
+         ("C-t" . ivy-previous-line))
+  :config
+  (use-package counsel-projectile
+    :ensure t
+    :config
+    (counsel-projectile-on)))
+
 (use-package helm-config
-  ;; TODO Look into setting up helm-dabbrev, helm-moccur, and
-  ;; helm-grep. 
+  ;; TODO Look into setting up helm-dabbrev, helm-moccur, and helm-grep.
   :ensure helm
   :demand t
+  :disabled t
   :config
   (use-package helm
     :ensure t
@@ -256,7 +279,6 @@
   :ensure t)
 
 (use-package org
-  :delight org-mode "org"
   :preface
   ;; TODO create an additional state, "org", that can be entered from INSERT
   ;; mode. This mode should then have its own keymap devoted to various org
@@ -286,7 +308,9 @@
         org-hide-leading-stars t
         org-use-property-inheritance t)
   (evil-define-key 'insert org-mode-map
-    (kbd "C-o") 'shellhead/smart-org-insert))
+    (kbd "C-o") 'shellhead/smart-org-insert)
+  (modify-syntax-entry ?~ "(~" org-mode-syntax-table)
+  (modify-syntax-entry ?= "(=" org-mode-syntax-table))
 
 (use-package flycheck
   :ensure t
@@ -339,13 +363,15 @@
   :diminish eldoc-mode)
 
 (use-package flyspell
-  ;; Dependencies for aspell and aspell-en 
+  ;; requires the aspell and aspell-en packages
   :ensure helm-flyspell
   :if (executable-find "aspell")
   :diminish flyspell-mode
   :bind (:map flyspell-mode-map
               ("C-;" . helm-flyspell-correct))
-  :init (add-hook 'prog-mode-hook #'flyspell-prog-mode)
+  :init
+  (add-hook 'prog-mode-hook #'flyspell-prog-mode)
+  (add-hook 'org-mode-hook #'flyspell-mode-on)
   :config
   (setq ispell-program-name (executable-find "aspell"))
   (setq ispell-extra-args '("--sug-mode=fast"
