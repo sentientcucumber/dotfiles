@@ -4,38 +4,32 @@
 
 ;;; Commentary:
 
-;; `server-mode'
+;;; Code:
 
-;; It's best to run Emacs as a server, and then use emacsclient to connect.  I
-;; grabbed this systemd script from
-;; https://wiki.archlinux.org/index.php/Emacs#As_a_systemd_unit to run it as a
-;; service.
-
-;;     [Unit]
-;;     Description=Emacs: the extensible, self-documenting text editor
-;;     [Service]
-;;     Type=forking
-;;     ExecStart=/usr/bin/emacs --daemon
-;;     ExecStop=/usr/bin/emacsclient --eval "(kill-emacs)"
-;;     Restart=always
-;;     [Install]
-;;     WantedBy=default.target
-
-;;; Code
 (require 'package)
-(add-to-list 'package-archives
-             '("melpa" . "https://melpa.org/packages/") t)
-(add-to-list 'package-archives
-             '("melpa" . "https://marmalade-repo.org/packages") t)
+(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
 (package-initialize)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; hydras
+
+(defhydra hydra-paredit-menu nil
+  "paredit"
+  ("s" paredit-forward-slurp-sexp "slurp forward")
+  ("b" paredit-forward-barf-sexp "barf forward"))
+
+(defhydra hydra-move-text-menu nil
+  "move text"
+  ("h" move-text-down "move text down")
+  ("t" move-text-up "move text up"))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; evil-mode
 
 (use-package evil
+  :demand
   :diminish undo-tree-mode
   :ensure t
-  :demand
   :config
   ;; motion state
   (define-key evil-motion-state-map "L" 'evil-search-previous)
@@ -71,41 +65,37 @@
     (evil-leader/set-leader ",")
     (evil-leader/set-key
       ;; NOTE evil-leader/set-key-for-mode only works for major modes
-      ;; Flycheck
+      ;; flycheck
       "e"  'flycheck-next-error
       "E"  'flycheck-previous-error
-      ;; Org
+      ;; org
       "oa" 'org-agenda
       "oc" 'org-capture
-      ;; Dired
+      ;; dired
       "d"  'dired-jump
       ;; commenting
       "cl" 'evilnc-comment-or-uncomment-lines
       "cp" 'evilnc-comment-or-uncomment-paragraphs
       "cr" 'comment-or-uncomment-region
       "ci" 'comment-indent
-      ;; Ivy/Swiper/Counsel
-      "x" 'counsel-M-x
-      "f" 'counsel-find-file
-      "b" 'ivy-switch-buffer
-      "/" 'counsel-grep-or-swiper
-      "ip" 'counsel-projectile
-      "ik" 'counsel-descbinds
-      "ig" 'counsel-git-grep
-      "id" 'counsel-dired-jump)
-      ;; Helm - Trying out ivy, we'll leave this commented out for now
-      ;; "x"  'helm-M-x
-      ;; "f"  'helm-find-files
-      ;; "b"  'helm-buffers-list
-      ;; "ha"  'helm-apropos
-      ;; "hk"  'helm-descbinds
-      ;; "hm"  'helm-man-woman
-      ;; "hy"  'helm-show-kill-ring
-      ;; "hp"  'helm-projectile
-      ;; "hg"  'helm-projectile-grep
-      ;; "hf"  'helm-projectile-find-file
-      ;; "hs"  'helm-swoop
-      ;; "hS"  'helm-multi-swoop)
+      ;; ivy
+      "b"  'ivy-switch-buffer
+      ;; counsel
+      "x"  'counsel-M-x
+      "f"  'counsel-find-file
+      "/"  'counsel-grep-or-swiper
+      "p"  'counsel-projectile
+      "cg" 'counsel-git-grep
+      "cd" 'counsel-dired-jump
+      "hf" 'counsel-describe-function
+      "hv" 'counsel-describe-variable
+      "hk" 'counsel-descbinds
+      ;; paredit
+      "P"  'hydra-paredit-menu/body
+      ;; move-text
+      "M"  'hydra-move-text-menu/body
+      ;; iedit
+      "i"  'iedit-mode)
     (evil-leader/set-key-for-mode 'org-mode
       "cp" 'org-set-property)
     (evil-leader/set-key-for-mode 'dired-mode
@@ -171,11 +161,6 @@
   :config
   (load-theme 'gruvbox t))
 
-(use-package fancy-battery
-  :config
-  (setq fancy-battery-show-percentage t)
-  (fancy-battery-mode 1))
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Hooks
 
@@ -209,6 +194,9 @@
 (add-hook 'prog-mode-hook #'shellhead/turn-on-electric-pairs)
 (add-hook 'prog-mode-hook #'shellhead/highlight-watchwords)
 (add-hook 'prog-mode-hook #'hl-line-mode)
+(add-hook 'prog-mode-hook #'linum-mode)
+
+(add-hook 'before-save-hook 'delete-trailing-whitespace)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Packages
@@ -230,50 +218,17 @@
 
 (use-package ivy
   :ensure t
+  :demand
+  :diminish ivy-mode
   ;; throw some Dvorak flavor in there
   :bind (("C-h" . ivy-next-line)
          ("C-t" . ivy-previous-line))
   :config
+  (ivy-mode 1)
   (use-package counsel-projectile
     :ensure t
     :config
     (counsel-projectile-on)))
-
-(use-package helm-config
-  ;; TODO Look into setting up helm-dabbrev, helm-moccur, and helm-grep.
-  :ensure helm
-  :demand t
-  :disabled t
-  :config
-  (use-package helm
-    :ensure t
-    :bind (:map helm-map
-                ("C-z" . helm-select-action)
-                ("<tab>" . helm-execute-persistent-action)
-                ;; get a little vim-esque flavor in there
-                ("C-h" . helm-next-line)
-                ("C-t" . helm-previous-line)
-                ("C-k" . helm-buffer-run-kill-buffers))
-    :config
-    (setq helm-split-window-in-side-p t
-          helm-M-x-fuzzy-match t
-          helm-buffers-fuzzy-matching t
-          helm-apropos-fuzzy-match t))
-  (use-package helm-descbinds
-    :ensure t)
-  (use-package helm-projectile 
-    :ensure t
-    :init
-    (helm-projectile-on))
-  (use-package helm-swoop
-    :ensure t
-    :config
-    (setq helm-multi-swoop-edit-save t
-          helm-swoop-split-with-multiple-windows t
-          helm-swoop-split-direction 'split-window-vertically
-          helm-swoop-speed-or-color t))
-  (helm-autoresize-mode t)
-  (setq helm-autoresize-min-height 30))
 
 (use-package visual-fill-column
   :ensure t)
@@ -287,8 +242,8 @@
   ;; Not a fan of the bindings evil-org provides, so here are my own.
   ;; FIXME This doesn't work on multiline list entries.
   (defun shellhead/smart-org-insert ()
-    "Creates a new heading if currently in a heading, creates a new list item 
-     if in a list, or creates a newline if neither." 
+    "Creates a new heading if currently in a heading, creates a new list item
+if in a list, or creates a newline if neither."
     (interactive)
     (cond
      ((org-at-heading-p) (org-insert-heading-respect-content))
@@ -326,7 +281,7 @@
               ("C-t" . company-select-previous))
   :init (add-hook 'prog-mode-hook #'company-mode)
   :config
-  (setq company-minimum-prefix-length 3 
+  (setq company-minimum-prefix-length 3
         company-idle-delay 0.15))
 
 (use-package smooth-scrolling
@@ -404,28 +359,39 @@
   (defun shellhead/c-hook ()
     "Settings for `cc-mode' mode."
     (c-set-style "k&r"))
+  (use-package ggtags
+    :config
+    (ggtags-mode 1)
+    (setq ggtags-completing-read-function 'ivy-completing-read))
   :config
   (add-hook 'c-mode-common-hook 'shellhead/c-hook))
 
-;; Not sure what to do with this right now, seems like between it and
-;; evil-surround, it could make things pretty easy.
 (use-package paredit-everywhere
-  :disabled t
+  :ensure t
+  :commands (paredit-forward-slurp-sexp paredit-forward-barf-sexp)
+  :config
+  (paredit-everywhere-mode t))
+
+(use-package move-text
   :ensure t)
 
-(use-package spaceline-config
+(use-package java
   :config
-  (spaceline-spacemacs-theme)
-  (spaceline-helm-mode)
-  (spaceline-toggle-buffer-position-off)
-  (setq spaceline-highlight-face-func 'spaceline-highlight-face-evil-state))
+  (setq c-basic-offset 4))
+
+(use-package nxml
+  :init
+  (setq nxml-slash-auto-complete-flag t
+        nxml-child-indent 4))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Skeletons
 
-(define-skeleton python/try-except
-  "Exception: "
-  > "try:" \n
-  > _ \n
-  -4 "except " str ":" \n)
-;; init.el ends here
+(define-skeleton skeleton/maven-dependency
+  "Create a Maven dependency chunk."
+  > "<dependency>" \n
+  > "<groupId>" (skeleton-read "group id: ") "</groupId>" \n
+  > "<artifactId>" (skeleton-read "artifact id: ") "</artifactId>" \n
+  > "<version>" (skeleton-read "version: ") "</version>" \n
+  -4 "</dependency>")
+;;; init.el ends here
