@@ -93,9 +93,7 @@
       ;; paredit
       "P"  'hydra-paredit-menu/body
       ;; move-text
-      "M"  'hydra-move-text-menu/body
-      ;; iedit
-      "i"  'iedit-mode)
+      "M"  'hydra-move-text-menu/body)
     (evil-leader/set-key-for-mode 'org-mode
       "cp" 'org-set-property)
     (evil-leader/set-key-for-mode 'dired-mode
@@ -104,7 +102,9 @@
       "k"  'dired-subtree-remove)
     (evil-leader/set-key-for-mode 'python-mode
       "va" 'venv-workon
-      "vd" 'venv-deactivate))
+      "vd" 'venv-deactivate)
+    (evil-leader/set-key-for-mode 'java-mode
+      "i"  'java-imports-add-import-dwim))
   (use-package evil-matchit
     :ensure t
     :init (global-evil-matchit-mode 1))
@@ -377,6 +377,11 @@ if in a list, or creates a newline if neither."
 
 (use-package java
   :config
+  (use-package jdee
+    :config
+    (setq jdee-server-dir (concat user-emacs-directory "jdee")))
+  (use-package java-imports
+    :commands (java-imports-add-import-dwim))
   (setq c-basic-offset 4))
 
 (use-package nxml
