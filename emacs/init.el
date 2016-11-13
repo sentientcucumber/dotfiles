@@ -11,19 +11,6 @@
 (package-initialize)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; hydras
-
-(defhydra hydra-paredit-menu nil
-  "paredit"
-  ("s" paredit-forward-slurp-sexp "slurp forward")
-  ("b" paredit-forward-barf-sexp "barf forward"))
-
-(defhydra hydra-move-text-menu nil
-  "move text"
-  ("h" move-text-down "move text down")
-  ("t" move-text-up "move text up"))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; evil-mode
 
 (use-package evil
@@ -40,7 +27,7 @@
   (define-key evil-normal-state-map "k" 'evil-delete)
   (define-key evil-normal-state-map "n" 'evil-forward-char)
   (define-key evil-normal-state-map "t" 'evil-previous-visual-line)
-   ;; normal state
+  ;; normal state
   (define-key evil-normal-state-map "J" 'evil-find-char-to-backward)
   (define-key evil-normal-state-map "K" 'evil-delete-line)
   (define-key evil-normal-state-map "d" 'evil-backward-char)
@@ -80,11 +67,12 @@
       "ci" 'comment-indent
       ;; ivy
       "b"  'ivy-switch-buffer
+      ;; projectile
+      "F"  'counsel-projectile-find-file
       ;; counsel
       "x"  'counsel-M-x
       "f"  'counsel-find-file
       "/"  'counsel-grep-or-swiper
-      "p"  'counsel-projectile
       "cg" 'counsel-git-grep
       "cd" 'counsel-dired-jump
       "hf" 'counsel-describe-function
@@ -93,7 +81,9 @@
       ;; paredit
       "P"  'hydra-paredit-menu/body
       ;; move-text
-      "M"  'hydra-move-text-menu/body)
+      "M"  'hydra-move-text-menu/body
+      ;; imenu
+      "I"  'ivy-imenu-anywhere)
     (evil-leader/set-key-for-mode 'org-mode
       "cp" 'org-set-property)
     (evil-leader/set-key-for-mode 'dired-mode
@@ -102,9 +92,8 @@
       "k"  'dired-subtree-remove)
     (evil-leader/set-key-for-mode 'python-mode
       "va" 'venv-workon
-      "vd" 'venv-deactivate)
-    (evil-leader/set-key-for-mode 'java-mode
-      "i"  'java-imports-add-import-dwim))
+      "vd" 'venv-deactivate))
+
   (use-package evil-matchit
     :ensure t
     :init (global-evil-matchit-mode 1))
@@ -134,7 +123,8 @@
 (setq-default default-tab-width 4
               indent-tabs-mode nil
               fill-column 80
-              ring-bell-function (lambda ()))
+              ring-bell-function (lambda ())
+              abbrev-mode t)
 
 ;; per buffer settings
 (setq inhibit-startup-message t
@@ -150,11 +140,13 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Appearance
 
-(set-frame-font "Source Code Pro 11")
+(set-frame-font "Fira Code 11")
 (menu-bar-mode -1)
 (scroll-bar-mode -1)
 (tool-bar-mode -1)
 (blink-cursor-mode -1)
+
+(diminish 'abbrev-mode)
 
 (use-package gruvbox-theme
   :ensure t
@@ -164,13 +156,13 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Hooks
 
-(defun shellhead/turn-on-auto-fill ()
+(defun my/turn-on-auto-fill ()
   "Enable `auto-fill-mode', set `fill-column' to 80, and apply only to comments."
   (auto-fill-mode 1)
   (setq comment-auto-fill-only-comments t)
-(delight 'auto-fill-function nil t))
+  (delight 'auto-fill-function nil t))
 
-(defun shellhead/highlight-watchwords ()
+(defun my/highlight-watchwords ()
   "Make FIXME, TODO, and NOTE standout in buffers."
   (font-lock-add-keywords
    nil '(("\\<\\(FIXME:?\\)\\>"
@@ -181,7 +173,7 @@
           1 '((:foreground "#8ec07c") (:slant italic)) t))))
 
 
-(defun shellhead/turn-on-electric-pairs ()
+(defun my/turn-on-electric-pairs ()
   "Enable variable `electric-pair-mode'."
   (electric-pair-mode 1)
   (setq electric-pair-preserve-balance t
@@ -189,17 +181,43 @@
         electric-pair-open-newline-between-pairs t)
   (show-paren-mode 1))
 
-;; prog-mode hooks
-(add-hook 'prog-mode-hook #'shellhead/turn-on-auto-fill)
-(add-hook 'prog-mode-hook #'shellhead/turn-on-electric-pairs)
-(add-hook 'prog-mode-hook #'shellhead/highlight-watchwords)
+(defun my/nxml-mode-hook ()
+  "Settings for `nxml-mode'."
+  (setq nxml-slash-auto-complete-flag t
+        nxml-child-indent 4))
+
+(defun my/java-mode-hook ()
+  "Setting for `java-mode'."
+  (c-set-style "java")
+  (eclim-mode))
+
+;; `prog-mode' hooks
+(add-hook 'prog-mode-hook #'my/turn-on-auto-fill)
+(add-hook 'prog-mode-hook #'my/turn-on-electric-pairs)
+(add-hook 'prog-mode-hook #'my/highlight-watchwords)
 (add-hook 'prog-mode-hook #'hl-line-mode)
 (add-hook 'prog-mode-hook #'linum-mode)
 
+;; mode specific hooks
+(add-hook 'nxml-mode-hook #'my/nxml-mode-hook)
+(add-hook 'java-mode-hook #'my/java-mode-hook)
+
+;; miscellaneous
 (add-hook 'before-save-hook 'delete-trailing-whitespace)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Packages
+
+(use-package eclim
+  :ensure t
+  :config
+  (setq eclim-accepted-file-regexps '("\\.java$")
+        eclim-use-yasnippet nil
+        help-at-pt-display-when-idle t
+        help-at-pt-timer-delay 0.1
+        eclim-auto-save nil)
+  (help-at-pt-set-timer)
+  (use-package eclimd))
 
 (use-package python
   ;; TODO checkout cinspect, pytest/py-test
@@ -224,14 +242,15 @@
   :bind (("C-h" . ivy-next-line)
          ("C-t" . ivy-previous-line))
   :config
-  (ivy-mode 1)
+  (ivy-mode)
   (use-package counsel-projectile
     :ensure t
     :config
     (counsel-projectile-on)))
 
-(use-package visual-fill-column
-  :ensure t)
+(use-package projectile
+  :ensure t
+  :diminish projectile-mode)
 
 (use-package org
   :preface
@@ -241,7 +260,7 @@
 
   ;; Not a fan of the bindings evil-org provides, so here are my own.
   ;; FIXME This doesn't work on multiline list entries.
-  (defun shellhead/smart-org-insert ()
+  (defun my/smart-org-insert ()
     "Creates a new heading if currently in a heading, creates a new list item
 if in a list, or creates a newline if neither."
     (interactive)
@@ -250,7 +269,7 @@ if in a list, or creates a newline if neither."
      ((org-at-item-p) (org-insert-item))
      (t (evil-open-below 1))))
 
-  (defun shellhead/org-mode-hook ()
+  (defun my/org-mode-hook ()
     "Setup for org files."
     (org-indent-mode t)
     (visual-fill-column-mode t)
@@ -258,20 +277,19 @@ if in a list, or creates a newline if neither."
     (eval-after-load 'org-indent '(diminish 'org-indent-mode))
     (diminish 'visual-line-mode))
   :config
-  (add-hook 'org-mode-hook 'shellhead/org-mode-hook)
+  (add-hook 'org-mode-hook 'my/org-mode-hook)
   (setq org-catch-invisible-edits 'show
         org-hide-leading-stars t
         org-use-property-inheritance t)
   (evil-define-key 'insert org-mode-map
-    (kbd "C-o") 'shellhead/smart-org-insert)
+    (kbd "C-o") 'my/smart-org-insert)
   (modify-syntax-entry ?~ "(~" org-mode-syntax-table)
   (modify-syntax-entry ?= "(=" org-mode-syntax-table))
 
 (use-package flycheck
   :ensure t
   :delight flycheck-mode
-  :init
-  (add-hook 'after-init-hook 'global-flycheck-mode))
+  :init (add-hook 'after-init-hook 'global-flycheck-mode))
 
 (use-package company
   :ensure t
@@ -279,10 +297,10 @@ if in a list, or creates a newline if neither."
   :bind (:map company-active-map
               ("C-h" . company-select-next)
               ("C-t" . company-select-previous))
-  :init (add-hook 'prog-mode-hook #'company-mode)
   :config
   (setq company-minimum-prefix-length 3
-        company-idle-delay 0.15))
+                company-idle-delay 0.15)
+  :init (add-hook 'after-init-hook #'global-company-mode))
 
 (use-package smooth-scrolling
   :ensure t
@@ -319,11 +337,8 @@ if in a list, or creates a newline if neither."
 
 (use-package flyspell
   ;; requires the aspell and aspell-en packages
-  :ensure helm-flyspell
   :if (executable-find "aspell")
   :diminish flyspell-mode
-  :bind (:map flyspell-mode-map
-              ("C-;" . helm-flyspell-correct))
   :init
   (add-hook 'prog-mode-hook #'flyspell-prog-mode)
   (add-hook 'org-mode-hook #'flyspell-mode-on)
@@ -333,38 +348,13 @@ if in a list, or creates a newline if neither."
                             "--lang=en_US"
                             "--ignore=4")))
 
-(use-package ido
-  :ensure t
-  :init (ido-mode 1)
-  (use-package ido-ubiquitous
-    :ensure t
-    :init (ido-ubiquitous 1))
-  (use-package ido-vertical-mode
-    :ensure t
-    :init
-    (ido-vertical-mode 1)
-    (setq ido-vertical-pad-list nil
-          ido-vertical-show-count t)))
-
 (use-package lisp-mode
   :preface
-  (defun shellhead/elisp-mode-hook ()
+  (defun my/elisp-mode-hook ()
     "Settings for `emacs-lisp' modes"
     (eldoc-mode 1))
   :config
-  (add-hook 'emacs-lisp-mode-hook 'shellhead/elisp-mode-hook))
-
-(use-package cc-mode
-  :preface
-  (defun shellhead/c-hook ()
-    "Settings for `cc-mode' mode."
-    (c-set-style "k&r"))
-  (use-package ggtags
-    :config
-    (ggtags-mode 1)
-    (setq ggtags-completing-read-function 'ivy-completing-read))
-  :config
-  (add-hook 'c-mode-common-hook 'shellhead/c-hook))
+  (add-hook 'emacs-lisp-mode-hook 'my/elisp-mode-hook))
 
 (use-package paredit-everywhere
   :ensure t
@@ -375,19 +365,14 @@ if in a list, or creates a newline if neither."
 (use-package move-text
   :ensure t)
 
-(use-package java
+(use-package imenu-anywhere
+  :ensure t
   :config
-  (use-package jdee
+  (use-package imenu+
     :config
-    (setq jdee-server-dir (concat user-emacs-directory "jdee")))
-  (use-package java-imports
-    :commands (java-imports-add-import-dwim))
-  (setq c-basic-offset 4))
-
-(use-package nxml
-  :init
-  (setq nxml-slash-auto-complete-flag t
-        nxml-child-indent 4))
+    (setq imenup-sort-ignores-case-flag t
+          imenup-ignore-comments-flag t))
+  (setq imenu-sort-function 'imenu--sort-by-name))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Skeletons
@@ -399,4 +384,37 @@ if in a list, or creates a newline if neither."
   > "<artifactId>" (skeleton-read "artifact id: ") "</artifactId>" \n
   > "<version>" (skeleton-read "version: ") "</version>" \n
   -4 "</dependency>")
-;;; init.el ends here
+
+(define-skeleton skeleton/java-class
+  "Create a Java class based on the buffer name."
+  > "package " (skeleton-read "package: ") ";" \n
+  > \n
+  > "public class " (substring (buffer-name) 0 -5) " {" \n
+  > \n
+  > _ \n
+  > \n
+  -4 "}" \n)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; hydras
+
+(defhydra hydra-paredit-menu nil
+  "paredit"
+  ("s" paredit-forward-slurp-sexp "slurp forward")
+  ("b" paredit-forward-barf-sexp "barf forward"))
+
+(defhydra hydra-move-text-menu nil
+  "move text"
+  ("h" move-text-down "move text down")
+  ("t" move-text-up "move text up"))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Custom Functions
+
+(defun my/format-buffer ()
+  "Format the entire buffer."
+  (interactive)
+  (indent-region (point-min) (point-max))
+  (untabify (point-min) (point-max)))
+
+;;; init.el ends here)
