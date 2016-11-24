@@ -18,33 +18,21 @@
   :diminish undo-tree-mode
   :ensure t
   :config
-  ;; motion state
+  ;; the keybindings below are used to emulate vim's homerow keybindings for
+  ;; dvorak keyboard users.
+  (dolist (key-map (list evil-normal-state-map
+                         evil-visual-state-map
+                         evil-motion-state-map))
+    (define-key key-map "d" 'evil-backward-char)
+    (define-key key-map "h" 'evil-next-visual-line)
+    (define-key key-map "j" 'evil-find-char-to)
+    (define-key key-map "k" 'evil-delete)
+    (define-key key-map "n" 'evil-forward-char)
+    (define-key key-map "t" 'evil-previous-visual-line))
+  ;; leftovers that don't apply to every evil-state
   (define-key evil-motion-state-map "L" 'evil-search-previous)
   (define-key evil-motion-state-map "l" 'evil-search-next)
-  (define-key evil-normal-state-map "d" 'evil-backward-char)
-  (define-key evil-normal-state-map "h" 'evil-next-visual-line)
-  (define-key evil-normal-state-map "j" 'evil-find-char-to)
-  (define-key evil-normal-state-map "k" 'evil-delete)
-  (define-key evil-normal-state-map "n" 'evil-forward-char)
-  (define-key evil-normal-state-map "t" 'evil-previous-visual-line)
-  ;; normal state
-  (define-key evil-normal-state-map "J" 'evil-find-char-to-backward)
   (define-key evil-normal-state-map "K" 'evil-delete-line)
-  (define-key evil-normal-state-map "d" 'evil-backward-char)
-  (define-key evil-normal-state-map "gj" 'evil-join)
-  (define-key evil-normal-state-map "h" 'evil-next-visual-line)
-  (define-key evil-normal-state-map "j" 'evil-find-char-to)
-  (define-key evil-normal-state-map "k" 'evil-delete)
-  (define-key evil-normal-state-map "n" 'evil-forward-char)
-  (define-key evil-normal-state-map "t" 'evil-previous-visual-line)
-  ;; visual state
-  (define-key evil-visual-state-map "J" 'evil-find-char-to-backward)
-  (define-key evil-visual-state-map "d" 'evil-backward-char)
-  (define-key evil-visual-state-map "h" 'evil-next-visual-line)
-  (define-key evil-visual-state-map "j" 'evil-find-char-to)
-  (define-key evil-visual-state-map "k" 'evil-delete)
-  (define-key evil-visual-state-map "n" 'evil-forward-char)
-  (define-key evil-visual-state-map "t" 'evil-previous-visual-line)
   (use-package evil-leader
     :ensure t
     :init (global-evil-leader-mode)
@@ -84,6 +72,7 @@
       "M"  'hydra-move-text-menu/body
       ;; imenu
       "I"  'ivy-imenu-anywhere)
+    ;; mode specific `evil-leader' bindings
     (evil-leader/set-key-for-mode 'org-mode
       "cp" 'org-set-property)
     (evil-leader/set-key-for-mode 'dired-mode
@@ -93,14 +82,13 @@
     (evil-leader/set-key-for-mode 'python-mode
       "va" 'venv-workon
       "vd" 'venv-deactivate))
-
   (use-package evil-matchit
     :ensure t
     :init (global-evil-matchit-mode 1))
   (use-package evil-easymotion
     :ensure t
-    :config
-    ;; The changes made to evil-mode do not carry over to evil-easymotion.
+    :preface
+    ;; the key bindings don't carry over from evil
     (evilem-default-keybindings "SPC")
     (evilem-define (kbd "SPC h") 'evil-next-visual-line)
     (evilem-define (kbd "SPC t") 'evil-previous-visual-line)
@@ -374,6 +362,17 @@ if in a list, or creates a newline if neither."
           imenup-ignore-comments-flag t))
   (setq imenu-sort-function 'imenu--sort-by-name))
 
+(use-package alert
+  :ensure t
+  :config (setq alert-default-style 'notifications))
+
+(use-package shackle
+  :ensure t
+  :preface
+  (setq shackle-rules '(("*Help*" :align 'below :select t :size 10)))
+  :config
+  (shackle-mode))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Skeletons
 
@@ -385,7 +384,7 @@ if in a list, or creates a newline if neither."
   > "<version>" (skeleton-read "version: ") "</version>" \n
   -4 "</dependency>")
 
-(define-skeleton skeleton/java-class
+(define-skeleton skeleton/java-class-file
   "Create a Java class based on the buffer name."
   > "package " (skeleton-read "package: ") ";" \n
   > \n
@@ -394,6 +393,10 @@ if in a list, or creates a newline if neither."
   > _ \n
   > \n
   -4 "}" \n)
+
+(define-skeleton skeleton/java-system-out-println
+  "Standard `System.out.println'."
+  > "System.out.println(\"" _ "\");")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; hydras
@@ -417,4 +420,4 @@ if in a list, or creates a newline if neither."
   (indent-region (point-min) (point-max))
   (untabify (point-min) (point-max)))
 
-;;; init.el ends here)
+;;; init.el ends here
