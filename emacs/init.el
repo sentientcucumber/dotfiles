@@ -1,6 +1,6 @@
 ;;; init.el -- A masterpiece in progress.
 
-;; -*- coding: utf-8 -*-
+;; -*- coding: utf-8; lexical-binding: t -*-
 
 ;; Author: Michael Hunsinger <mike.hunsinger@gmail.com>
 ;; URL: https://www.github.com/shellhead/dotfiles
@@ -70,8 +70,20 @@
 (require 'cask "$HOME/.cask/cask.el")
 (cask-initialize)
 
+(setq-default indent-tabs-mode  nil
+	      tab-always-indent t
+	      tab-width         4)
+
 (setq auto-save-default nil
       make-backup-files nil)
+
+;;;; Lust
+
+;; This section is devoted to symbols shared throughout `sin'. Note,
+;; this does not apply to symbols that more appropriately belong with
+;; their configuration or package. If they are only used in one place,
+;; but extracted for easier configuration, they belong with their
+;; package/configuration, not here.
 
 ;;;; Vanity
 
@@ -162,30 +174,31 @@
   :diminish
   undo-tree-mode
   :bind
-  (:map evil-normal-state-map
-	("d" . evil-backward-char)
-	("n" . evil-forward-char)
-	("h" . evil-next-visual-line)
-	("t" . evil-previous-visual-line)
-	("j" . evil-find-char-to)
-	("k" . evil-delete)
-	("K" . evil-delete-line)
-	:map evil-visual-state-map
-	("d" . evil-backward-char)
-	("n" . evil-forward-char)
-	("h" . evil-next-visual-line)
-	("t" . evil-previous-visual-line)
-	("j" . evil-find-char-to)
-	("k" . evil-delete)
-	:map evil-motion-state-map
-	("d" . evil-backward-char)
-	("n" . evil-forward-char)
-	("h" . evil-next-visual-line)
-	("t" . evil-previous-visual-line)
-	("j" . evil-find-char-to)
-	("k" . evil-delete)
-	("l" . evil-search-next)
-	("L" . evil-search-previous))
+  (:map
+   evil-normal-state-map
+   ("d" . evil-backward-char)
+   ("n" . evil-forward-char)
+   ("h" . evil-next-visual-line)
+   ("t" . evil-previous-visual-line)
+   ("j" . evil-find-char-to)
+   ("k" . evil-delete)
+   ("K" . evil-delete-line)
+   :map evil-visual-state-map
+   ("d" . evil-backward-char)
+   ("n" . evil-forward-char)
+   ("h" . evil-next-visual-line)
+   ("t" . evil-previous-visual-line)
+   ("j" . evil-find-char-to)
+   ("k" . evil-delete)
+   :map evil-motion-state-map
+   ("d" . evil-backward-char)
+   ("n" . evil-forward-char)
+   ("h" . evil-next-visual-line)
+   ("t" . evil-previous-visual-line)
+   ("j" . evil-find-char-to)
+   ("k" . evil-delete)
+   ("l" . evil-search-next)
+   ("L" . evil-search-previous))
   :init
   (evil-mode 1)
   :config
@@ -219,5 +232,7 @@
 ;; TODO - Document symbols ending in `!' have side effects and imply
 ;;   they are functions.
 
-;; TODO - Create aliases that are found in Clojure, such as `number?'
-;;   rather than elisp's `numberp'.
+;; TODO - Create an `alter' with `hydra' that allows for common editor
+;;   commands (`save-buffer', `save-some-buffers', `kill-buffer',
+;;   etc.) that can be bound to an easy leader key (maybe `,
+;;   ,'). Maybe even throw some bling in that hydra!
