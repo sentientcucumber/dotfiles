@@ -1,423 +1,223 @@
 ;;; init.el -- A masterpiece in progress.
 
+;; -*- coding: utf-8 -*-
+
 ;; Author: Michael Hunsinger <mike.hunsinger@gmail.com>
+;; URL: https://www.github.com/shellhead/dotfiles
 
 ;;; Commentary:
 
+;; This is an attempt to be as amazing as Mr. Lissner, the author of
+;; the DOOM setup. If you haven't come across this yet, you should
+;; check it out, it's nothing short of amazing,
+;; https://github.com/hlissner/.emacs.d.
+
+;; I've used Emacs quite a bit in the past, but anything that was
+;; fruitful was often the result of beleagured-bashing on the keyboard
+;; until I was able to coax Emacs to do what I wished or I found a
+;; snippet of code somewhere snag. This is a more thoughtful attempt
+;; at setting up Emacs for me, and hopefully learn a thing or two
+;; about Emacs and functional programming along the way.
+
+;; With that being said, when viewing the source, there may be an
+;; abundance of comments. While this is mostly to jog my own memory of
+;; how to do things, I believe it may also be useful to those who are
+;; in the same situation as I am, and looking to learn more about
+;; Emacs. Ideally, this should go into a blog or a more appropriate
+;; medium, but knowing me, I'll spend an inordinate amount of time
+;; setting the blog up than working on this.
+
+;; `sin' is a from-the-ground-up configuration design that takes heavy
+;; inspiration from DOOM and is largely driven by my own personal
+;; needs and desire to play and learn Emacs. If you're looking for
+;; something cleaner and not written by a total n00b, I suggest
+;; checking DOOM, EOS (Emacs Operating System) or one of the many
+;; other configuration setup out there. If you come across this and
+;; take pity upon my terrible coding skills or somehow this
+;; abomination suits your needs, you're more than welcome to use it or
+;; submit a PR to address any issues you come across.
+
+;;; Usage:
+
+;; 1. Clone the repository to the standard `$HOME/emacs.d/' location.
+;; 2. Run `cask' to install the dependencies.
+;; 3. Startup Emacs.
+
+;;; License:
+
+;; This program is free software; you can redistribute it and/or
+;; modify it under the terms of the GNU General Public License
+;; as published by the Free Software Foundation; either version 3
+;; of the License, or (at your option) any later version.
+;;
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+;;
+;; You should have received a copy of the GNU General Public License
+;; along with GNU Emacs; see the file COPYING.  If not, write to the
+;; Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+;; Boston, MA 02110-1301, USA.
+
 ;;; Code:
 
-(require 'package)
-(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
+;;;; Setup
+
+;; The eigth sin.
+
 (package-initialize)
+(require 'cask "$HOME/.cask/cask.el")
+(cask-initialize)
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; evil-mode
+(setq auto-save-default nil
+      make-backup-files nil)
 
-(use-package evil
-  :demand
-  :diminish undo-tree-mode
-  :ensure t
-  :config
-  ;; the keybindings below are used to emulate vim's homerow keybindings for
-  ;; dvorak keyboard users.
-  (dolist (key-map (list evil-normal-state-map
-                         evil-visual-state-map
-                         evil-motion-state-map))
-    (define-key key-map "d" 'evil-backward-char)
-    (define-key key-map "h" 'evil-next-visual-line)
-    (define-key key-map "j" 'evil-find-char-to)
-    (define-key key-map "k" 'evil-delete)
-    (define-key key-map "n" 'evil-forward-char)
-    (define-key key-map "t" 'evil-previous-visual-line))
-  ;; leftovers that don't apply to every evil-state
-  (define-key evil-motion-state-map "L" 'evil-search-previous)
-  (define-key evil-motion-state-map "l" 'evil-search-next)
-  (define-key evil-normal-state-map "K" 'evil-delete-line)
-  (use-package evil-leader
-    :ensure t
-    :init (global-evil-leader-mode)
-    :config
-    (evil-leader/set-leader ",")
-    (evil-leader/set-key
-      ;; NOTE evil-leader/set-key-for-mode only works for major modes
-      ;; flycheck
-      "e"  'flycheck-next-error
-      "E"  'flycheck-previous-error
-      ;; org
-      "oa" 'org-agenda
-      "oc" 'org-capture
-      ;; dired
-      "d"  'dired-jump
-      ;; commenting
-      "cl" 'evilnc-comment-or-uncomment-lines
-      "cp" 'evilnc-comment-or-uncomment-paragraphs
-      "cr" 'comment-or-uncomment-region
-      "ci" 'comment-indent
-      ;; ivy
-      "b"  'ivy-switch-buffer
-      ;; projectile
-      "F"  'counsel-projectile-find-file
-      ;; counsel
-      "x"  'counsel-M-x
-      "f"  'counsel-find-file
-      "/"  'counsel-grep-or-swiper
-      "cg" 'counsel-git-grep
-      "cd" 'counsel-dired-jump
-      "hf" 'counsel-describe-function
-      "hv" 'counsel-describe-variable
-      "hk" 'counsel-descbinds
-      ;; paredit
-      "P"  'hydra-paredit-menu/body
-      ;; move-text
-      "M"  'hydra-move-text-menu/body
-      ;; imenu
-      "I"  'ivy-imenu-anywhere)
-    ;; mode specific `evil-leader' bindings
-    (evil-leader/set-key-for-mode 'org-mode
-      "cp" 'org-set-property)
-    (evil-leader/set-key-for-mode 'dired-mode
-      "ch" 'wdired-change-to-wdired-mode
-      "i"  'dired-subtree-insert
-      "k"  'dired-subtree-remove)
-    (evil-leader/set-key-for-mode 'python-mode
-      "va" 'venv-workon
-      "vd" 'venv-deactivate))
-  (use-package evil-matchit
-    :ensure t
-    :init (global-evil-matchit-mode 1))
-  (use-package evil-easymotion
-    :ensure t
-    :preface
-    ;; the key bindings don't carry over from evil
-    (evilem-default-keybindings "SPC")
-    (evilem-define (kbd "SPC h") 'evil-next-visual-line)
-    (evilem-define (kbd "SPC t") 'evil-previous-visual-line)
-    (evilem-define (kbd "SPC j") 'evil-find-char-to)
-    (evilem-define (kbd "SPC J") 'evil-find-char-to-backward)
-    (evilem-define (kbd "SPC k") nil))
-  (use-package evil-nerd-commenter
-    :ensure t)
-  (use-package evil-surround
-    :ensure t)
-  (evil-mode t)
-  (global-evil-surround-mode t))
+;;;; Vanity
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Settings
+;; This section is devoted to altering Emacs' appearance to make it
+;; look amazing.
 
-(defalias 'yes-or-no-p 'y-or-n-p)
+(setq inhibit-startup-screen t)
 
-;; default settings
-(setq-default default-tab-width 4
-              indent-tabs-mode nil
-              fill-column 80
-              ring-bell-function (lambda ())
-              abbrev-mode t)
+;; When using the GUI (which I exclusively use), it adds the standard
+;; window decorations and a scroll bar. They're great if you're
+;; getting used to Emacs, but I'm looking to replace their
+;; functionality through other packages and keybindings.
 
-;; per buffer settings
-(setq inhibit-startup-message t
-      initial-major-mode 'fundamental-mode
-      vc-follow-symlinks t
-      echo-keystrokes 0.1
-      auto-save-default nil
-      make-backup-files nil
-      column-number-mode t)
+(when window-system
+  (scroll-bar-mode   -1)
+  (tool-bar-mode     -1)
+  (menu-bar-mode     -1)
+  (blink-cursor-mode -1))
 
-(put 'erase-buffer 'disabled nil)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Appearance
-
-(set-frame-font "Fira Code 11")
-(menu-bar-mode -1)
-(scroll-bar-mode -1)
-(tool-bar-mode -1)
-(blink-cursor-mode -1)
-
-(diminish 'abbrev-mode)
-
-(use-package gruvbox-theme
-  :ensure t
-  :config
-  (load-theme 'gruvbox t))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Hooks
-
-(defun my/turn-on-auto-fill ()
-  "Enable `auto-fill-mode', set `fill-column' to 80, and apply only to comments."
-  (auto-fill-mode 1)
-  (setq comment-auto-fill-only-comments t)
-  (delight 'auto-fill-function nil t))
-
-(defun my/highlight-watchwords ()
-  "Make FIXME, TODO, and NOTE standout in buffers."
-  (font-lock-add-keywords
-   nil '(("\\<\\(FIXME:?\\)\\>"
-          1 '((:foreground "#fb4934") (:slant italic)) t)
-         ("\\<\\(TODO:?\\)\\>"
-          1 '((:foreground "#fabd2f") (:slant italic)) t)
-         ("\\<\\(NOTE:?\\)\\>"
-          1 '((:foreground "#8ec07c") (:slant italic)) t))))
-
-
-(defun my/turn-on-electric-pairs ()
-  "Enable variable `electric-pair-mode'."
-  (electric-pair-mode 1)
-  (setq electric-pair-preserve-balance t
-        electric-pair-delete-adjacent-pairs t
-        electric-pair-open-newline-between-pairs t)
-  (show-paren-mode 1))
-
-(defun my/nxml-mode-hook ()
-  "Settings for `nxml-mode'."
-  (setq nxml-slash-auto-complete-flag t
-        nxml-child-indent 4))
-
-(defun my/java-mode-hook ()
-  "Setting for `java-mode'."
-  (c-set-style "java")
-  (eclim-mode))
-
-;; `prog-mode' hooks
-(add-hook 'prog-mode-hook #'my/turn-on-auto-fill)
-(add-hook 'prog-mode-hook #'my/turn-on-electric-pairs)
-(add-hook 'prog-mode-hook #'my/highlight-watchwords)
-(add-hook 'prog-mode-hook #'hl-line-mode)
-(add-hook 'prog-mode-hook #'linum-mode)
-
-;; mode specific hooks
-(add-hook 'nxml-mode-hook #'my/nxml-mode-hook)
-(add-hook 'java-mode-hook #'my/java-mode-hook)
-
-;; miscellaneous
-(add-hook 'before-save-hook 'delete-trailing-whitespace)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Packages
-
-(use-package eclim
-  :ensure t
-  :config
-  (setq eclim-accepted-file-regexps '("\\.java$")
-        eclim-use-yasnippet nil
-        help-at-pt-display-when-idle t
-        help-at-pt-timer-delay 0.1
-        eclim-auto-save nil)
-  (help-at-pt-set-timer)
-  (use-package eclimd))
-
-(use-package python
-  ;; TODO checkout cinspect, pytest/py-test
-  :config
-  (use-package virtualenvwrapper
-    :ensure t
-    :config
-    (venv-initialize-interactive-shells)
-    (venv-initialize-eshell)
-    (setq venv-location "~/.venvs")))
-
-(use-package avy
-  :ensure t
-  :config
-  (setq avy-keys '(?a ?o ?e ?u ?i ?d ?h ?t ?n ?s)))
-
-(use-package ivy
-  :ensure t
-  :demand
-  :diminish ivy-mode
-  ;; throw some Dvorak flavor in there
-  :bind (("C-h" . ivy-next-line)
-         ("C-t" . ivy-previous-line))
-  :config
-  (ivy-mode)
-  (use-package counsel-projectile
-    :ensure t
-    :config
-    (counsel-projectile-on)))
-
-(use-package projectile
-  :ensure t
-  :diminish projectile-mode)
-
-(use-package org
-  :preface
-  ;; TODO create an additional state, "org", that can be entered from INSERT
-  ;; mode. This mode should then have its own keymap devoted to various org
-  ;; functions (there are so many).
-
-  ;; Not a fan of the bindings evil-org provides, so here are my own.
-  ;; FIXME This doesn't work on multiline list entries.
-  (defun my/smart-org-insert ()
-    "Creates a new heading if currently in a heading, creates a new list item
-if in a list, or creates a newline if neither."
-    (interactive)
-    (cond
-     ((org-at-heading-p) (org-insert-heading-respect-content))
-     ((org-at-item-p) (org-insert-item))
-     (t (evil-open-below 1))))
-
-  (defun my/org-mode-hook ()
-    "Setup for org files."
-    (org-indent-mode t)
-    (visual-fill-column-mode t)
-    (visual-line-mode)
-    (eval-after-load 'org-indent '(diminish 'org-indent-mode))
-    (diminish 'visual-line-mode))
-  :config
-  (add-hook 'org-mode-hook 'my/org-mode-hook)
-  (setq org-catch-invisible-edits 'show
-        org-hide-leading-stars t
-        org-use-property-inheritance t)
-  (evil-define-key 'insert org-mode-map
-    (kbd "C-o") 'my/smart-org-insert)
-  (modify-syntax-entry ?~ "(~" org-mode-syntax-table)
-  (modify-syntax-entry ?= "(=" org-mode-syntax-table))
-
-(use-package flycheck
-  :ensure t
-  :delight flycheck-mode
-  :init (add-hook 'after-init-hook 'global-flycheck-mode))
-
-(use-package company
-  :ensure t
-  :diminish company-mode
-  :bind (:map company-active-map
-              ("C-h" . company-select-next)
-              ("C-t" . company-select-previous))
-  :config
-  (setq company-minimum-prefix-length 3
-                company-idle-delay 0.15)
-  :init (add-hook 'after-init-hook #'global-company-mode))
-
-(use-package smooth-scrolling
-  :ensure t
-  :init (add-hook 'after-init-hook #'smooth-scrolling-mode))
-
-(use-package tramp
-  :config
-  (setq tramp-default-method "ssh"
-        tramp-use-ssh-controlmaster-options nil))
-
-(use-package dired
-  :bind (:map dired-mode-map
-              ("RET" . dired-find-alternate-file)
-              ("/" . dired-narrow)
-              ("C-u" . dired-up-directory)
-              ("C-h" . dired-next-line)
-              ("C-t" . dired-previous-line))
-  :config
-  (use-package dired-narrow
-    :ensure t)
-  (use-package dired-filter
-    :ensure t)
-  (use-package dired-subtree
-    :ensure t)
-  (put 'dired-find-alternate-file 'disabled nil)
-  (setq dired-listing-switches "-ahl"
-        dired-recursive-copies 'always
-        ls-lisp-dirs-first t
-        ls-lisp-ignore-case t
-        directory-free-space-args "-Pkh"))
-
-(use-package eldoc
-  :diminish eldoc-mode)
-
-(use-package flyspell
-  ;; requires the aspell and aspell-en packages
-  :if (executable-find "aspell")
-  :diminish flyspell-mode
+(use-package doom-themes
   :init
-  (add-hook 'prog-mode-hook #'flyspell-prog-mode)
-  (add-hook 'org-mode-hook #'flyspell-mode-on)
-  :config
-  (setq ispell-program-name (executable-find "aspell"))
-  (setq ispell-extra-args '("--sug-mode=fast"
-                            "--lang=en_US"
-                            "--ignore=4")))
+  (load-theme 'doom-one t))
 
-(use-package lisp-mode
-  :preface
-  (defun my/elisp-mode-hook ()
-    "Settings for `emacs-lisp' modes"
-    (eldoc-mode 1))
-  :config
-  (add-hook 'emacs-lisp-mode-hook 'my/elisp-mode-hook))
+;;;; Gluttony
 
-(use-package paredit-everywhere
-  :ensure t
-  :commands (paredit-forward-slurp-sexp paredit-forward-barf-sexp)
-  :config
-  (paredit-everywhere-mode t))
+;; This section is devoted to configuring the many Emacs' packages. If
+;; you've ever looked through MELPA or Marmalade, you're aware of the
+;; number of packages available, often going against the rule of "Do
+;; One Thing Well".
 
-(use-package move-text
-  :ensure t)
+;; All package configurations, with the exception of `evil' (which can
+;; be found in "Envy"), can be found in this section.
 
-(use-package imenu-anywhere
-  :ensure t
-  :config
-  (use-package imenu+
-    :config
-    (setq imenup-sort-ignores-case-flag t
-          imenup-ignore-comments-flag t))
-  (setq imenu-sort-function 'imenu--sort-by-name))
+(defvar sin/shackle-size 20
+  "Set the size of `shackle'd popups.")
 
-(use-package alert
-  :ensure t
-  :config (setq alert-default-style 'notifications))
+(defvar sin/shackle-alignment 'below
+  "Set where `shackle'd popups appear.")
 
 (use-package shackle
-  :ensure t
+  ;; `shackle' is great when trying to tame annoying popup windows or
+  ;; configuring consistent behavior across all windows.
   :preface
-  (setq shackle-rules '(("*Help*" :align 'below :select t :size 10)))
-  :config
+  (setq shackle-default-size      sin/shackle-size
+	shackle-default-alignment sin/shackle-alignment
+	shackle-rules             '(("*Help*"     :select t)
+				    ("*Messages*" :ignore t)
+				    ("*Warnings*" :select t)))
+  :init
   (shackle-mode))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Skeletons
+;;;; Envy
 
-(define-skeleton skeleton/maven-dependency
-  "Create a Maven dependency chunk."
-  > "<dependency>" \n
-  > "<groupId>" (skeleton-read "group id: ") "</groupId>" \n
-  > "<artifactId>" (skeleton-read "artifact id: ") "</artifactId>" \n
-  > "<version>" (skeleton-read "version: ") "</version>" \n
-  -4 "</dependency>")
+;; This section is devoted to making Emacs act more like it's nemises,
+;; Vi(m), using the popular package `evil'. I've only sat on the
+;; sidelines whenever an editor has broken out, I never used Vi enough
+;; to offer any valid opinion. I was attracted to it after my thumb
+;; started to bother me after long days of typing and doing
+;; finger-gymnastics in Emacs. At the time of this writing (12/2016),
+;; I've used it for about six months now and love it. However, I do
+;; hope to strike a balance between modal and linear editing.
 
-(define-skeleton skeleton/java-class-file
-  "Create a Java class based on the buffer name."
-  > "package " (skeleton-read "package: ") ";" \n
-  > \n
-  > "public class " (substring (buffer-name) 0 -5) " {" \n
-  > \n
-  > _ \n
-  > \n
-  -4 "}" \n)
+(defvar sin/mode-start-states
+  '((special-mode . motion))
+  "An associative list of modes and their starting state.")
 
-(define-skeleton skeleton/java-system-out-println
-  "Standard `System.out.println'."
-  > "System.out.println(\"" _ "\");")
+(defun sin/init-start-states! (c)
+  "Initialize the starting states for the list of modes."
+  (evil-set-initial-state (car c) (cdr c)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; hydras
+(use-package evil
+  :preface
+  (setq evil-echo-state nil
+	;; tags, by default, show up on the `mode-line' to indicate
+	;; the current state
+	evil-normal-state-tag    "N"
+        evil-insert-state-tag    "I"
+        evil-visual-state-tag    "V"
+        evil-emacs-state-tag     "E"
+        evil-operator-state-tag  "O"
+        evil-motion-state-tag    "M"
+	evil-replace-state-tag   "R"
+	;; change the cursor depending on the `evil' state we're in
+	evil-default-cursor      (face-attribute 'cursor :background nil t)
+	evil-normal-state-cursor 'box
+	evil-insert-state-cursor 'bar
+	evil-visual-state-cursor '(hbar . 2))
+  :diminish
+  undo-tree-mode
+  :bind
+  (:map evil-normal-state-map
+	("d" . evil-backward-char)
+	("n" . evil-forward-char)
+	("h" . evil-next-visual-line)
+	("t" . evil-previous-visual-line)
+	("j" . evil-find-char-to)
+	("k" . evil-delete)
+	("K" . evil-delete-line)
+	:map evil-visual-state-map
+	("d" . evil-backward-char)
+	("n" . evil-forward-char)
+	("h" . evil-next-visual-line)
+	("t" . evil-previous-visual-line)
+	("j" . evil-find-char-to)
+	("k" . evil-delete)
+	:map evil-motion-state-map
+	("d" . evil-backward-char)
+	("n" . evil-forward-char)
+	("h" . evil-next-visual-line)
+	("t" . evil-previous-visual-line)
+	("j" . evil-find-char-to)
+	("k" . evil-delete)
+	("l" . evil-search-next)
+	("L" . evil-search-previous))
+  :init
+  (evil-mode 1)
+  :config
+  (mapc 'sin/init-start-states! sin/mode-start-states))
 
-(defhydra hydra-paredit-menu nil
-  "paredit"
-  ("s" paredit-forward-slurp-sexp "slurp forward")
-  ("b" paredit-forward-barf-sexp "barf forward"))
+;;;; Sloth
 
-(defhydra hydra-move-text-menu nil
-  "move text"
-  ("h" move-text-down "move text down")
-  ("t" move-text-up "move text up"))
+;; This section is devoted for things that I've come across that I may
+;; want to implement in the future, but don't either don't have the
+;; time, knowledge, or willpower to do. These may be half-implemented
+;; or commented functions or `TODO' items.
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Custom Functions
+;; TODO - DOOM warns `cask-initialize' can greatly impact load times,
+;;   look at changing this when necessary.
 
-(defun my/format-buffer ()
-  "Format the entire buffer."
-  (interactive)
-  (indent-region (point-min) (point-max))
-  (untabify (point-min) (point-max)))
+;; TODO - I suck at spelling, get `flyspell' enabled. Since this
+;;   requires one of the spelling command line binaries, create a
+;;   Makefile to download this dependency.
 
-;;; init.el ends here
+;; TODO - The front page should accept a number of "widgets" (not an
+;;   Emacs' widget). These widgets should be a way to display recent
+;;   files, tips, etc. by reading a and displaying a list. This could
+;;   be extendable to making API calls to GitHub/StackOverflow,
+;;   etc. and displaying.
+
+;; TODO - To ensure good elisp coding standards, get `flycheck' setup.
+
+;; TODO - Working in elisp is hard to do without parenthesis help,
+;;   setup `show-paren', `electric-paren' and `paredit'.
+
+;; TODO - Document symbols ending in `!' have side effects and imply
+;;   they are functions.
+
+;; TODO - Create aliases that are found in Clojure, such as `number?'
+;;   rather than elisp's `numberp'.

@@ -35,7 +35,7 @@
 *color7:  #a89984
 *color15: #ebdbb2
 
-URxvt.font:                 xft:Fira Code:size=11
+URxvt.font:                 xft:Fira Mono:size=11
 URxvt*scrollBar:            false
 URxvt.perl-ext-common:      clipboard, url-select
 URxvt.url-select.launcher:  firefox
