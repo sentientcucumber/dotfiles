@@ -1,7 +1,9 @@
 ;; -*- coding: utf-8; lexical-binding: t -*-
 
 (package-initialize)
-(require 'cask "$HOME/.cask/cask.el")
+(require 'cask (concat (getenv "HOME") (if (eq window-system 'w32)
+                                           "\\.cask\\cask.el"
+                                         "/.cask/cask.el")))
 (cask-initialize)
 
 (setq-default indent-tabs-mode nil

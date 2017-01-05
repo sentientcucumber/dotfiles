@@ -1,3 +1,4 @@
+
 ;; -*- mode: emacs-lisp -*-
 
 (source gnu)
@@ -16,10 +17,12 @@
 (depends-on "evil")
 (depends-on "evil-args")
 (depends-on "evil-easymotion")
+(depends-on "evil-leader")
 (depends-on "evil-matchit")
 (depends-on "evil-multiedit")
 (depends-on "evil-snipe")
 (depends-on "evil-surround")
+(depends-on "fill-column-indicator")
 (depends-on "highlight-quoted")
 (depends-on "hy-mode")
 (depends-on "hydra")
