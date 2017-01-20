@@ -1,9 +1,11 @@
 ;; -*- coding: utf-8; lexical-binding: t -*-
 
 (package-initialize)
-(require 'cask (concat (getenv "HOME") (if (eq window-system 'w32)
-                                           "\\.cask\\cask.el"
-                                         "/.cask/cask.el")))
+(require 'cask (concat
+                (getenv "HOME")
+                (if (eq window-system 'w32)
+                    "\\.cask\\cask.el"
+                  "/.cask/cask.el")))
 (cask-initialize)
 
 (setq-default indent-tabs-mode nil
@@ -29,9 +31,9 @@
   (blink-cursor-mode -1)
   (column-number-mode 1))
 
-(use-package tao-theme 
+(use-package firebelly-theme
   :config
-  (load-theme 'tao-yin t))
+  (load-theme 'firebelly t))
 
 (use-package smooth-scrolling
   :init

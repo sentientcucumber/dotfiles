@@ -7,7 +7,7 @@
 (depends-on "all-the-icons")
 (depends-on "anaconda-mode")
 (depends-on "bind-key")
-(depends-on "tao-theme")
+(depends-on "firebelly-theme")
 (depends-on "cider")
 (depends-on "clojure-mode")
 (depends-on "company")
