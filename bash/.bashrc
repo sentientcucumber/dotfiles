@@ -14,7 +14,11 @@ export PATH=$HOME/.cask/bin:$HOME/.local/bin:$PATH
 export HISTCONTROL=ignoreboth:erasedups
 
 # prompt
-PS1='\e[00;32m[¬º-°]¬\e[39m '
+PS1='\e[00;32m\w\e[39m '
 
 # python virtualenvwrapper
 source $HOME/.local/bin/virtualenvwrapper_lazy.sh 
+
+#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
+export SDKMAN_DIR="/home/geek/.sdkman"
+[[ -s "/home/geek/.sdkman/bin/sdkman-init.sh" ]] && source "/home/geek/.sdkman/bin/sdkman-init.sh"

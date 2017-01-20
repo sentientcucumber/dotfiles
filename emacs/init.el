@@ -29,9 +29,9 @@
   (blink-cursor-mode -1)
   (column-number-mode 1))
 
-(use-package birds-of-paradise-plus-theme
+(use-package tao-theme 
   :config
-  (load-theme 'birds-of-paradise-plus t))
+  (load-theme 'tao-yin t))
 
 (use-package smooth-scrolling
   :init
@@ -262,3 +262,19 @@
   (evil-lispy-mode t)
   (unbind-key "[" evil-insert-state-map)
   (unbind-key "]" evil-insert-state-map))
+
+;;
+;; `groovy'
+;;
+
+(use-package groovy
+  :init
+  (setq c-basic-offset 4))
+
+;;
+;; `org'
+;;
+
+(use-package org
+  :config
+  (setq org-hide-leading-stars t))
