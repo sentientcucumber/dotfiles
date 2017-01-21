@@ -31,9 +31,9 @@
   (blink-cursor-mode -1)
   (column-number-mode 1))
 
-(use-package firebelly-theme
-  :config
-  (load-theme 'firebelly t))
+(use-package color-theme-sanityinc-tomorrow
+  :init
+  (load-theme 'sanityinc-tomorrow-night t))
 
 (use-package smooth-scrolling
   :init
