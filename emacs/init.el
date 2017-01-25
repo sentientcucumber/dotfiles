@@ -15,7 +15,6 @@
               mode-line-default-help-echo nil
               use-file-dialog nil)
 
-
 (setq auto-save-default nil
       make-backup-files nil
       inhibit-startup-screen t
@@ -32,12 +31,10 @@
   (column-number-mode 1))
 
 (use-package color-theme-sanityinc-tomorrow
-  :init
-  (load-theme 'sanityinc-tomorrow-night t))
+  :init (load-theme 'sanityinc-tomorrow-night t))
 
 (use-package smooth-scrolling
-  :init
-  (smooth-scrolling-mode t))
+  :init (smooth-scrolling-mode t))
 
 (use-package shackle
   :init
@@ -46,25 +43,19 @@
   (shackle-mode t))
 
 (use-package idle-highlight-mode
-  :init
-  (setq idle-highlight-idle-time 0.75))
+  :init (setq idle-highlight-idle-time 0.75))
 
 ;;
 ;; `ivy'
 ;; 
 
-(use-package ivy
-  :demand
-  :bind
-  (:map
-   ivy-minibuffer-map
-   ("C-h" . ivy-next-line)
-   ("C-t" . ivy-previous-line))
-  :init
-  (setq ivy-height 20
-        ivy-wrap t)
-  :config
-  (ivy-mode t))
+(use-package ivy :demand
+  :bind (:map ivy-minibuffer-map
+              ("C-h" . ivy-next-line)
+              ("C-t" . ivy-previous-line))
+  :init (setq ivy-height 20
+              ivy-wrap t)
+  :config (ivy-mode t))
 
 ;;
 ;; `evil'
@@ -133,33 +124,12 @@
                                                    :foreground nil
                                                    'default)
                                   bar))
-  (global-evil-leader-mode)
   (evil-mode 1))
 
-(use-package evil-leader
-  :config
-  (evil-leader/set-leader "<SPC>")
-  (evil-leader/set-key
-    "<SPC>" 'execute-extended-command))
-
-(use-package evil-lispy
-  :init
-  (setq evil-lispy-cursor `(,(face-attribute 'font-lock-string-face
-                                             :foreground nil
-                                             'default)
-                            bar))
-  :config
-  (setq evil-lispy-state-tag "L"
-        lispy-safe-copy t
-        lispy-safe-delete t
-        lispy-safe-paste t))
-
 (use-package evil-args
-  :commands
-  (evil-forward-arg evil-backward-arg))
+  :commands (evil-forward-arg evil-backward-arg))
 
-(use-package evil-multiedit
-  :demand t
+(use-package evil-multiedit :demand 
   :commands
   (evil-multiedit-match-all
    evil-multiedit-match-and-next
@@ -190,45 +160,44 @@
 
 (use-package evil-surround)
 
-(use-package nlinum)
+(use-package general
+  :init
+  (setq general-default-keymaps 'evil-normal-state-map
+        general-default-prefix "SPC")
+  :config
+  (general-define-key "SPC" 'counsel-M-x
+                      "k" 'counsel-descbinds
+                      "g" 'counsel-git
+                      "f" 'counsel-find-file))
 
 (use-package company
-  :preface
-  (defun on-off-fci-before-company (command)
-    (when (string= "show" command)
-      (turn-off-fci-mode))
-    (when (string= "hide" command)
-      (turn-on-fci-mode)))
-  :bind
-  (:map company-active-map
-        ("C-h" . company-select-next)
-        ("C-t" . company-select-previous))
-  :init
-  (setq company-show-numbers t
-        company-idle-delay 0.1
-        company-auto-complete-chars (quote (41 46)))
-  :config
-  (advice-add 'company-call-frontends :before #'on-off-fci-before-company))
+  :bind (:map company-active-map
+              ("C-h" . company-select-next)
+              ("C-t" . company-select-previous))
+  :init (setq company-show-numbers t
+              company-idle-delay 0.1
+              company-auto-complete-chars (quote (41 46))))
+
+(use-package nlinum
+  :config (set-face-italic 'linum t))
 
 (add-hook
  'prog-mode-hook (lambda ()
                    "Setup for all modes that inherit from `prog-mode'."
                    (company-mode t)
+                   (column-enforce-mode t)
                    (hl-line-mode t)
                    (nlinum-mode t)
-                   (fci-mode t)
                    (show-paren-mode t)
+                   (flyspell-prog-mode)
                    (evil-surround-mode t)
                    (electric-pair-local-mode t)
-                   (idle-highlight-mode t)
-                   (set-fill-column 80)))
+                   (idle-highlight-mode t)))
 
 (add-hook
  'emacs-lisp-mode-hook (lambda ()
                          "Setup for the `emacs-lisp' mode."
                          (eldoc-mode t)
-                         (evil-lispy-mode t)
-                         
                          (highlight-quoted-mode t)
                          (setq-local evil-args-delimiters '(" "))
                          (setq dash-enable-fontlock t)))
@@ -243,8 +212,7 @@
   (add-hook 'python-mode-hook #'anaconda-mode)
   (add-hook 'python-mode-hook #'anaconda-eldoc-mode))
 
-(use-package company-anaconda
-  :after python
+(use-package company-anaconda :after python
   :config
   (add-to-list 'company-backends 'company-anaconda))
 
@@ -259,24 +227,26 @@
 ;;
 
 (use-package clojure
-  :config
-  (setq clojure-indent-style :always-indent)
-  (evil-lispy-mode t)
-  (unbind-key "[" evil-insert-state-map)
-  (unbind-key "]" evil-insert-state-map))
+  :config (setq clojure-indent-style :always-indent))
 
 ;;
 ;; `groovy'
 ;;
 
 (use-package groovy
-  :init
-  (setq c-basic-offset 4))
+  :init (setq c-basic-offset 4))
 
 ;;
 ;; `org'
 ;;
 
+(defun geek/org-mode-hook ()
+  "Setup for `org-mode'."
+  (flyspell-mode t))
+
+(add-hook 'org-mode-hook #'geek/org-mode-hook)
+
 (use-package org
   :config
-  (setq org-hide-leading-stars t))
+  (setq org-hide-leading-stars t)
+  (set-face-attribute 'org-document-title nil :height 1.0))

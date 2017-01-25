@@ -6,6 +6,7 @@
 alias ls='ls --color=auto'
 alias l='ls'
 alias ll='ls -alh --color=auto'
+alias python='python3.5'
 
 export WORKON_HOME=~/.venvs
 export VIRTUALENVWRAPPER_PYTHON=/usr/bin/python3.5
