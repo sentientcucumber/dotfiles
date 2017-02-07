@@ -28,13 +28,15 @@
   (tool-bar-mode -1)
   (menu-bar-mode -1)
   (blink-cursor-mode -1)
-  (column-number-mode 1))
+  (column-number-mode 1)
+  (set-frame-font "Source Code Pro 11"))
+
+;;
+;; appearance
+;;
 
 (use-package color-theme-sanityinc-tomorrow
   :init (load-theme 'sanityinc-tomorrow-night t))
-
-(use-package smooth-scrolling
-  :init (smooth-scrolling-mode t))
 
 (use-package shackle
   :init
@@ -42,8 +44,33 @@
                         ("*Warnings*" :select t :size 20 :align 'below)))
   (shackle-mode t))
 
+;;
+;; general 
+;;
+
+(use-package smooth-scrolling
+  :init (smooth-scrolling-mode t))
+
 (use-package idle-highlight-mode
   :init (setq idle-highlight-idle-time 0.75))
+
+(use-package company
+  :bind (:map company-active-map
+              ("C-h" . company-select-next)
+              ("C-t" . company-select-previous))
+  :init (setq company-show-numbers t
+              company-idle-delay 0.1
+              company-auto-complete-chars (quote (41 46))))
+
+(use-package nlinum
+  :config (set-face-attribute 'linum nil :height 0.85))
+
+(use-package highlight-indent-guides
+  :init (setq highlight-indent-guides-method 'character))
+
+(use-package drag-stuff
+  :init
+  (drag-stuff-global-mode t))
 
 ;;
 ;; `ivy'
@@ -111,17 +138,20 @@
         evil-motion-state-tag "M"
         evil-replace-state-tag "R"
         evil-default-cursor (face-attribute 'cursor
-                                            :background nil
+                                            :background
+                                            nil
                                             'default)
         evil-normal-state-cursor 'box
         evil-insert-state-cursor 'bar
         evil-visual-state-cursor `(,(face-attribute 'shadow
-                                                    :background nil
+                                                    :background
+                                                    nil
                                                     'default)
                                    box)
         evil-operator-state-cursor '(hbar . 2)
         evil-emacs-state-cursor `(,(face-attribute 'font-lock-builtin-face
-                                                   :foreground nil
+                                                   :foreground
+                                                   nil
                                                    'default)
                                   bar))
   (evil-mode 1))
@@ -151,8 +181,7 @@
   (evilem-define (kbd "g SPC t") 'evil-previous-visual-line))
 
 (use-package evil-snipe
-  :config
-  (setq evil-snipe-smart-case t
+  :config (setq evil-snipe-smart-case t
         evil-snipe-repeat-scope 'visible)
   :init
   (evil-snipe-mode t)
@@ -161,46 +190,43 @@
 (use-package evil-surround)
 
 (use-package general
-  :init
-  (setq general-default-keymaps 'evil-normal-state-map
-        general-default-prefix "SPC")
-  :config
-  (general-define-key "SPC" 'counsel-M-x
-                      "k" 'counsel-descbinds
-                      "g" 'counsel-git
-                      "f" 'counsel-find-file))
+  :init (setq general-default-keymaps 'evil-normal-state-map
+              general-default-prefix "SPC")
+  :config (general-define-key "SPC" 'counsel-M-x
+                              "k" 'counsel-descbinds
+                              "g" 'counsel-git
+                              "f" 'counsel-find-file))
 
-(use-package company
-  :bind (:map company-active-map
-              ("C-h" . company-select-next)
-              ("C-t" . company-select-previous))
-  :init (setq company-show-numbers t
-              company-idle-delay 0.1
-              company-auto-complete-chars (quote (41 46))))
+;;
+;; `prog-mode'
+;;
 
-(use-package nlinum
-  :config (set-face-italic 'linum t))
+(defun geek/prog-mode-hook ()
+  "Setup for all modes inherited from `prog-mode'."
+  (flyspell-prog-mode)
+  (company-mode                  t)
+  (column-enforce-mode           t)
+  (hl-line-mode                  t)
+  (nlinum-mode                   t)
+  (show-paren-mode               t)
+  (evil-surround-mode            t)
+  (electric-pair-local-mode      t)
+  (idle-highlight-mode           t)
+  (highlight-indent-guides-mode  t))
 
-(add-hook
- 'prog-mode-hook (lambda ()
-                   "Setup for all modes that inherit from `prog-mode'."
-                   (company-mode t)
-                   (column-enforce-mode t)
-                   (hl-line-mode t)
-                   (nlinum-mode t)
-                   (show-paren-mode t)
-                   (flyspell-prog-mode)
-                   (evil-surround-mode t)
-                   (electric-pair-local-mode t)
-                   (idle-highlight-mode t)))
+(add-hook 'prog-mode-hook #'geek/prog-mode-hook) 
 
-(add-hook
- 'emacs-lisp-mode-hook (lambda ()
-                         "Setup for the `emacs-lisp' mode."
-                         (eldoc-mode t)
-                         (highlight-quoted-mode t)
-                         (setq-local evil-args-delimiters '(" "))
-                         (setq dash-enable-fontlock t)))
+;;
+;; `emacs-lisp-mode'
+
+(defun geek/emacs-lisp-mode-hook ()
+  "Setup for `emacs-lisp-mode'."
+  (setq-local evil-args-delimiters  '(" "))
+  (setq dash-enable-fontlock        t)
+  (eldoc-mode                       t)
+  (highlight-quoted-mode            t))
+
+(add-hook 'emacs-lisp-mode-hook #'geek/emacs-lisp-mode-hook)
 
 ;;
 ;; `python'
@@ -223,6 +249,17 @@
 (use-package hy)
 
 ;;
+;; `java'
+;;
+
+(use-package eclim
+  :config
+  (help-at-pt-set-timer)
+  (setq eclim-executable (expand-file-name "~/.local/bin/eclim")
+        help-at-pt-display-when-idle t
+        help-at-pt-time-delay 0.25))
+
+;;
 ;; `clojure'
 ;;
 
@@ -242,7 +279,8 @@
 
 (defun geek/org-mode-hook ()
   "Setup for `org-mode'."
-  (flyspell-mode t))
+  (when (executable-find "hunspell")
+    (flyspell-mode t)))
 
 (add-hook 'org-mode-hook #'geek/org-mode-hook)
 

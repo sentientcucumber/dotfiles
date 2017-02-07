@@ -49,7 +49,7 @@
 *.color7:       t_selection
 *.color15:      t_current_line
 
-URxvt.font:                 xft:Hack:size=11
+URxvt.font:                 xft:Source Code Pro 
 URxvt*scrollBar:            false
 URxvt.perl-ext-common:      clipboard, url-select
 URxvt.url-select.launcher:  firefox

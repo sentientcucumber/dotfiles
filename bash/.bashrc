@@ -14,9 +14,6 @@ export EDITOR=/usr/bin/emacsclient
 export PATH=$HOME/.cask/bin:$HOME/.local/bin:$PATH
 export HISTCONTROL=ignoreboth:erasedups
 
-# prompt
-PS1='\e[00;32m\w\e[39m '
-
 # python virtualenvwrapper
 source $HOME/.local/bin/virtualenvwrapper_lazy.sh 
 
