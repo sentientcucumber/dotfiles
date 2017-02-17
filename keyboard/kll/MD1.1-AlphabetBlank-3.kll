@@ -1,0 +1,26 @@
+Name = "MD1.1";
+Layout = "AlphabetBlank";
+Base = "AlphabetBlank";
+Version = "0.3d";
+Author = "HaaTa (Jacob Alexander) 2014-2016";
+KLL = "0.3c";
+Date = "2016-02-06";
+Generator = "KIICONF 0.2";
+
+U"7" : U"P7";
+U"8" : U"P8";
+U"9" : U"P9";
+U"0" : U"P+";
+U"U" : U"P4";
+U"I" : U"P5";
+U"O" : U"P6";
+U"P" : U"P-";
+U"J" : U"P1";
+U"K" : U"P2";
+U"L" : U"P3";
+U"SEMICOLON" : U"P*";
+U"M" : U"P0";
+U"COMMA" : U"P,";
+U"PERIOD" : U"P.";
+U"SLASH" : U"P/";
+

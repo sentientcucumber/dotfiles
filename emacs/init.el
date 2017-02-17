@@ -45,7 +45,7 @@
   (shackle-mode t))
 
 ;;
-;; general 
+;; general packages 
 ;;
 
 (use-package smooth-scrolling
@@ -69,6 +69,8 @@
   :init (setq highlight-indent-guides-method 'character))
 
 (use-package drag-stuff
+  :bind (("<M-up>" . drag-stuff-up)
+         ("<M-down>" . drag-stuff-down))
   :init
   (drag-stuff-global-mode t))
 
@@ -195,7 +197,8 @@
   :config (general-define-key "SPC" 'counsel-M-x
                               "k" 'counsel-descbinds
                               "g" 'counsel-git
-                              "f" 'counsel-find-file))
+                              "f" 'counsel-find-file
+                              "z" 'zeal-at-point))
 
 ;;
 ;; `prog-mode'
@@ -212,7 +215,8 @@
   (evil-surround-mode            t)
   (electric-pair-local-mode      t)
   (idle-highlight-mode           t)
-  (highlight-indent-guides-mode  t))
+  (highlight-indent-guides-mode  t)
+  (flycheck-mode                 t))
 
 (add-hook 'prog-mode-hook #'geek/prog-mode-hook) 
 
