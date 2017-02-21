@@ -1,4 +1,4 @@
-cgi-bin/build_layout.bash 976638efeab21b2eda2128d3d2d3cc42158a63f83475ca MD1.1 "MD1.1-AlphabetBlank-0.kll" "MD1.1-AlphabetBlank-1.kll" "MD1.1-AlphabetBlank-2.kll" "MD1.1-AlphabetBlank-3.kll"  2>&1
+cgi-bin/build_layout.bash 811bd977213d9d5891d429c8e6c3a22a158a73701b1428 MD1.1 "MD1.1-AlphabetBlank-0.kll" "MD1.1-AlphabetBlank-1.kll" "MD1.1-AlphabetBlank-2.kll" "MD1.1-AlphabetBlank-3.kll"  2>&1
 + cmake /srv/KiiConf/controller -DScanModule=MD1.1 -DCHIP=mk20dx128vlf5 -DMacroModule=PartialMap -DOutputModule=pjrcUSB -DDebugModule=full -DBaseMap=defaultMap '-DDefaultMap=MD1.1-AlphabetBlank-0 stdFuncMap' '-DPartialMaps=MD1.1-AlphabetBlank-1 stdFuncMap;MD1.1-AlphabetBlank-2 stdFuncMap;MD1.1-AlphabetBlank-3 stdFuncMap' -DCONFIGURATOR=1
 -- Compiler Family:
 arm
@@ -32,13 +32,13 @@ ctags: cannot open tag file : Permission denied
 /srv/KiiConf/controller/Macro/PartialMap/capabilities.kll
 /srv/KiiConf/controller/Output/pjrcUSB/capabilities.kll
 /srv/KiiConf/controller/Scan/MD1.1/scancode_map.kll
-/srv/KiiConf/dist/tmp/976638efeab21b2eda2128d3d2d3cc42158a63f83475ca/MD1.1-AlphabetBlank-0.kll
+/srv/KiiConf/dist/tmp/811bd977213d9d5891d429c8e6c3a22a158a73701b1428/MD1.1-AlphabetBlank-0.kll
 /srv/KiiConf/controller/kll/layouts/stdFuncMap.kll
-/srv/KiiConf/dist/tmp/976638efeab21b2eda2128d3d2d3cc42158a63f83475ca/MD1.1-AlphabetBlank-1.kll
+/srv/KiiConf/dist/tmp/811bd977213d9d5891d429c8e6c3a22a158a73701b1428/MD1.1-AlphabetBlank-1.kll
 /srv/KiiConf/controller/kll/layouts/stdFuncMap.kll
-/srv/KiiConf/dist/tmp/976638efeab21b2eda2128d3d2d3cc42158a63f83475ca/MD1.1-AlphabetBlank-2.kll
+/srv/KiiConf/dist/tmp/811bd977213d9d5891d429c8e6c3a22a158a73701b1428/MD1.1-AlphabetBlank-2.kll
 /srv/KiiConf/controller/kll/layouts/stdFuncMap.kll
-/srv/KiiConf/dist/tmp/976638efeab21b2eda2128d3d2d3cc42158a63f83475ca/MD1.1-AlphabetBlank-3.kll
+/srv/KiiConf/dist/tmp/811bd977213d9d5891d429c8e6c3a22a158a73701b1428/MD1.1-AlphabetBlank-3.kll
 /srv/KiiConf/controller/kll/layouts/stdFuncMap.kll
 -- Found DFU_SUFFIX: /usr/local/bin/dfu-suffix (found version "0.8") 
 -- Configuring done
@@ -49,30 +49,30 @@ CMake Warning:
     CONFIGURATOR
 
 
--- Build files have been written to: /srv/KiiConf/dist/tmp/976638efeab21b2eda2128d3d2d3cc42158a63f83475ca
+-- Build files have been written to: /srv/KiiConf/dist/tmp/811bd977213d9d5891d429c8e6c3a22a158a73701b1428
 + make -j
 [  4%] Generating KLL Layout
 Scanning dependencies of target kiibohd.elf
-[ 13%] [ 13%] [ 17%] [ 21%] [ 26%] [ 30%] [ 34%] Building C object CMakeFiles/kiibohd.elf.dir/Scan/ISSILed/led_scan.c.o
+[  8%] [ 13%] [ 17%] [ 21%] [ 26%] [ 30%] [ 34%] Building C object CMakeFiles/kiibohd.elf.dir/main.c.o
 Building C object CMakeFiles/kiibohd.elf.dir/Lib/delay.c.o
-Building C object CMakeFiles/kiibohd.elf.dir/Scan/MD1.1/scan_loop.c.o
 Building C object CMakeFiles/kiibohd.elf.dir/Lib/mk20dx.c.o
-Building C object CMakeFiles/kiibohd.elf.dir/main.c.o
-[ 39%] [ 43%] Building C object CMakeFiles/kiibohd.elf.dir/Macro/PartialMap/macro.c.o
+Building C object CMakeFiles/kiibohd.elf.dir/Scan/MD1.1/scan_loop.c.o
+[ 39%] Building C object CMakeFiles/kiibohd.elf.dir/Scan/ISSILed/led_scan.c.o
 Building C object CMakeFiles/kiibohd.elf.dir/Scan/MatrixARM/matrix_scan.c.o
+[ 43%] Building C object CMakeFiles/kiibohd.elf.dir/Macro/PartialMap/macro.c.o
 Building C object CMakeFiles/kiibohd.elf.dir/Macro/PartialMap/trigger.c.o
-[ 47%] Building C object CMakeFiles/kiibohd.elf.dir/Macro/PartialMap/result.c.o
-[ 52%] [ 56%] Building C object CMakeFiles/kiibohd.elf.dir/Output/pjrcUSB/output_com.c.o
-[ 60%] [ 65%] Building C object CMakeFiles/kiibohd.elf.dir/Output/pjrcUSB/arm/usb_desc.c.o
-Building C object CMakeFiles/kiibohd.elf.dir/Output/pjrcUSB/arm/usb_dev.c.o
-Building C object CMakeFiles/kiibohd.elf.dir/Output/pjrcUSB/arm/usb_joystick.c.o
+Building C object CMakeFiles/kiibohd.elf.dir/Macro/PartialMap/result.c.o
+[ 47%] Building C object CMakeFiles/kiibohd.elf.dir/Output/pjrcUSB/output_com.c.o
+[ 52%] [ 56%] [ 65%] [ 65%] Building C object CMakeFiles/kiibohd.elf.dir/Output/pjrcUSB/arm/usb_dev.c.o
+Building C object CMakeFiles/kiibohd.elf.dir/Output/pjrcUSB/arm/usb_desc.c.o
+[ 69%] Building C object CMakeFiles/kiibohd.elf.dir/Output/pjrcUSB/arm/usb_joystick.c.o
 Building C object CMakeFiles/kiibohd.elf.dir/Output/pjrcUSB/arm/usb_keyboard.c.o
-[ 69%] [ 73%] Building C object CMakeFiles/kiibohd.elf.dir/Output/pjrcUSB/arm/usb_mem.c.o
+[ 73%] Building C object CMakeFiles/kiibohd.elf.dir/Output/pjrcUSB/arm/usb_mem.c.o
 [ 78%] Building C object CMakeFiles/kiibohd.elf.dir/Output/pjrcUSB/arm/usb_mouse.c.o
-Building C object CMakeFiles/kiibohd.elf.dir/Output/pjrcUSB/arm/usb_rawio.c.o
-[ 82%] [ 86%] Building C object CMakeFiles/kiibohd.elf.dir/Output/pjrcUSB/arm/usb_serial.c.o
+[ 82%] Building C object CMakeFiles/kiibohd.elf.dir/Output/pjrcUSB/arm/usb_rawio.c.o
+[ 86%] [ 91%] Building C object CMakeFiles/kiibohd.elf.dir/Output/pjrcUSB/arm/usb_serial.c.o
 Building C object CMakeFiles/kiibohd.elf.dir/Debug/cli/cli.c.o
-[ 91%] Building C object CMakeFiles/kiibohd.elf.dir/Debug/led/led.c.o
+Building C object CMakeFiles/kiibohd.elf.dir/Debug/led/led.c.o
 [ 95%] Building C object CMakeFiles/kiibohd.elf.dir/Debug/print/print.c.o
 Linking C executable kiibohd.elf
 Create and sign dfu bin file:  kiibohd.dfu.bin
@@ -81,8 +81,8 @@ Creating Symbol Table:         kiibohd.sym
 [ 95%] Built target kiibohd.elf
 Scanning dependencies of target SizeAfter
 [100%] Chip usage for mk20dx128vlf5
-	[1m SRAM[m: 	[1;33m53%[m 	8836/16384	bytes
-	[1mFlash[m: 	[1;32m25%[m 	32628/126976	bytes
+	[1m SRAM[m: 	[1;33m54%[m 	8852/16384	bytes
+	[1mFlash[m: 	[1;32m25%[m 	32656/126976	bytes
 [100%] Built target SizeAfter
 + RETVAL=0
 + set +x

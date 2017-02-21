@@ -277,6 +277,10 @@
                 "0": {
                     "key": "BACKSPACE",
                     "label": "BKSP"
+                },
+                "1": {
+                    "key": "DELETE",
+                    "label": "DEL"
                 }
             }
         },

@@ -20,6 +20,7 @@ U"9" : U"F9";
 U"0" : U"F10";
 U"MINUS" : U"F11";
 U"EQUAL" : U"F12";
+U"BACKSLASH" : U"DELETE";
 U"Y" : U"HOME";
 U"U" : U"PAGEDOWN";
 U"I" : U"PAGEUP";

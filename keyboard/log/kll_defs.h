@@ -118,14 +118,11 @@ typedef enum CapabilityIndex {
 
 // -- Capability / KLL Defines --
 
-#define enableUSBLowPowerNegotiation_define 0
+#define USBProtocol_define 1
+#define enableJoystick_define 0
+#define IndexWordSize_define 16
+#define DebounceThrottleDiv_define 0
 #define enableRawIO_define 0
-#define DebounceDivThreshold_define 65535
-#define StateWordSize_define 8
-#define MinDebounceTime_define 5
-#define enableMouse_define 1
-#define flashModeEnabled_define 0
-#define StrobeDelay_define 0
 #define ISSILedBrightness1_define  \
 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, /* C1-1 -> C1-16 */ \
 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, /* C2-1 -> C2-16 */ \
@@ -137,8 +134,18 @@ typedef enum CapabilityIndex {
 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, /* C8-1 -> C8-16 */ \
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, /* C9-1 -> C9-16 */ \
 
-#define enableJoystick_define 0
 #define enableUSBResume_define 1
+#define enableUSBSuspend_define 1
+#define StrobeDelay_define 0
+#define enableUSBLowPowerNegotiation_define 0
+#define StateWordSize_define 8
+#define enableVirtualSerialPort_define 1
+#define DebounceDivThreshold_define 65535
+#define enableDeviceRestartOnUSBTimeout_define 0
+#define KeyboardLocale_define 0
+#define enableKeyboard_define 1
+#define enableMouse_define 1
+#define MinDebounceTime_define 5
 #define ISSILedMask1_define  \
 	0xFF, 0x00, /* C1-1 -> C1-16 */ \
 	0xFF, 0x00, /* C2-1 -> C2-16 */ \
@@ -150,17 +157,10 @@ typedef enum CapabilityIndex {
 	0x7F, 0x00, /* C8-1 -> C8-16 */ \
 	0x00, 0x00, /* C9-1 -> C9-16 */ \
 
-#define IndexWordSize_define 16
-#define DebounceThrottleDiv_define 0
-#define enableKeyboard_define 1
-#define enableUSBSuspend_define 1
-#define KeyboardLocale_define 0
-#define enableDeviceRestartOnUSBTimeout_define 0
-#define USBProtocol_define 1
-#define enableVirtualSerialPort_define 1
+#define flashModeEnabled_define 0
 #define CapabilitiesNum_KLL 18
-#define ResultMacroNum_KLL 103
-#define TriggerMacroNum_KLL 105
+#define ResultMacroNum_KLL 104
+#define TriggerMacroNum_KLL 106
 #define LayerNum_KLL 4
 
 // -- Built-in Defines --
