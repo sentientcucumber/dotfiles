@@ -17,14 +17,17 @@
 (cask-initialize)
 
 (defconst geek/dvorak-home-row '(?a ?o ?e ?u ?i ?d ?h ?t ?n ?s ?-)
-  "The Dvorak layout's home row.")
+  "Dvorak's home row.")
 
 (setq-default indent-tabs-mode nil
               tab-always-indent t
               tab-width 4
               vc-follow-symlinks t
               mode-line-default-help-echo nil
+              cursor-in-non-selected-windows nil
               use-file-dialog nil)
+
+(windmove-default-keybindings 'meta)
 
 (setq auto-save-default nil
       make-backup-files nil
@@ -42,7 +45,7 @@
   (column-number-mode 1)
   (set-frame-font "Source Code Pro 11"))
 
-(use-package zerodark-theme 
+(use-package zerodark-theme
   :init (load-theme 'zerodark t))
 
 (use-package shackle
@@ -55,21 +58,22 @@
   :init (smooth-scrolling-mode t))
 
 (use-package idle-highlight-mode
-  :init (setq idle-highlight-idle-time 0.75))
+  :config (setq idle-highlight-idle-time 0.5))
 
 (use-package company
-  :bind (:map company-active-map
-              ("C-h" . company-select-next)
-              ("C-t" . company-select-previous))
+  :bind (("C-SPC" . company-complete)
+         :map company-active-map
+         ("C-h" . company-select-next)
+         ("C-t" . company-select-previous))
   :init (setq company-show-numbers t
               company-idle-delay 0.1
               company-auto-complete nil))
 
 (use-package nlinum
-  :config (set-face-attribute 'linum nil :height 0.85))
+  :config (set-face-attribute 'linum nil :height 0.85 :slant 'normal))
 
 (use-package highlight-indent-guides
-  :init (setq highlight-indent-guides-method 'character))
+  :config (setq highlight-indent-guides-method 'character))
 
 (use-package drag-stuff
   :bind (("M-t" . drag-stuff-up)
@@ -136,11 +140,17 @@
         evil-want-C-u-scroll t
         evil-find-skip-newlines t
         evil-normal-state-tag "N"
-        evil-insert-state-tag "I"
-        evil-visual-state-tag "V"
+        evil-insert-state-tag (all-the-icons-faicon "i-cursor"
+                                                    :v-adjust 0.05
+                                                    :height 0.85)
+        evil-visual-state-tag (all-the-icons-faicon "eye"
+                                                    :v-adjust 0.05
+                                                    :height 0.85)
         evil-emacs-state-tag "E"
         evil-operator-state-tag "O"
-        evil-motion-state-tag "M"
+        evil-motion-state-tag (all-the-icons-faicon "arrows-alt"
+                                                    :v-adjust 0.05
+                                                    :height 0.85) ;; "M"
         evil-replace-state-tag "R"
         evil-default-cursor (face-attribute 'cursor
                                             :background
@@ -171,7 +181,7 @@
                 lispy-safe-delete                  t
                 lispy-safe-paste                   t))
 
-(use-package evil-multiedit :demand 
+(use-package evil-multiedit :demand
   :commands
   (evil-multiedit-match-all
    evil-multiedit-match-and-next
@@ -200,8 +210,6 @@
   (evil-snipe-mode t)
   (evil-snipe-override-mode t))
 
-(use-package evil-surround)
-
 (use-package general
   :config
   (setq general-default-keymaps 'evil-normal-state-map
@@ -209,10 +217,42 @@
   (general-define-key "SPC" 'counsel-M-x
                       "g"   'counsel-git
                       "f"   'counsel-find-file
+                      "d"   'dired-jump
+                      ;; help functions
                       "hk"  'counsel-descbinds
                       "hz"  'zeal-at-point
                       "hf"  'describe-function
                       "hv"  'describe-variable))
+
+;;
+;; `beacon'
+;; 
+
+(use-package beacon
+  :init
+  (beacon-mode t)
+  :config
+  (setq beacon-blink-when-window-changes t
+        beacon-blink-when-buffer-changes t))
+
+;;
+;; `dired'
+;; 
+
+(use-package dired
+  :commands (dired-jump)
+  :bind (:map dired-mode-map
+              ("RET" . dired-find-alternate-file)
+              ("/" . dired-narrow)
+              ("i" . dired-subtree-insert)
+              ("I" . dired-subtree-remove)
+              ("h" . dired-next-line)
+              ("t" . dired-previous-line))
+  :init
+  (add-hook 'dired-mode-hook 'all-the-icons-dired-mode)
+  (put 'dired-find-alternate-file 'disabled nil)
+  :config
+  (setq dired-listing-switches "-ohA --group-directories-first"))
 
 ;;
 ;; `prog-mode'
@@ -276,12 +316,13 @@
   :config
   (setq eclim-executable (expand-file-name "~/.local/bin/eclim")
         eclimd-executable (expand-file-name "~/.local/bin/eclimd")
-        eclimd-autostart t
         eclim-use-yasnippet nil
         help-at-pt-display-when-idle t
-        help-at-pt-time-delay 0.1)
+        help-at-pt-time-delay 0.1
+        eclimd-default-workspace (expand-file-name "~/hack/eclipse-workspace")
+        eclimd-autostart t)
   (help-at-pt-set-timer)
-  (global-eclim-mode))
+  (global-eclim-mode t))
 
 ;;
 ;; `clojure'
@@ -301,14 +342,15 @@
 ;; `org'
 ;;
 
-(defun geek/org-mode-hook ()
-  "Setup for `org-mode'."
-  (when (executable-find "hunspell")
-    (flyspell-mode t)))
-
-(add-hook 'org-mode-hook #'geek/org-mode-hook)
-
 (use-package org
+  :preface
+  (defun geek/org-mode-hook ()
+    "Setup for `org-mode'."
+    (when (executable-find "hunspell")
+      (flyspell-mode t)))
   :config
+  (add-hook 'org-mode-hook #'geek/org-mode-hook)
   (setq org-hide-leading-stars t)
   (set-face-attribute 'org-document-title nil :height 1.0))
+
+;;; init.el ends here
