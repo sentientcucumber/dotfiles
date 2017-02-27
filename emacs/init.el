@@ -19,6 +19,9 @@
 (defconst geek/dvorak-home-row '(?a ?o ?e ?u ?i ?d ?h ?t ?n ?s ?-)
   "Dvorak's home row.")
 
+(defalias 'yes-or-no-p 'y-or-n-p
+  "Use 'y' and 'n' to answer yes/no questions, like a sane human being.")
+
 (setq-default indent-tabs-mode nil
               tab-always-indent t
               tab-width 4
@@ -34,9 +37,6 @@
       inhibit-startup-screen t
       initial-major-mode 'fundamental-mode)
 
-(defalias 'yes-or-no-p 'y-or-n-p
-  "Use 'y' and 'n' to answer yes/no questions, like a sane human being.")
-
 (when window-system
   (scroll-bar-mode -1)
   (tool-bar-mode -1)
@@ -46,6 +46,8 @@
   (set-frame-font "Source Code Pro 11"))
 
 (use-package zerodark-theme
+  ;; I'd write some sort of witty remark about how I like this theme but I
+  ;; change this every month.
   :init (load-theme 'zerodark t))
 
 (use-package shackle
@@ -93,11 +95,11 @@
               ivy-wrap t)
   :config (ivy-mode t))
 
-;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; `evil'
-;;
 
 (use-package evil
+  ;; Brings modal editing, a la vi, to Emacs.
   :bind
   (:map
    evil-inner-text-objects-map
@@ -197,20 +199,23 @@
   (evil-multiedit-default-keybinds))
 
 (use-package evil-easymotion
-  :preface 
+  ;; Use `avy' to show where movements will take you.
+  :preface
   (setq evilem-keys geek/dvorak-home-row) ; Dvorak nonsense
   :config
   (evilem-define (kbd "g SPC h") 'evil-next-visual-line)
   (evilem-define (kbd "g SPC t") 'evil-previous-visual-line))
 
 (use-package evil-snipe
+  ;; Move around a line quickly.
   :config (setq evil-snipe-smart-case t
-        evil-snipe-repeat-scope 'visible)
+                evil-snipe-repeat-scope 'visible)
   :init
   (evil-snipe-mode t)
   (evil-snipe-override-mode t))
 
 (use-package general
+  ;; Similar to `evil-leader'.
   :config
   (setq general-default-keymaps 'evil-normal-state-map
         general-default-prefix "SPC")
@@ -218,28 +223,21 @@
                       "g"   'counsel-git
                       "f"   'counsel-find-file
                       "d"   'dired-jump
+                      "b"   'ivy-switch-buffer
                       ;; help functions
                       "hk"  'counsel-descbinds
                       "hz"  'zeal-at-point
                       "hf"  'describe-function
                       "hv"  'describe-variable))
 
-;;
-;; `beacon'
-;; 
-
 (use-package beacon
-  :init
-  (beacon-mode t)
-  :config
-  (setq beacon-blink-when-window-changes t
-        beacon-blink-when-buffer-changes t))
-
-;;
-;; `dired'
-;; 
+  ;; Useful to find what point I'm at when bouncing around and between buffers.
+  :init (beacon-mode t)
+  :config (setq beacon-blink-when-window-changes t
+                beacon-blink-when-buffer-changes t))
 
 (use-package dired
+  ;; A builtin package to interact with files/directories.
   :commands (dired-jump)
   :bind (:map dired-mode-map
               ("RET" . dired-find-alternate-file)
@@ -252,11 +250,12 @@
   (add-hook 'dired-mode-hook 'all-the-icons-dired-mode)
   (put 'dired-find-alternate-file 'disabled nil)
   :config
-  (setq dired-listing-switches "-ohA --group-directories-first"))
+  (setq dired-listing-switches
+        "-o --almost-all --human-readable --group-directories-first"))
 
-;;
-;; `prog-mode'
-;;
+(use-package nxml
+  ;; Make dealing with XML slightly more tolerable.
+  :init (setq nxml-slash-auto-complete-flag t))
 
 (defun geek/prog-mode-hook ()
   "Setup for all modes inherited from `prog-mode'."
@@ -272,11 +271,7 @@
   (highlight-indent-guides-mode t)
   (flycheck-mode t))
 
-(add-hook 'prog-mode-hook #'geek/prog-mode-hook) 
-
-;;
-;; `emacs-lisp-mode'
-;;
+(add-hook 'prog-mode-hook #'geek/prog-mode-hook)
 
 (defun geek/emacs-lisp-mode-hook ()
   "Setup for `emacs-lisp-mode'."
@@ -288,9 +283,8 @@
 
 (add-hook 'emacs-lisp-mode-hook #'geek/emacs-lisp-mode-hook)
 
-;;
-;; `python'
-;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Python
 
 (use-package python
   :init
@@ -308,11 +302,19 @@
 
 (use-package hy)
 
-;;
-;; `java'
-;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Java and JVM
 
 (use-package eclim
+  ;; Interacts with a headless Eclipse server to perform a lot of the same
+  ;; functions in Eclipse. Great for identifying syntax errors, running builds,
+  ;; and more.
+
+  ;; This requires an external package by the same name (eclim).
+  :preface
+  (defun geek/eclim-after-save-hook ()
+    "Update the syntax problems on screen after saving."
+    (eclim-problems-highlight))
   :config
   (setq eclim-executable (expand-file-name "~/.local/bin/eclim")
         eclimd-executable (expand-file-name "~/.local/bin/eclimd")
@@ -322,32 +324,26 @@
         eclimd-default-workspace (expand-file-name "~/hack/eclipse-workspace")
         eclimd-autostart t)
   (help-at-pt-set-timer)
+  (add-hook 'after-save-hook #'geek/eclim-after-save-hook)
   (global-eclim-mode t))
-
-;;
-;; `clojure'
-;;
 
 (use-package clojure
   :config (setq clojure-indent-style :always-indent))
 
-;;
-;; `groovy'
-;;
-
 (use-package groovy
   :init (setq c-basic-offset 4))
 
-;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; `org'
-;;
+
+(use-package flyspell
+  :if (executable-find "hunspell"))
 
 (use-package org
   :preface
   (defun geek/org-mode-hook ()
     "Setup for `org-mode'."
-    (when (executable-find "hunspell")
-      (flyspell-mode t)))
+    (flyspell-mode t))
   :config
   (add-hook 'org-mode-hook #'geek/org-mode-hook)
   (setq org-hide-leading-stars t)
