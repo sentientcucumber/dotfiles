@@ -5,6 +5,7 @@
 
 (depends-on "all-the-icons")
 (depends-on "all-the-icons-dired")
+(depends-on "aggressive-indent")
 (depends-on "anaconda-mode")
 (depends-on "beacon")
 (depends-on "bind-key")
@@ -22,7 +23,6 @@
 (depends-on "drag-stuff")
 (depends-on "eclim")
 (depends-on "evil")
-(depends-on "evil-args")
 (depends-on "evil-easymotion")
 (depends-on "evil-leader")
 (depends-on "evil-lispy")
@@ -31,6 +31,7 @@
 (depends-on "evil-snipe")
 (depends-on "evil-surround")
 (depends-on "fill-column-indicator")
+(depends-on "flyspell-correct-ivy")
 (depends-on "general")
 (depends-on "genrnc")
 (depends-on "groovy-mode")

@@ -60,6 +60,7 @@
   :init (smooth-scrolling-mode t))
 
 (use-package idle-highlight-mode
+  :init (add-hook 'prog-mode-hook #'idle-highlight-mode)
   :config (setq idle-highlight-idle-time 0.5))
 
 (use-package company
@@ -77,74 +78,39 @@
 (use-package highlight-indent-guides
   :config (setq highlight-indent-guides-method 'character))
 
-(use-package drag-stuff
-  :bind (("M-t" . drag-stuff-up)
-         ("M-h" . drag-stuff-down))
-  :init
-  (drag-stuff-global-mode t))
-
-;;
-;; `ivy'
-;; 
-
 (use-package ivy :demand
+  ;; `ivy' is a completion mechanism, similar to `helm'.
   :bind (:map ivy-minibuffer-map
               ("C-h" . ivy-next-line)
               ("C-t" . ivy-previous-line))
-  :init (setq ivy-height 20
-              ivy-wrap t)
-  :config (ivy-mode t))
+  :config
+  (ivy-mode t)
+  (setq ivy-use-virtual-buffers t
+        ivy-fixed-height-minibuffer t
+        ivy-count-format "%d/%d "
+        ivy-height 10
+        ivy-wrap t))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; `evil'
-
-(use-package evil
+(use-package evil :demand
   ;; Brings modal editing, a la vi, to Emacs.
   :bind
-  (:map
-   evil-inner-text-objects-map
-   ("a" . evil-inner-arg)
-   :map
-   evil-outer-text-objects-map
-   ("a" . evil-outer-arg)
-   :map
-   evil-normal-state-map
-   ("d" . evil-backward-char)
-   ("n" . evil-forward-char)
-   ("h" . evil-next-visual-line)
-   ("t" . evil-previous-visual-line)
-   ("j" . evil-snipe-X)
-   ("k" . evil-delete)
-   ("K" . evil-delete-line)
-   ("l" . evil-search-next)
-   ("L" . evil-search-previous)
-   ("D" . evil-backward-arg)
-   ("N" . evil-forward-arg)
-   ("U" . evil-jump-out-args)
-   :map evil-visual-state-map
-   ("d" . evil-backward-char)
-   ("n" . evil-forward-char)
-   ("h" . evil-next-visual-line)
-   ("t" . evil-previous-visual-line)
-   ("j" . evil-find-char-to)
-   ("k" . evil-delete)
-   ("K" . evil-delete-line)
-   :map evil-motion-state-map
-   ("d" . evil-backward-char)
-   ("n" . evil-forward-char)
-   ("h" . evil-next-visual-line)
-   ("t" . evil-previous-visual-line)
-   ("j" . evil-find-char-to)
-   ("k" . evil-delete)
-   ("K" . evil-delete-line))
+  (:map (evil-normal-state-map evil-visual-state-map evil-motion-state-map)
+        ("d" . evil-backward-char)
+        ("n" . evil-forward-char)
+        ("h" . evil-next-visual-line)
+        ("t" . evil-previous-visual-line)
+        ("j" . evil-snipe-X)
+        ("k" . evil-delete)
+        ("K" . evil-delete-line)
+        ("/" . swiper))
   :init
   (setq evil-echo-state nil
         evil-want-C-u-scroll t
         evil-find-skip-newlines t
         evil-normal-state-tag "N"
         evil-insert-state-tag (all-the-icons-faicon "i-cursor"
-                                                    :v-adjust 0.05
-                                                    :height 0.85)
+                                                    :v-adjust 0.1
+                                                    :height 0.65)
         evil-visual-state-tag (all-the-icons-faicon "eye"
                                                     :v-adjust 0.05
                                                     :height 0.85)
@@ -152,7 +118,7 @@
         evil-operator-state-tag "O"
         evil-motion-state-tag (all-the-icons-faicon "arrows-alt"
                                                     :v-adjust 0.05
-                                                    :height 0.85) ;; "M"
+                                                    :height 0.85)
         evil-replace-state-tag "R"
         evil-default-cursor (face-attribute 'cursor
                                             :background
@@ -171,38 +137,28 @@
                                                    nil
                                                    'default)
                                   bar))
-  (evil-mode 1))
-
-(use-package evil-args
-  :commands (evil-forward-arg evil-backward-arg))
+  (evil-mode t))
 
 (use-package evil-lispy
-  :config (setq evil-lispy-state-tag               "L"
-                lispy-avy-keys                     geek/dvorak-home-row
-                lispy-comment-use-single-semicolon t
-                lispy-safe-delete                  t
-                lispy-safe-paste                   t))
+  :bind
+  (:map evil-lispy-state-mode-map
+        ("h" . special-lispy-down)
+        ("n" . special-lispy-right)
+        ("t" . special-lispy-up)
+        ("d" . special-lispy-left)
+        ("T" . special-lispy-teleport))
+  :config (setq evil-lispy-state-tag "L"
+                lispy-avy-keys geek/dvorak-home-row
+                lispy-comment-use-single-semicolon t))
 
-(use-package evil-multiedit :demand
-  :commands
-  (evil-multiedit-match-all
-   evil-multiedit-match-and-next
-   evil-multiedit-match-and-prev
-   evil-multiedit-match-symbol-and-next
-   evil-multiedit-match-symbol-and-prev
-   evil-multiedit-toggle-or-restrict-region
-   evil-multiedit-next
-   evil-multiedit-prev
-   evil-multiedit-abort
-   evil-multiedit-ex-match)
+(use-package evil-multiedit
   :config
   (evil-multiedit-default-keybinds))
 
 (use-package evil-easymotion
   ;; Use `avy' to show where movements will take you.
-  :preface
-  (setq evilem-keys geek/dvorak-home-row) ; Dvorak nonsense
   :config
+  (setq evilem-keys geek/dvorak-home-row) ; Dvorak nonsense
   (evilem-define (kbd "g SPC h") 'evil-next-visual-line)
   (evilem-define (kbd "g SPC t") 'evil-previous-visual-line))
 
@@ -217,18 +173,18 @@
 (use-package general
   ;; Similar to `evil-leader'.
   :config
-  (setq general-default-keymaps 'evil-normal-state-map
-        general-default-prefix "SPC")
-  (general-define-key "SPC" 'counsel-M-x
-                      "g"   'counsel-git
-                      "f"   'counsel-find-file
-                      "d"   'dired-jump
-                      "b"   'ivy-switch-buffer
-                      ;; help functions
-                      "hk"  'counsel-descbinds
-                      "hz"  'zeal-at-point
-                      "hf"  'describe-function
-                      "hv"  'describe-variable))
+  (general-evil-setup)
+  (general-nmap :prefix "M-t"
+                "t"  'counsel-M-x
+                "g"  'counsel-git
+                "f"  'counsel-find-file
+                "d"  'dired-jump
+                "b"  'ivy-switch-buffer
+                ;; help functions
+                "hk" 'counsel-descbinds
+                "hv" 'describe-variable
+                "hz" 'zeal-at-point
+                "hf" 'describe-function))
 
 (use-package beacon
   ;; Useful to find what point I'm at when bouncing around and between buffers.
@@ -245,7 +201,9 @@
               ("i" . dired-subtree-insert)
               ("I" . dired-subtree-remove)
               ("h" . dired-next-line)
-              ("t" . dired-previous-line))
+              ("t" . dired-previous-line)
+              ("M" . dired-unmark)
+              ("u" . dired-up-directory))
   :init
   (add-hook 'dired-mode-hook 'all-the-icons-dired-mode)
   (put 'dired-find-alternate-file 'disabled nil)
@@ -253,13 +211,14 @@
   (setq dired-listing-switches
         "-o --almost-all --human-readable --group-directories-first"))
 
-(use-package nxml
-  ;; Make dealing with XML slightly more tolerable.
-  :init (setq nxml-slash-auto-complete-flag t))
+(defun geek/nxml-mode-hook ()
+  "Make dealing with XML more tolerable."
+  (setq nxml-slash-auto-complete-flag t))
+
+(add-hook 'nxml-mode-hook #'geek/nxml-mode-hook)
 
 (defun geek/prog-mode-hook ()
   "Setup for all modes inherited from `prog-mode'."
-  (flyspell-prog-mode)
   (company-mode t)
   (column-enforce-mode t)
   (hl-line-mode t)
@@ -267,7 +226,6 @@
   (show-paren-mode t)
   (evil-surround-mode t)
   (electric-pair-local-mode t)
-  (idle-highlight-mode t)
   (highlight-indent-guides-mode t)
   (flycheck-mode t))
 
@@ -275,16 +233,12 @@
 
 (defun geek/emacs-lisp-mode-hook ()
   "Setup for `emacs-lisp-mode'."
-  (setq-local evil-args-delimiters '(" "))
   (setq dash-enable-fontlock t)
   (eldoc-mode t)
   (evil-lispy-mode t)
   (highlight-quoted-mode t))
 
 (add-hook 'emacs-lisp-mode-hook #'geek/emacs-lisp-mode-hook)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Python
 
 (use-package python
   :init
@@ -300,11 +254,6 @@
   :config
   (setq virtualenv-root "~/.venvs"))
 
-(use-package hy)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Java and JVM
-
 (use-package eclim
   ;; Interacts with a headless Eclipse server to perform a lot of the same
   ;; functions in Eclipse. Great for identifying syntax errors, running builds,
@@ -315,9 +264,26 @@
   (defun geek/eclim-after-save-hook ()
     "Update the syntax problems on screen after saving."
     (eclim-problems-highlight))
+  (defhydra geek/hydra-eclim-menu ()
+    "
+^Eclim Operations^                  ^ ^
+^^^---------------------------------------
+_i_: import               _g_: getter
+_d_: declaration          _s_: setter 
+_r_: references           _c_: constructor
+"
+    ("i" eclim-java-import-organize)
+    ("d" eclim-java-find-declaration)
+    ("r" eclim-java-find-references)
+    ("g" eclim-java-generate-getter)
+    ("s" eclim-java-generate-setter)
+    ("c" eclim-java-constructor))
+  :general
+  (general-nmap :keymaps 'eclim-mode-map
+                "M-t j" 'geek/hydra-eclim-menu/body)
   :config
-  (setq eclim-executable (expand-file-name "~/.local/bin/eclim")
-        eclimd-executable (expand-file-name "~/.local/bin/eclimd")
+  (setq eclim-executable "eclim"
+        eclimd-executable "eclimd"
         eclim-use-yasnippet nil
         help-at-pt-display-when-idle t
         help-at-pt-time-delay 0.1
@@ -327,26 +293,28 @@
   (add-hook 'after-save-hook #'geek/eclim-after-save-hook)
   (global-eclim-mode t))
 
-(use-package clojure
+(use-package clojure-mode
   :config (setq clojure-indent-style :always-indent))
 
-(use-package groovy
+(use-package groovy-mode
   :init (setq c-basic-offset 4))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; `org'
-
 (use-package flyspell
-  :if (executable-find "hunspell"))
+  :if (executable-find "hunspell")
+  :init
+  (add-hook 'prog-mode-hook #'flyspell-prog-mode)
+  (add-hook 'org-mode-hook  #'flyspell-mode))
+
+(use-package aggressive-indent
+  :init
+  (add-hook 'prog-mode-hook #'aggressive-indent-mode))
+
+(use-package flyspell-correct-ivy
+  :ensure flyspell
+  :bind ("<f2>" . flyspell-correct-previous-word-generic))
 
 (use-package org
-  :preface
-  (defun geek/org-mode-hook ()
-    "Setup for `org-mode'."
-    (flyspell-mode t))
   :config
-  (add-hook 'org-mode-hook #'geek/org-mode-hook)
   (setq org-hide-leading-stars t)
   (set-face-attribute 'org-document-title nil :height 1.0))
-
 ;;; init.el ends here
