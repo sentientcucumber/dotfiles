@@ -43,7 +43,7 @@
   (menu-bar-mode -1)
   (blink-cursor-mode -1)
   (column-number-mode 1)
-  (set-frame-font "Source Code Pro 11"))
+  (set-frame-font "Fira Mono 11"))
 
 (use-package zerodark-theme
   ;; I'd write some sort of witty remark about how I like this theme but I
@@ -79,7 +79,7 @@
   :config (setq highlight-indent-guides-method 'character))
 
 (use-package ivy :demand
-  ;; `ivy' is a completion mechanism, similar to `helm'.
+  ;; `ivy' is a completion framework, similar to `helm'.
   :bind (:map ivy-minibuffer-map
               ("C-h" . ivy-next-line)
               ("C-t" . ivy-previous-line))
@@ -89,10 +89,11 @@
         ivy-fixed-height-minibuffer t
         ivy-count-format "%d/%d "
         ivy-height 10
-        ivy-wrap t))
+        ivy-wrap t
+        ivy-extra-directories nil))
 
 (use-package evil :demand
-  ;; Brings modal editing, a la vi, to Emacs.
+  ;; Bring modal editing to Emacs.
   :bind
   (:map (evil-normal-state-map evil-visual-state-map evil-motion-state-map)
         ("d" . evil-backward-char)
@@ -182,9 +183,9 @@
                 "b"  'ivy-switch-buffer
                 ;; help functions
                 "hk" 'counsel-descbinds
-                "hv" 'describe-variable
-                "hz" 'zeal-at-point
-                "hf" 'describe-function))
+                "hv" 'counsel-describe-variable
+                "hf" 'counsel-describe-function
+                "hz" 'zeal-at-point))
 
 (use-package beacon
   ;; Useful to find what point I'm at when bouncing around and between buffers.
@@ -240,6 +241,9 @@
 
 (add-hook 'emacs-lisp-mode-hook #'geek/emacs-lisp-mode-hook)
 
+(add-hook 'java-mode-hook (lambda ()
+                            (column-enforce-n 120)))
+
 (use-package python
   :init
   (setq python-shell-interpreter "python3")
@@ -288,10 +292,9 @@ _r_: references           _c_: constructor
         help-at-pt-display-when-idle t
         help-at-pt-time-delay 0.1
         eclimd-default-workspace (expand-file-name "~/hack/eclipse-workspace")
-        eclimd-autostart t)
+        eclimd-autostart nil)
   (help-at-pt-set-timer)
-  (add-hook 'after-save-hook #'geek/eclim-after-save-hook)
-  (global-eclim-mode t))
+  (add-hook 'after-save-hook #'geek/eclim-after-save-hook))
 
 (use-package clojure-mode
   :config (setq clojure-indent-style :always-indent))
@@ -305,16 +308,13 @@ _r_: references           _c_: constructor
   (add-hook 'prog-mode-hook #'flyspell-prog-mode)
   (add-hook 'org-mode-hook  #'flyspell-mode))
 
-(use-package aggressive-indent
-  :init
-  (add-hook 'prog-mode-hook #'aggressive-indent-mode))
-
 (use-package flyspell-correct-ivy
   :ensure flyspell
   :bind ("<f2>" . flyspell-correct-previous-word-generic))
 
 (use-package org
   :config
-  (setq org-hide-leading-stars t)
+  (setq org-hide-leading-stars t
+        org-src-fontify-natively t)
   (set-face-attribute 'org-document-title nil :height 1.0))
 ;;; init.el ends here
