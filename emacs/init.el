@@ -42,8 +42,7 @@
   (tool-bar-mode -1)
   (menu-bar-mode -1)
   (blink-cursor-mode -1)
-  (column-number-mode 1)
-  (set-frame-font "Fira Mono 11"))
+  (column-number-mode 1))
 
 (use-package zerodark-theme
   ;; I'd write some sort of witty remark about how I like this theme but I
@@ -95,7 +94,7 @@
 (use-package evil :demand
   ;; Bring modal editing to Emacs.
   :bind
-  (:map (evil-normal-state-map evil-visual-state-map evil-motion-state-map)
+  (:map evil-normal-state-map
         ("d" . evil-backward-char)
         ("n" . evil-forward-char)
         ("h" . evil-next-visual-line)
@@ -138,6 +137,7 @@
                                                    nil
                                                    'default)
                                   bar))
+  (setq evil-emacs-state-modes '(custom-new-theme-mode))
   (evil-mode t))
 
 (use-package evil-lispy
@@ -236,7 +236,6 @@
   "Setup for `emacs-lisp-mode'."
   (setq dash-enable-fontlock t)
   (eldoc-mode t)
-  (evil-lispy-mode t)
   (highlight-quoted-mode t))
 
 (add-hook 'emacs-lisp-mode-hook #'geek/emacs-lisp-mode-hook)
@@ -259,6 +258,7 @@
   (setq virtualenv-root "~/.venvs"))
 
 (use-package eclim
+  :disabled t
   ;; Interacts with a headless Eclipse server to perform a lot of the same
   ;; functions in Eclipse. Great for identifying syntax errors, running builds,
   ;; and more.
@@ -303,6 +303,7 @@ _r_: references           _c_: constructor
   :init (setq c-basic-offset 4))
 
 (use-package flyspell
+  ;; Need `hunspell' and `hunspell-en'
   :if (executable-find "hunspell")
   :init
   (add-hook 'prog-mode-hook #'flyspell-prog-mode)
@@ -316,5 +317,19 @@ _r_: references           _c_: constructor
   :config
   (setq org-hide-leading-stars t
         org-src-fontify-natively t)
-  (set-face-attribute 'org-document-title nil :height 1.0))
+  (set-face-attribute 'org-document-title nil :height 1.0)
+  (org-babel-do-load-languages
+   'org-babel-load-languages '((dot . t))))
 ;;; init.el ends here
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )

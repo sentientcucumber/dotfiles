@@ -1,18 +1,14 @@
 #+TITLE: dotfiles
 A masterpiece in progress.
 
-* Help Guide
-** Operating System Install
-   Steps to install the operating system.
+* Packages
+  A list of packages to install, write a script.
 
-   1. Download the =iso= file and verify the SHA1 or MD5 sum.
-      #+BEGIN_SRC sh
-        md5sum <file>
-        # or
-        sha1sum <file>
-      #+END_SRC
-   2. Plop the image onto a USB drive where =/dev/sdx= is the USB
-      drive. You can find this via the =lsblk=.
-      #+BEGIN_SRC sh
-        dd bs=4M if=path/to/archlinux.iso of=/dev/sdx status=progress && sync
-      #+END_SRC
+  - =zsh=
+  - =xorg-server=
+  - =xorg-server-utils=
+  - =bspwm=
+  - =sxhkd=
+  - =tmux=
+  - =emacs=
+  - =feh=

@@ -1,0 +1,16 @@
+! Color definitions
+#define darkest   #2b2b2b
+#define brightest #fcfaf8
+
+! Theme
+*background: darkest
+*foreground: brightest
+
+! Black
+*color0: darkest
+! Gray
+*color7: brightest
+
+! Other customizatons
+URxvt.font:       xft:monospace:size=12
+URxvt.scrollBar:  false
