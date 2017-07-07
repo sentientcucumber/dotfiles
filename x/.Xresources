@@ -14,3 +14,4 @@
 ! Other customizatons
 URxvt.font:       xft:monospace:size=12
 URxvt.scrollBar:  false
+URxvt.saveLines:  1000000
