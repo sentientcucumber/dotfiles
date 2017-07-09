@@ -12,3 +12,5 @@ A masterpiece in progress.
   - =tmux=
   - =emacs=
   - =feh=
+  - =xbindkeys=
+  - =wireless_tools=
