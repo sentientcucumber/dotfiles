@@ -87,8 +87,10 @@ label-disconnected = 
 
 [module/volume]
 type = internal/volume
-label-volume = %percentage:3:3%%
 format-volume =  <label-volume>
+format-muted =  <label-muted>
+label-volume = %percentage:3%%
+label-muted = %percentage:3%%
 
 [module/backlight]
 type = internal/xbacklight

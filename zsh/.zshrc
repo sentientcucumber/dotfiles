@@ -16,8 +16,4 @@ alias l='ls --color=auto'
 alias ll='ls -la --color=auto'
 alias grep='grep --color=auto'
 
-NPM_PACKAGES="${HOME}/.npm-packages"
-PATH="$NPM_PACKAGES/bin:$PATH"
-
-unset MANPATH
-export MANPATH="$NPM_PACKAGES/share/man:$(manpath)"
+bindkey -v
