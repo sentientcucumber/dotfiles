@@ -1,7 +1,7 @@
 ;;; -*- lexical-binding: t; -*-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; 
+;;
 ;; Setup
 
 (require 'package)
@@ -10,27 +10,25 @@
 (require 'use-package)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; 
+;;
 ;; Appearance
 
 (when window-system
-  ;; Themes can look dramatically different when run in a terminal
-  ;; versus the GUI.
   (load-theme 'leuven t)
-  (scroll-bar-mode    -1)
-  (tool-bar-mode      -1)
-  (menu-bar-mode      -1)
-  (blink-cursor-mode  -1)
-  (column-number-mode  1))
+  (scroll-bar-mode 1)
+  (tool-bar-mode -1)
+  (menu-bar-mode -1)
+  (blink-cursor-mode -1)
+  (column-number-mode 1))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; 
+;;
 ;; Settings
 
 (setq-default indent-tabs-mode nil)
 
 (setq inhibit-startup-message t
-      initial-major-mode      'fundamental-mode
+      initial-major-mode 'fundamental-mode
       initial-scratch-message nil)
 
 (setq vc-follow-symlinks t)
@@ -39,9 +37,9 @@
 ;; creates. Found this helpful
 ;; http://stackoverflow.com/questions/151945/how-do-i-control-how-emacs-makes-backup-files
 (setq backup-directory-alist `(("." . "~/.emacs.d/backups"))
-      delete-old-versions    t
-      kept-new-versions      1
-      version-control        t)
+      delete-old-versions t
+      kept-new-versions 1
+      version-control t)
 
 (defalias 'yes-or-no-p 'y-or-n-p
   "Use 'y' and 'n' to answer yes or no questions.")
@@ -56,9 +54,9 @@
   :init     (evil-mode t)
   :bind     (:map evil-normal-state-map
                   ("s" . evil-snipe-s)
-                  ("S" . evil-snipe-S)
-                  ("/" . swiper))
+                  ("S" . evil-snipe-S))
   :config
+  (evil-snipe-mode t)
   ;; Reconfigure keys for the Dvorak layout to match QWERTY key
   ;; bindings.
   (dolist (key-map (list evil-normal-state-map
@@ -70,7 +68,8 @@
                ("h" . evil-next-visual-line)
                ("t" . evil-previous-visual-line)
                ("k" . evil-delete)
-               ("K" . evil-delete-line)))
+               ("K" . evil-delete-line)
+               ("/" . swiper)))
   ;; Define default modes for given major modes.
   (add-to-list 'evil-emacs-state-modes 'custom-new-theme-mode)
   (setq evil-want-C-u-scroll t))
@@ -87,6 +86,7 @@
         evil-escape-unordered-key-sequence  t))
 
 (use-package evil-lispy
+  :disabled t                           ; Too much of a noob
   :ensure   t
   :diminish evil-lispy-mode
   :commands (evil-lispy-mode)
@@ -100,8 +100,7 @@
 (use-package evil-snipe
   :diminish evil-snipe-local-mode
   :ensure   t
-  :commands (evil-snipe-s evil-snipe-S)
-  :config   (evil-snipe-mode t))
+  :commands (evil-snipe-s evil-snipe-S))
 
 (use-package evil-surround
   :ensure t)
@@ -119,12 +118,12 @@
                   ("C-t" . ivy-previous-line))
   :init     (ivy-mode t)
   :config
-  (setq ivy-use-virtual-buffers     t
+  (setq ivy-use-virtual-buffers t
         ivy-fixed-height-minibuffer t
-        ivy-count-format            "%d/%d "
-        ivy-height                  10
-        ivy-wrap                    t
-        ivy-extra-directories       nil))
+        ivy-count-format "%d/%d "
+        ivy-height 10
+        ivy-wrap t
+        ivy-extra-directories nil))
 
 (use-package counsel
   :ensure t)
@@ -133,15 +132,21 @@
   :ensure t)
 
 (use-package flyspell
-  :config   (setq ispell-program-name         "hunspell"
-                  flyspell-issue-message-flag nil
-                  flyspell-issue-welcome-flag nil)
-  :diminish flyspell-mode
   :ensure   t
   :if       (executable-find "hunspell")
+  :diminish flyspell-mode
+  :config   (setq ispell-program-name "hunspell"
+                  flyspell-issue-message-flag nil
+                  flyspell-issue-welcome-flag nil)
   :init
   (add-hook 'prog-mode-hook #'flyspell-prog-mode)
   (add-hook 'text-mode-hook #'flyspell-mode))
+
+(use-package drag-stuff
+  :ensure t
+  :diminish drag-stuff-mode
+  :init   (drag-stuff-global-mode t)
+  :config (drag-stuff-define-keys))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 
@@ -152,7 +157,8 @@
  (lambda ()
    "Configuration for all modes inheriting from `prog-mode'."
    (show-paren-mode t)
-   (nlinum-mode     t)
+   (nlinum-mode t)
+   (smooth-scrolling-mode t)
    (turn-on-evil-surround-mode)))
 
 (add-hook
@@ -175,7 +181,7 @@
 (use-package json-mode
   :ensure t
   :config (setq json-reformat:indent-width 2
-                js-indent-level            2))
+                js-indent-level 2))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 
@@ -184,17 +190,3 @@
 (use-package hydra
   :ensure   t
   :commands (defhydra))
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   (quote
-    (rjsx-mode smooth-scrolling evil-multiedit quelpa-use-package nlinum markdown-mode json-mode evil-surround evil-snipe evil-lispy evil-escape draft-mode counsel))))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )

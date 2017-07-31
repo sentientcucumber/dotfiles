@@ -15,5 +15,11 @@ export XDG_CONFIG_HOME="$HOME/.config"
 alias l='ls --color=auto'
 alias ll='ls -la --color=auto'
 alias grep='grep --color=auto'
+alias tmux='tmux -2'
 
 bindkey -v
+bindkey -M vicmd 'd' vi-backward-char
+bindkey -M vicmd 'n' vi-forward-char
+bindkey -M vicmd 'k' vi-delete
+
+PROMPT="%d ❱ "
