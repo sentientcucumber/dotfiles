@@ -1,2 +1,2 @@
 #!/bin/sh
-feh  --image-bg black --bg-max '/home/geek/pictures/wallpapers/city-background.jpg' 
+feh  --image-bg black --bg-max '/home/cuke/pictures/wallpapers/city-background.jpg' 

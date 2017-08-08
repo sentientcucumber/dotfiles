@@ -14,8 +14,10 @@
 ;; Appearance
 
 (when window-system
-  (load-theme 'leuven t)
-  (scroll-bar-mode 1)
+  (use-package dracula-theme
+    :ensure t
+    :init   (load-theme 'dracula t))
+  (scroll-bar-mode -1)
   (tool-bar-mode -1)
   (menu-bar-mode -1)
   (blink-cursor-mode -1)

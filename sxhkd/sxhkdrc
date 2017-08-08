@@ -1,15 +1,17 @@
 # Create terminal
-alt + Return
+alt + space
 	urxvt
+ 
 # Program launcher
-alt + Escape
+alt + Return
 	rofi -show run
+ 
 # Reload
 alt + shift + r
 	pkill -USR1 -x sxhkd
 
 # Quit bspwm 
-alt + super + Escape
+alt + shift + Escape
 	bspc quit
 
 # Close or kill a window
@@ -30,8 +32,8 @@ alt + g
 	bspc node -s biggest
 
 # Set the window state
-alt + {t,shift + t,s,f}
-	bspc node -t {tiled,pseudo_tiled,floating,fullscreen}
+alt + {l,f,s}
+	bspc node -t {tiled,floating,fullscreen}
 
 # Set the node flags
 alt + ctrl + {x,y,z}
@@ -51,9 +53,9 @@ alt + {_,shift + }c
 
 # focus the next/previous desktop
 alt + bracket{left,right}
-	bspc desktop -f {prev,next}
+	bspc desktop -f {prev,focus}
 
-# focus the last node/desktop
+# next the last node/desktop
 alt + {grave,Tab}
 	bspc {node,desktop} -f last
 
@@ -67,12 +69,8 @@ alt + {o,i}
 alt + {_,shift + }{1-9,0}
 	bspc {desktop -f,node -d} '^{1-9,10}'
 
-#
-# preselect
-#
-
 # preselect the direction
-alt + ctrl + {h,j,k,l}
+alt + ctrl + {d,h,t,n}
 	bspc node -p {west,south,north,east}
 
 # preselect the ratio
@@ -87,16 +85,12 @@ alt + ctrl + space
 alt + ctrl + shift + space
 	bspc query -N -d | xargs -I id -n 1 bspc node id -p cancel
 
-#
-# move/resize
-#
-
 # expand a window by moving one of its side outward
-super + alt + {d, h, t, n}
+super + alt + {d,h,t,n}
 	bspc node -z {left -20 0,bottom 0 20,top 0 -20,right 20 0}
 
 # contract a window by moving one of its side inward
-super + alt + shift + {d, h, t, n}
+super + alt + shift + {d,h,t,n}
 	bspc node -z {right -20 0,top 0 20,bottom 0 -20,left 20 0}
 
 # move a floating window

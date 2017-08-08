@@ -1,103 +1,104 @@
-[colors]
-background = ${xrdb:color0}
-background-alt = #444
-foreground = ${xrdb:color7}
-foreground-alt = #555
-primary = #ffb52a
-secondary = #e60053
-alert = #bd2c40
-
 [bar/top]
-width = 100%
-height = 32
-fixed-center = false
+# Geometry
+width       = 100%
+height      = 32
+line-size   = 0
+border-size = 0 
 
+# Appearance
 background = ${colors.background}
 foreground = ${colors.foreground}
+font-0 = "Montserrat:size=10;"
+font-1 = "MaterialIcons:size=12;2"
 
-line-size = 0
-line-color = #f00
-
-border-size = 0 
-border-color = #00000000
-
-padding = 5 
+# Spacing
+padding       = 3
 module-margin = 3 
+fixed-center  = true
 
-font-0 = "montserrat:pixelsize=10;"
-font-1 = "font awesome:pixelsize=12;2"
+# Modules
+modules-left   = bspwm
+modules-center = date
+modules-right  = wifi battery
 
-modules-left = bspwm
-modules-right = backlight volume wifi battery date
-wm-restack = bspwm
+[colors]
+background        = ${xrdb:color0}
+background-bright = ${xrdb:color8}
+foreground        = ${xrdb:color7}
+red               = ${xrdb:color1}
+
+[tokens]
+dot = 
 
 [module/bspwm]
 type = internal/bspwm
 
-label-focused = %index%
-label-focused-background = ${colors.background-alt}
-label-focused-underline= ${colors.primary}
-label-focused-padding = 3 
+# Focused
+label-focused            = ${tokens.dot}
+label-focused-foreground = ${colors.foreground}
+label-focused-background = ${colors.background}
+label-focused-padding    = 2
 
-label-occupied = %index%
-label-occupied-padding = 3
+# Empty
+label-empty            = ${tokens.dot}
+label-empty-foreground = ${colors.background-bright}
+label-empty-background = ${colors.background}
+label-empty-padding    = 2
 
-label-urgent = %index%!
-label-urgent-background = ${colors.alert}
-label-urgent-padding = 3
+# Occupied
+label-occupied = ${tokens.dot}
+label-occupied-foreground = ${colors.background-bright}
+label-occupied-background = ${colors.background}
+label-occupied-padding    = 2
 
-label-empty = %index%
-label-empty-foreground = ${colors.foreground-alt}
-label-empty-padding = 3
+# Urgent
+label-urgent            = ${tokens.dot}
+label-urgent-foreground = ${colors.red}
+label-urgent-background = ${colors.background}
+label-urgent-padding    = 2
 
 [module/date]
-type = internal/date
+type     = internal/date
+
 interval = 60
-time = "%l:%M %P"
+time     = "%l:%M %P"
 time-alt = "%l:%M %P"
-date-alt = "%d/%m/%y"
-label =  %time% %date%
+date-alt = "%m/%d/%y"
+label    = " %time% %date%"
 
 [module/battery]
 type = internal/battery
+
 battery = BAT0
 adapter = AC
-full-at = 98
+full-at = 95
 
-label-charging =  %percentage:3%%
+ramp-capacity-0 = ""
+ramp-capacity-1 = ""
+ramp-capacity-2 = ""
+ramp-capacity-3 = ""
+ramp-capacity-4 = ""
 
-ramp-capacity-0 = 
-ramp-capacity-1 = 
-ramp-capacity-2 = 
-ramp-capacity-3 = 
-ramp-capacity-4 = 
+format-charging = " <label-charging>"
+label-charging  = %percentage:3%%
 
-label-discharging = %percentage:3%%
-format-discharging = <ramp-capacity> <label-discharging>
+format-discharging = "<ramp-capacity> <label-discharging>"
+label-discharging  = %percentage:3%%
+
+format-full = "<ramp-capacity> <label-full>"
+label-full  = %percentage:3%%
 
 [module/wifi]
-type = internal/network
+type      = internal/network
 interface = wlp3s0
-interval = 5
+interval  = 5
 
-format-connected =  <label-connected>
-label-connected = %essid%
+format-connected = "  <label-connected>"
+label-connected  = "%ifname%"
 
-format-disconnected = <label-disconnected>
-label-disconnected = 
-
-[module/volume]
-type = internal/volume
-format-volume =  <label-volume>
-format-muted =  <label-muted>
-label-volume = %percentage:3%%
-label-muted = %percentage:3%%
-
-[module/backlight]
-type = internal/xbacklight
-label = %percentage:3%%
-format =  <label>
+format-disconnected = "  <label-disconnected>"
+label-disconnected  = "%ifname%"
 
 [global/wm]
-margin-top = 5
+margin-top    = 5
 margin-bottom = 5
