@@ -11,6 +11,7 @@ HISTSIZE=1000
 SAVEHIST=1000
 
 export XDG_CONFIG_HOME="$HOME/.config"
+export BROWSER="firefox"
 
 alias l='ls --color=auto'
 alias ll='ls -la --color=auto'

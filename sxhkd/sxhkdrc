@@ -1,6 +1,6 @@
 # Create terminal
 alt + space
-	urxvt
+	termite
  
 # Program launcher
 alt + Return

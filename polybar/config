@@ -18,7 +18,7 @@ fixed-center  = true
 
 # Modules
 modules-left   = bspwm
-modules-right  = volume wifi battery date user
+modules-right  = bluetooth volume wifi battery date user
 
 [global/wm]
 margin-top    = 5
@@ -34,6 +34,8 @@ green             = ${xrdb:color2}
 
 [module/bspwm]
 type = internal/bspwm
+enable-click  = false
+enable-scroll = false
 
 # Focused
 label-focused            = 
@@ -115,3 +117,8 @@ type = internal/volume
 label-volume = ""
 label-muted  = ""
 label-muted-foreground = ${colors.background-bright}
+
+[module/bluetooth]
+type = custom/script
+interval = 5
+exec = $HOME/.config/polybar/scripts/bluetooth.sh
